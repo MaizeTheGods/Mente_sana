@@ -45,6 +45,7 @@ mongoose.connect(process.env.MONGODB_URI)
 .catch(err => console.error('MongoDB connection error:', err));
 
 // Routes
+app.use('/', require('./routes/index'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/questionnaire', require('./routes/questionnaire'));
 // TODO: Implement remaining routes
