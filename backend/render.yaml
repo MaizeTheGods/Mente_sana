@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: mente-sana-backend
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      # - key: PYTHON_SERVICE_URL
+      #   value: https://mente-sana-python.railway.app
+      # - key: GOOGLE_MAPS_API_KEY
+      #   sync: false
+      - key: EMAIL_SERVICE
+        value: gmail
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: BCRYPT_ROUNDS
+        value: 12
+      - key: RATE_LIMIT_WINDOW
+        value: 15
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 100
+      - key: CORS_ORIGIN
+        value: https://mente-sana.vercel.app
+      - key: ENCRYPTION_KEY
+        sync: false
+      - key: ANALYTICS_ENABLED
+        value: true
+      - key: ANALYTICS_TRACKING_ID
+        sync: false
