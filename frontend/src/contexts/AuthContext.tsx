@@ -59,16 +59,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const register = async (userData: any) => {
+    console.log('AuthContext register called with:', userData);
     try {
+      console.log('Calling authAPI.register...');
       const response = await authAPI.register(userData);
+      console.log('authAPI.register response:', response);
       const { token: newToken, user: newUser } = response;
 
+      console.log('Setting token and user in state...');
       setToken(newToken);
       setUser(newUser);
 
+      console.log('Saving to localStorage...');
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(newUser));
+
+      console.log('Registration completed successfully');
     } catch (error) {
+      console.error('AuthContext register error:', error);
       throw error;
     }
   };

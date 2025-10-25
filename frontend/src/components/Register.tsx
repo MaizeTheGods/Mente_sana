@@ -159,10 +159,16 @@ const Register: React.FC = () => {
     setError('');
     setIsLoading(true);
 
+    console.log('Submitting registration form:', formData);
+
     try {
+      console.log('Calling register function...');
       await register(formData);
+      console.log('Registration successful, navigating to dashboard...');
       navigate('/dashboard');
     } catch (err: any) {
+      console.error('Registration error:', err);
+      console.error('Error response:', err.response);
       setError(err.response?.data?.error || 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
