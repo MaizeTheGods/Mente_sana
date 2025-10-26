@@ -1,8 +1,8 @@
 // DASS-21 Analysis Service - Migrated from Python to Node.js
 // This service handles the psychological assessment calculations
 
-// DASS-21 subscale item mappings (0-indexed)
-const DASS_DEPRESSION_ITEMS = [2, 4, 9, 12, 15, 16, 20];  // Questions 3,5,10,13,16,17,21
+// DASS-21 subscale item mappings (0-indexed) - adjusted for 20 questions
+const DASS_DEPRESSION_ITEMS = [2, 4, 9, 12, 15, 16];  // Questions 3,5,10,13,16,17 (removed 21st)
 const DASS_ANXIETY_ITEMS = [1, 3, 6, 8, 14, 18, 19];      // Questions 2,4,7,9,15,19,20
 const DASS_STRESS_ITEMS = [0, 5, 7, 10, 11, 13, 17];      // Questions 1,6,8,11,12,14,18
 
@@ -157,8 +157,8 @@ function analyzeQuestionnaire(data) {
     throw new Error('Invalid responses data');
   }
 
-  if (Object.keys(responses).length !== 21) {
-    throw new Error('Must provide exactly 21 responses');
+  if (Object.keys(responses).length !== 20) {
+    throw new Error('Must provide exactly 20 responses');
   }
 
   // Validate each response
