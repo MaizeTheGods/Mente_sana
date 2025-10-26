@@ -233,10 +233,30 @@ const Questionnaire: React.FC = () => {
   };
 
   const handleResponseChange = (questionIndex: number, value: number) => {
-    setResponses(prev => ({
-      ...prev,
+    console.log('=== RADIO BUTTON CLICKED ===');
+    console.log('Question index:', questionIndex);
+    console.log('Selected value:', value);
+    console.log('Current responses before:', responses);
+
+    const newResponses = {
+      ...responses,
       [questionIndex.toString()]: value
-    }));
+    };
+
+    console.log('New responses after:', newResponses);
+    console.log('Setting responses state...');
+
+    setResponses(newResponses);
+
+    // Force re-render check
+    setTimeout(() => {
+      console.log('After setState - current responses:', responses);
+      console.log('After setState - new responses should be:', newResponses);
+      const currentResponse = responses[questionIndex.toString()];
+      console.log('Current response for question', questionIndex, ':', currentResponse);
+      console.log('Should be selected value:', value);
+      console.log('Is it equal?', currentResponse === value);
+    }, 0);
   };
 
   const handleNext = () => {
@@ -266,6 +286,15 @@ const Questionnaire: React.FC = () => {
 
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
   const currentResponse = responses[currentQuestionIndex.toString()];
+
+  console.log('=== RENDER DEBUG ===');
+  console.log('Current question index:', currentQuestionIndex);
+  console.log('Current response:', currentResponse);
+  console.log('All responses:', responses);
+  console.log('Checked state for value 0:', currentResponse === 0);
+  console.log('Checked state for value 1:', currentResponse === 1);
+  console.log('Checked state for value 2:', currentResponse === 2);
+  console.log('Checked state for value 3:', currentResponse === 3);
 
   if (isLoading) {
     return <Container>Cargando cuestionario...</Container>;
