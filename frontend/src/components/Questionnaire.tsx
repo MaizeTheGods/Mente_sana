@@ -48,6 +48,19 @@ const Questionnaire: React.FC = () => {
   };
 
   const handleSubmit = async () => {
+    // Check if we have responses for all questions
+    const totalQuestions = questions.length;
+    const responseCount = Object.keys(responses).length;
+
+    console.log('Total questions:', totalQuestions);
+    console.log('Response count:', responseCount);
+    console.log('Responses:', responses);
+
+    if (responseCount !== totalQuestions) {
+      alert(`Debes responder todas las preguntas. Has respondido ${responseCount} de ${totalQuestions}.`);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const result = await questionnaireAPI.submitQuestionnaire({ responses });
@@ -193,15 +206,15 @@ const Questionnaire: React.FC = () => {
         {currentQuestionIndex === questions.length - 1 ? (
           <button
             onClick={handleSubmit}
-            disabled={isSubmitting || currentResponse === undefined}
+            disabled={isSubmitting}
             style={{
               padding: '12px 24px',
               border: 'none',
               borderRadius: '8px',
               fontSize: '16px',
               fontWeight: '600',
-              cursor: (isSubmitting || currentResponse === undefined) ? 'not-allowed' : 'pointer',
-              opacity: (isSubmitting || currentResponse === undefined) ? 0.5 : 1,
+              cursor: isSubmitting ? 'not-allowed' : 'pointer',
+              opacity: isSubmitting ? 0.5 : 1,
               background: '#66bb6a',
               color: 'white'
             }}
