@@ -7,13 +7,13 @@ const { analyzeQuestionnaire } = require('../services/dassAnalysis');
 
 const router = express.Router();
 
-// DASS-21 questionnaire structure in Spanish
+// DASS-21 questionnaire structure in Spanish (corrected translations)
 const DASS_QUESTIONS = [
   "Me resultó difícil relajarme",
   "Tuve conciencia de la sequedad de mi boca",
-  "No parecía poder experimentar ningún sentimiento positivo en absoluto",
-  "Experimenté dificultad para respirar (ej. respiración excesivamente rápida, falta de aliento en ausencia de esfuerzo físico)",
-  "Me resultó difícil iniciar la iniciativa para hacer las cosas",
+  "No pude experimentar ningún sentimiento positivo",
+  "Experimenté dificultad para respirar (ej. respiración excesivamente rápida, falta de aliento sin esfuerzo físico)",
+  "Me resultó difícil iniciar las cosas",
   "Tendía a reaccionar de manera exagerada ante las situaciones",
   "Experimenté temblor (ej. en las manos)",
   "Sentí que estaba usando mucha energía nerviosa",
@@ -27,7 +27,7 @@ const DASS_QUESTIONS = [
   "Era incapaz de entusiasmarme por cualquier cosa",
   "Sentí que no valía mucho como persona",
   "Sentí que era bastante irritable",
-  "Tuve conciencia de la acción de mi corazón en ausencia de esfuerzo físico (ej. sensación de aumento del ritmo cardíaco, corazón perdiendo un latido)",
+  "Tuve conciencia de la acción de mi corazón sin esfuerzo físico (ej. sensación de aumento del ritmo cardíaco, corazón perdiendo un latido)",
   "Me sentí asustado sin ninguna buena razón",
   "Sentí que la vida no tenía sentido"
 ];
