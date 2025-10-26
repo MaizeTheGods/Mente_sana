@@ -64,7 +64,7 @@ const Questionnaire: React.FC = () => {
     setIsSubmitting(true);
     try {
       const result = await questionnaireAPI.submitQuestionnaire({ responses });
-      navigate('/dashboard'); // Navigate to dashboard instead of results
+      navigate('/results', { state: { result } });
     } catch (error: any) {
       console.error('Failed to submit questionnaire:', error);
       alert('Error al enviar el cuestionario. Por favor, intenta de nuevo.');
