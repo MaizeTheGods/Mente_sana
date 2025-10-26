@@ -115,6 +115,8 @@ const OptionLabel = styled.label`
     background: #4caf50;
     color: white;
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+    font-weight: bold;
+    transform: scale(1.02);
   }
 `;
 
