@@ -232,10 +232,10 @@ const Questionnaire: React.FC = () => {
   };
 
   const handleResponseChange = (questionIndex: number, value: number) => {
-    setResponses({
-      ...responses,
+    setResponses(prev => ({
+      ...prev,
       [questionIndex.toString()]: value
-    });
+    }));
   };
 
   const handleNext = () => {
