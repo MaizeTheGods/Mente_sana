@@ -166,17 +166,6 @@ const Questionnaire: React.FC = () => {
               <span style={{ flex: 1 }}>
                 {scale[value]}
               </span>
-              {currentResponse === value && (
-                <span style={{
-                  position: 'absolute',
-                  right: '12px',
-                  color: 'white',
-                  fontWeight: 'bold',
-                  fontSize: '18px'
-                }}>
-                  ✓
-                </span>
-              )}
             </label>
           ))}
         </div>
