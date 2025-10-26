@@ -43,9 +43,14 @@ const questionnaireValidation = [
 // @access  Private
 router.post('/submit', authenticateToken, questionnaireValidation, async (req, res) => {
   try {
+    console.log('Questionnaire submission request received');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log('User ID:', req.user._id);
+
     // Check validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
       return res.status(400).json({
         error: 'Validation failed',
         details: errors.array()
@@ -55,9 +60,13 @@ router.post('/submit', authenticateToken, questionnaireValidation, async (req, r
     const { responses } = req.body;
     const userId = req.user._id;
 
+    console.log('Responses received:', responses);
+
     // Validate that we have responses for all DASS-21 questions
     const questionCount = Object.keys(responses).length;
+    console.log('Question count:', questionCount);
     if (questionCount !== 21) {
+      console.log('Invalid question count');
       return res.status(400).json({
         error: 'Invalid questionnaire',
         message: `Expected 21 responses, received ${questionCount}`
@@ -67,12 +76,15 @@ router.post('/submit', authenticateToken, questionnaireValidation, async (req, r
     // Allow multiple submissions - users can retake the questionnaire
     // No time restrictions for retaking
 
+    console.log('Analyzing questionnaire...');
     // Analyze questionnaire using local DASS service (migrated from Python)
     const analysisResult = analyzeQuestionnaire({
       responses,
       userId: userId.toString()
     });
+    console.log('Analysis result:', analysisResult);
 
+    console.log('Creating questionnaire result document...');
     // Create questionnaire result document
     const questionnaireResult = new QuestionnaireResult({
       userId,
@@ -88,12 +100,16 @@ router.post('/submit', authenticateToken, questionnaireValidation, async (req, r
       }
     });
 
+    console.log('Saving questionnaire result...');
     await questionnaireResult.save();
+    console.log('Questionnaire result saved with ID:', questionnaireResult._id);
 
+    console.log('Updating user with questionnaire result...');
     // Update user's questionnaire results array
     await User.findByIdAndUpdate(userId, {
       $push: { questionnaireResults: questionnaireResult._id }
     });
+    console.log('User updated successfully');
 
     // Return the analysis result
     res.status(201).json({
