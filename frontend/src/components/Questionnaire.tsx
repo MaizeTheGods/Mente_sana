@@ -18,7 +18,7 @@ const Header = styled.div`
 `;
 
 const Title = styled.h1`
-  color: #333;
+  color: #2e7d32;
   margin-bottom: 10px;
   font-size: 28px;
 `;
@@ -32,7 +32,7 @@ const Instructions = styled.div`
 `;
 
 const InstructionsTitle = styled.h3`
-  color: #333;
+  color: #2e7d32;
   margin-bottom: 10px;
 `;
 
@@ -49,7 +49,7 @@ const ScaleInfo = styled.div`
 `;
 
 const ScaleTitle = styled.h4`
-  color: #333;
+  color: #2e7d32;
   margin-bottom: 10px;
 `;
 
@@ -75,7 +75,7 @@ const QuestionCard = styled.div`
 
 const QuestionNumber = styled.div`
   font-weight: bold;
-  color: #667eea;
+  color: #4caf50;
   margin-bottom: 10px;
   font-size: 18px;
 `;
@@ -104,13 +104,13 @@ const OptionLabel = styled.label`
   background: white;
 
   &:hover {
-    border-color: #667eea;
-    background: #f8f9ff;
+    border-color: #4caf50;
+    background: #f1f8e9;
   }
 
   input:checked + & {
-    border-color: #667eea;
-    background: #667eea;
+    border-color: #4caf50;
+    background: #4caf50;
     color: white;
   }
 `;
@@ -122,7 +122,7 @@ const OptionInput = styled.input`
 const OptionValue = styled.span`
   font-weight: bold;
   margin-right: 10px;
-  color: #667eea;
+  color: #4caf50;
 `;
 
 const OptionText = styled.span`
@@ -160,20 +160,20 @@ const PrevButton = styled(Button)`
 `;
 
 const NextButton = styled(Button)`
-  background: #667eea;
+  background: #4caf50;
   color: white;
 
   &:hover:not(:disabled) {
-    background: #5a67d8;
+    background: #45a049;
   }
 `;
 
 const SubmitButton = styled(Button)`
-  background: #28a745;
+  background: #66bb6a;
   color: white;
 
   &:hover:not(:disabled) {
-    background: #218838;
+    background: #5cb85c;
   }
 `;
 
@@ -188,7 +188,7 @@ const ProgressBar = styled.div`
 
 const ProgressFill = styled.div<{ progress: number }>`
   height: 100%;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  background: linear-gradient(90deg, #4caf50, #66bb6a);
   width: ${props => props.progress}%;
   transition: width 0.3s ease;
 `;

@@ -7,29 +7,29 @@ const { analyzeQuestionnaire } = require('../services/dassAnalysis');
 
 const router = express.Router();
 
-// DASS-21 questionnaire structure (simplified for this example)
+// DASS-21 questionnaire structure in Spanish
 const DASS_QUESTIONS = [
-  "I found it hard to wind down",
-  "I was aware of dryness of my mouth",
-  "I couldn't seem to experience any positive feeling at all",
-  "I experienced breathing difficulty (e.g., excessively rapid breathing, breathlessness in the absence of physical exertion)",
-  "I found it difficult to work up the initiative to do things",
-  "I tended to over-react to situations",
-  "I experienced trembling (e.g., in the hands)",
-  "I felt that I was using a lot of nervous energy",
-  "I was worried about situations in which I might panic and make a fool of myself",
-  "I felt that I had nothing to look forward to",
-  "I found myself getting agitated",
-  "I found it difficult to relax",
-  "I felt down-hearted and blue",
-  "I was intolerant of anything that kept me from getting on with what I was doing",
-  "I felt I was close to panic",
-  "I was unable to become enthusiastic about anything",
-  "I felt I wasn't worth much as a person",
-  "I felt that I was rather touchy",
-  "I was aware of the action of my heart in the absence of physical exertion (e.g., sense of heart rate increase, heart missing a beat)",
-  "I felt scared without any good reason",
-  "I felt that life was meaningless"
+  "Me resultó difícil relajarme",
+  "Tuve conciencia de la sequedad de mi boca",
+  "No parecía poder experimentar ningún sentimiento positivo en absoluto",
+  "Experimenté dificultad para respirar (ej. respiración excesivamente rápida, falta de aliento en ausencia de esfuerzo físico)",
+  "Me resultó difícil iniciar la iniciativa para hacer las cosas",
+  "Tendía a reaccionar de manera exagerada ante las situaciones",
+  "Experimenté temblor (ej. en las manos)",
+  "Sentí que estaba usando mucha energía nerviosa",
+  "Me preocupaba por situaciones en las que podría entrar en pánico y hacer el ridículo",
+  "Sentí que no tenía nada que esperar con ilusión",
+  "Me encontré poniéndome agitado",
+  "Me resultó difícil relajarme",
+  "Me sentí abatido y triste",
+  "Era intolerante con cualquier cosa que me impidiera continuar con lo que estaba haciendo",
+  "Sentí que estaba cerca del pánico",
+  "Era incapaz de entusiasmarme por cualquier cosa",
+  "Sentí que no valía mucho como persona",
+  "Sentí que era bastante irritable",
+  "Tuve conciencia de la acción de mi corazón en ausencia de esfuerzo físico (ej. sensación de aumento del ritmo cardíaco, corazón perdiendo un latido)",
+  "Me sentí asustado sin ninguna buena razón",
+  "Sentí que la vida no tenía sentido"
 ];
 
 // Validation for questionnaire submission
@@ -132,12 +132,12 @@ router.get('/questions', (req, res) => {
   res.json({
     questionnaireType: 'DASS-21',
     questions: DASS_QUESTIONS,
-    instructions: "Please read each statement and select a number 0, 1, 2 or 3 that indicates how much the statement applied to you over the past week. There are no right or wrong answers. Do not spend too much time on any statement.",
+    instructions: "Por favor lee cada declaración y selecciona un número 0, 1, 2 o 3 que indique cuánto se aplicó la declaración a ti durante la semana pasada. No hay respuestas correctas o incorrectas. No pases demasiado tiempo en cada declaración.",
     scale: {
-      0: "Did not apply to me at all",
-      1: "Applied to me to some degree, or some of the time",
-      2: "Applied to me to a considerable degree, or a good part of time",
-      3: "Applied to me very much, or most of the time"
+      0: "No se aplicó a mí en absoluto",
+      1: "Se aplicó a mí en cierto grado, o parte del tiempo",
+      2: "Se aplicó a mí en un grado considerable, o buena parte del tiempo",
+      3: "Se aplicó a mí mucho, o la mayor parte del tiempo"
     }
   });
 });
