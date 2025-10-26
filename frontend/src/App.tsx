@@ -125,106 +125,230 @@ const App: React.FC = () => {
   );
 };
 
-// Simple Dashboard component (placeholder)
+// Professional Dashboard component
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+  const features = [
+    {
+      id: 'questionnaire',
+      title: 'Evaluación de Salud Mental',
+      description: 'Realiza una evaluación completa de tu bienestar emocional',
+      icon: '📝',
+      gradient: 'linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)',
+      action: () => window.location.href = '/questionnaire'
+    },
+    {
+      id: 'exercises',
+      title: 'Ejercicios y Consejos',
+      description: 'Accede a técnicas de relajación y consejos prácticos',
+      icon: '🧘',
+      gradient: 'linear-gradient(135deg, #81c784 0%, #a5d6a7 100%)',
+      action: () => console.log('Navigate to exercises')
+    },
+    {
+      id: 'groups',
+      title: 'Grupos de Apoyo',
+      description: 'Conecta con personas que comparten experiencias similares',
+      icon: '💬',
+      gradient: 'linear-gradient(135deg, #a5d6a7 0%, #c8e6c9 100%)',
+      action: () => console.log('Navigate to groups')
+    },
+    {
+      id: 'maps',
+      title: 'Ayuda Profesional',
+      description: 'Encuentra especialistas y centros de salud mental cercanos',
+      icon: '🗺️',
+      gradient: 'linear-gradient(135deg, #c8e6c9 0%, #e8f5e8 100%)',
+      action: () => navigate('/maps')
+    }
+  ];
+
   return (
     <div style={{
-      maxWidth: '800px',
-      margin: '0 auto',
-      padding: '20px',
-      background: 'rgba(255, 255, 255, 0.9)',
-      borderRadius: '16px',
-      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-      backdropFilter: 'blur(10px)'
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%)',
+      padding: '20px'
     }}>
-      <h1 style={{ color: '#2e7d32', marginBottom: '10px' }}>¡Bienvenido a Mente Sana, {user?.firstName}!</h1>
-      <p style={{ color: '#4caf50', fontSize: '18px' }}>Tu plataforma de apoyo para la salud mental - Desarrollada con ❤️ para ayudar a las personas.</p>
-
-      <div style={{ marginTop: '30px' }}>
-        <h2>¿Qué te gustaría hacer hoy?</h2>
-        <div style={{ display: 'grid', gap: '15px', marginTop: '20px' }}>
+      {/* Header */}
+      <header style={{
+        background: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
+        borderRadius: '16px',
+        padding: '24px',
+        marginBottom: '32px',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+        border: '1px solid rgba(255, 255, 255, 0.2)'
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '16px'
+        }}>
+          <div>
+            <h1 style={{
+              color: '#2e7d32',
+              margin: '0 0 8px 0',
+              fontSize: '2.5rem',
+              fontWeight: '700',
+              letterSpacing: '-0.025em'
+            }}>
+              ¡Bienvenido, {user?.firstName}!
+            </h1>
+            <p style={{
+              color: '#4caf50',
+              margin: '0',
+              fontSize: '1.125rem',
+              fontWeight: '400'
+            }}>
+              Tu plataforma de apoyo para la salud mental
+            </p>
+          </div>
           <button
-            onClick={() => window.location.href = '/questionnaire'}
+            onClick={logout}
             style={{
-              padding: '15px',
+              padding: '12px 24px',
               background: 'linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)',
               color: 'white',
               border: 'none',
               borderRadius: '12px',
-              fontSize: '16px',
+              fontSize: '14px',
+              fontWeight: '600',
               cursor: 'pointer',
-              boxShadow: '0 4px 6px rgba(76, 175, 80, 0.2)'
+              boxShadow: '0 4px 6px rgba(76, 175, 80, 0.2)',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 6px 12px rgba(76, 175, 80, 0.3)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 6px rgba(76, 175, 80, 0.2)';
             }}
           >
-            📝 Realizar Evaluación de Salud Mental
-          </button>
-
-          <button
-            style={{
-              padding: '15px',
-              background: 'linear-gradient(135deg, #81c784 0%, #a5d6a7 100%)',
-              color: '#2e7d32',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '16px',
-              cursor: 'pointer',
-              boxShadow: '0 4px 6px rgba(129, 199, 132, 0.2)'
-            }}
-          >
-            🧘 Ver Ejercicios y Consejos
-          </button>
-
-          <button
-            style={{
-              padding: '15px',
-              background: 'linear-gradient(135deg, #a5d6a7 0%, #c8e6c9 100%)',
-              color: '#2e7d32',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '16px',
-              cursor: 'pointer',
-              boxShadow: '0 4px 6px rgba(165, 214, 167, 0.2)'
-            }}
-          >
-            💬 Unirse a Grupos de Apoyo
-          </button>
-
-          <button
-            onClick={() => navigate('/maps')}
-            style={{
-              padding: '15px',
-              background: 'linear-gradient(135deg, #c8e6c9 0%, #e8f5e8 100%)',
-              color: '#2e7d32',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '16px',
-              cursor: 'pointer',
-              boxShadow: '0 4px 6px rgba(200, 230, 201, 0.2)'
-            }}
-          >
-            🗺️ Encontrar Ayuda Profesional
+            Cerrar Sesión
           </button>
         </div>
-      </div>
+      </header>
 
-      <button
-        onClick={logout}
-        style={{
-          marginTop: '40px',
-          padding: '10px 20px',
-          background: 'linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)',
-          color: 'white',
-          border: 'none',
-          borderRadius: '12px',
-          cursor: 'pointer',
-          boxShadow: '0 4px 6px rgba(76, 175, 80, 0.2)'
-        }}
-      >
-        Cerrar Sesión
-      </button>
+      {/* Main Content */}
+      <main style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ marginBottom: '32px' }}>
+          <h2 style={{
+            color: '#2e7d32',
+            fontSize: '1.875rem',
+            fontWeight: '600',
+            margin: '0 0 8px 0',
+            textAlign: 'center'
+          }}>
+            ¿Qué te gustaría hacer hoy?
+          </h2>
+          <p style={{
+            color: '#4caf50',
+            fontSize: '1.125rem',
+            textAlign: 'center',
+            margin: '0'
+          }}>
+            Explora las herramientas disponibles para cuidar tu bienestar emocional
+          </p>
+        </div>
+
+        {/* Features Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '24px',
+          marginBottom: '48px'
+        }}>
+          {features.map((feature, index) => (
+            <div
+              key={feature.id}
+              onClick={feature.action}
+              style={{
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '16px',
+                padding: '32px',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-8px)';
+                e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
+              }}
+            >
+              <div style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '16px',
+                background: feature.gradient,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '2rem',
+                marginBottom: '20px',
+                boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)'
+              }}>
+                {feature.icon}
+              </div>
+              <h3 style={{
+                color: '#2e7d32',
+                fontSize: '1.25rem',
+                fontWeight: '600',
+                margin: '0 0 12px 0'
+              }}>
+                {feature.title}
+              </h3>
+              <p style={{
+                color: '#4caf50',
+                fontSize: '1rem',
+                lineHeight: '1.5',
+                margin: '0'
+              }}>
+                {feature.description}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <footer style={{
+          textAlign: 'center',
+          padding: '32px 0',
+          color: '#4caf50',
+          fontSize: '0.875rem'
+        }}>
+          <p style={{ margin: '0' }}>
+            Desarrollado con ❤️ para ayudar a las personas en su camino hacia el bienestar mental
+          </p>
+        </footer>
+      </main>
+
+      <style>
+        {`
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(30px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}
+      </style>
     </div>
   );
 };
