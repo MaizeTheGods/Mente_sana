@@ -8,6 +8,8 @@ import Results from './components/Results';
 import HealthServicesMap from './components/HealthServicesMap';
 import Exercises from './components/Exercises';
 import Tips from './components/Tips';
+import ExerciseDetail from './components/ExerciseDetail';
+import TipDetail from './components/TipDetail';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Line } from 'react-chartjs-2';
 import {
@@ -141,6 +143,16 @@ const App: React.FC = () => {
               <Route path="/tips" element={
                 <ProtectedRoute>
                   <Tips />
+                </ProtectedRoute>
+              } />
+              <Route path="/exercise/:id" element={
+                <ProtectedRoute>
+                  <ExerciseDetail />
+                </ProtectedRoute>
+              } />
+              <Route path="/tip/:id" element={
+                <ProtectedRoute>
+                  <TipDetail />
                 </ProtectedRoute>
               } />
 

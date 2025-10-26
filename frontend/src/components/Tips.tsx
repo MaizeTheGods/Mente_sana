@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
   display: flex;
@@ -44,6 +45,7 @@ const TipCard = styled.div`
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   border: 1px solid #e9ecef;
   transition: all 0.3s ease;
+  cursor: pointer;
 
   &:hover {
     transform: translateY(-4px);
@@ -103,6 +105,7 @@ const BackButton = styled.button`
 
 const Tips: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const navigate = useNavigate();
 
   const tipCategories = [
     { id: 'all', label: 'Todos', icon: '💡' },
@@ -245,7 +248,10 @@ const Tips: React.FC = () => {
         {/* Tips Grid */}
         <TipsGrid>
           {filteredTips.map(tip => (
-            <TipCard key={tip.id}>
+            <TipCard
+              key={tip.id}
+              onClick={() => navigate(`/tip/${tip.id}`)}
+            >
               <TipIcon>{tip.icon}</TipIcon>
               <TipTitle>{tip.title}</TipTitle>
               <TipDescription>{tip.description}</TipDescription>

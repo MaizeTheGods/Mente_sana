@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
   display: flex;
@@ -44,6 +45,7 @@ const ExerciseCard = styled.div`
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   border: 1px solid #e9ecef;
   transition: all 0.3s ease;
+  cursor: pointer;
 
   &:hover {
     transform: translateY(-4px);
@@ -101,6 +103,7 @@ const BackButton = styled.button`
 
 const Exercises: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const navigate = useNavigate();
 
   const exerciseCategories = [
     { id: 'all', label: 'Todos', icon: '🧘' },
@@ -248,7 +251,10 @@ const Exercises: React.FC = () => {
         {/* Exercises Grid */}
         <ExerciseGrid>
           {filteredExercises.map(exercise => (
-            <ExerciseCard key={exercise.id}>
+            <ExerciseCard
+              key={exercise.id}
+              onClick={() => navigate(`/exercise/${exercise.id}`)}
+            >
               <ExerciseIcon>{exercise.icon}</ExerciseIcon>
               <ExerciseTitle>{exercise.title}</ExerciseTitle>
               <ExerciseDescription>{exercise.description}</ExerciseDescription>
