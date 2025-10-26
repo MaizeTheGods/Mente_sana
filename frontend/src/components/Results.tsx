@@ -396,7 +396,8 @@ const Results: React.FC = () => {
               { text: 'Ver Ejercicios', path: '/exercises' },
               { text: 'Ver Consejos', path: '/tips' },
               { text: 'Unirse a Grupos', path: '/chat' },
-              { text: 'Encontrar Ayuda', path: '/maps' }
+              { text: 'Encontrar Ayuda', path: '/maps' },
+              { text: 'Ir al Dashboard', path: '/' }
             ].map((action, index) => (
               <button
                 key={index}
