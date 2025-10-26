@@ -385,46 +385,111 @@ const Results: React.FC = () => {
         </div>
 
         {/* Action Buttons */}
-        <div style={{ textAlign: 'center' }}>
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '16px',
+          padding: '32px',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          marginBottom: '40px'
+        }}>
+          <h3 style={{
+            color: '#2e7d32',
+            textAlign: 'center',
+            marginBottom: '24px',
+            fontSize: '24px',
+            fontWeight: '600'
+          }}>
+            ¿Qué te gustaría hacer ahora?
+          </h3>
+
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '15px',
-            marginBottom: '30px'
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gap: '20px'
           }}>
             {[
-              { text: 'Ver Ejercicios', path: '/exercises' },
-              { text: 'Ver Consejos', path: '/tips' },
-              { text: 'Unirse a Grupos', path: '/chat' },
-              { text: 'Encontrar Ayuda', path: '/maps' },
-              { text: 'Ir al Dashboard', path: '/dashboard' }
+              {
+                text: 'Ver Ejercicios',
+                path: '/exercises',
+                icon: '🧘',
+                description: 'Accede a técnicas de relajación y mindfulness'
+              },
+              {
+                text: 'Ver Consejos',
+                path: '/tips',
+                icon: '💡',
+                description: 'Descubre consejos prácticos para tu bienestar'
+              },
+              {
+                text: 'Unirse a Grupos',
+                path: '/chat',
+                icon: '👥',
+                description: 'Conecta con personas que comparten experiencias similares'
+              },
+              {
+                text: 'Encontrar Ayuda',
+                path: '/maps',
+                icon: '🗺️',
+                description: 'Localiza profesionales de salud mental cercanos'
+              },
+              {
+                text: 'Ir al Dashboard',
+                path: '/dashboard',
+                icon: '🏠',
+                description: 'Regresa a tu panel principal de control'
+              }
             ].map((action, index) => (
-              <button
+              <div
                 key={index}
                 onClick={() => navigate(action.path)}
                 style={{
-                  background: 'linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)',
-                  color: 'white',
-                  border: 'none',
-                  padding: '15px 20px',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontWeight: '600',
+                  background: 'white',
+                  borderRadius: '12px',
+                  padding: '24px',
+                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                  border: '2px solid #f0f0f0',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 6px rgba(76, 175, 80, 0.2)'
+                  textAlign: 'center',
+                  animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 6px 12px rgba(76, 175, 80, 0.3)';
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = '0 12px 24px rgba(0, 0, 0, 0.15)';
+                  e.currentTarget.style.borderColor = '#4caf50';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 6px rgba(76, 175, 80, 0.2)';
+                  e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+                  e.currentTarget.style.borderColor = '#f0f0f0';
                 }}
               >
-                {action.text}
-              </button>
+                <div style={{
+                  fontSize: '3rem',
+                  marginBottom: '16px',
+                  filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))'
+                }}>
+                  {action.icon}
+                </div>
+                <h4 style={{
+                  color: '#2e7d32',
+                  marginBottom: '8px',
+                  fontSize: '18px',
+                  fontWeight: '600'
+                }}>
+                  {action.text}
+                </h4>
+                <p style={{
+                  color: '#666',
+                  margin: '0',
+                  fontSize: '14px',
+                  lineHeight: '1.4'
+                }}>
+                  {action.description}
+                </p>
+              </div>
             ))}
           </div>
         </div>
