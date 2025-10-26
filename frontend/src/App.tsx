@@ -6,6 +6,8 @@ import Register from './components/Register';
 import Questionnaire from './components/Questionnaire';
 import Results from './components/Results';
 import HealthServicesMap from './components/HealthServicesMap';
+import Exercises from './components/Exercises';
+import Tips from './components/Tips';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Line } from 'react-chartjs-2';
 import {
@@ -129,6 +131,16 @@ const App: React.FC = () => {
               <Route path="/maps" element={
                 <ProtectedRoute>
                   <HealthServicesMap />
+                </ProtectedRoute>
+              } />
+              <Route path="/exercises" element={
+                <ProtectedRoute>
+                  <Exercises />
+                </ProtectedRoute>
+              } />
+              <Route path="/tips" element={
+                <ProtectedRoute>
+                  <Tips />
                 </ProtectedRoute>
               } />
 
@@ -260,15 +272,15 @@ const Dashboard: React.FC = () => {
       description: 'Accede a técnicas de relajación y consejos prácticos',
       icon: '🧘',
       gradient: 'linear-gradient(135deg, #a5d6a7 0%, #c8e6c9 100%)',
-      action: () => console.log('Navigate to exercises')
+      action: () => navigate('/exercises')
     },
     {
-      id: 'groups',
-      title: 'Grupos de Apoyo',
-      description: 'Conecta con personas que comparten experiencias similares',
-      icon: '💬',
+      id: 'tips',
+      title: 'Consejos Prácticos',
+      description: 'Descubre consejos diarios para mejorar tu bienestar mental',
+      icon: '💡',
       gradient: 'linear-gradient(135deg, #c8e6c9 0%, #e8f5e8 100%)',
-      action: () => console.log('Navigate to groups')
+      action: () => navigate('/tips')
     },
     {
       id: 'maps',
