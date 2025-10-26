@@ -195,12 +195,6 @@ const AdminPanel: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (user?.role === 'admin' || user?.role === 'owner') {
-      loadAdminData();
-    }
-  }, [user]);
-
   const loadAdminData = async () => {
     try {
       setLoading(true);
@@ -220,9 +214,6 @@ const AdminPanel: React.FC = () => {
       if (!statsResponse.ok || !usersResponse.ok) {
         throw new Error('Failed to load admin data');
       }
-    } catch (err: any) {
-      setError(err.message);
-    }
 
       const statsData = await statsResponse.json();
       const usersData = await usersResponse.json();
@@ -235,6 +226,12 @@ const AdminPanel: React.FC = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (user?.role === 'admin' || user?.role === 'owner') {
+      loadAdminData();
+    }
+  }, [user]);
 
   const updateUserRole = async (userId: string, newRole: string) => {
     try {
