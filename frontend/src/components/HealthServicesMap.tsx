@@ -355,9 +355,34 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
 
   // Helper function to determine service type
   const getServiceType = (tags: any): HealthService['type'] => {
+    // Check for hospitals first
     if (tags?.amenity === 'hospital') return 'hospital';
+
+    // Check for clinics and health centers
+    if (tags?.amenity === 'clinic') return 'clinic';
+    if (tags?.healthcare === 'clinic') return 'clinic';
+    if (tags?.healthcare === 'centre') return 'clinic';
+    if (tags?.healthcare === 'center') return 'clinic';
+
+    // Check for psychologists and mental health
     if (tags?.healthcare === 'psychologist') return 'psychologist';
+    if (tags?.healthcare === 'psychiatry') return 'psychologist';
+    if (tags?.healthcare === 'counselling') return 'psychologist';
+
+    // Check for therapy centers
     if (tags?.healthcare === 'therapist') return 'therapy_center';
+    if (tags?.healthcare === 'rehabilitation') return 'therapy_center';
+
+    // Check name/description for keywords
+    const name = (tags?.name || '').toLowerCase();
+    const desc = (tags?.description || '').toLowerCase();
+
+    if (name.includes('hospital') || desc.includes('hospital')) return 'hospital';
+    if (name.includes('clínica') || name.includes('clinica') || desc.includes('clínica') || desc.includes('clinica')) return 'clinic';
+    if (name.includes('psicólogo') || name.includes('psicologo') || desc.includes('psicólogo') || desc.includes('psicologo')) return 'psychologist';
+    if (name.includes('terapia') || desc.includes('terapia')) return 'therapy_center';
+
+    // Default fallback
     return 'clinic';
   };
 
@@ -395,8 +420,15 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
       therapy_center: '💬'
     };
 
+    const colors = {
+      hospital: '#e74c3c', // Red for hospitals
+      clinic: '#3498db',   // Blue for clinics
+      psychologist: '#9b59b6', // Purple for psychologists
+      therapy_center: '#e67e22' // Orange for therapy centers
+    };
+
     return L.divIcon({
-      html: iconUrls[type],
+      html: `<div style="background: ${colors[type]}; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${iconUrls[type]}</div>`,
       className: 'custom-marker',
       iconSize: [30, 30],
       iconAnchor: [15, 30]
@@ -433,7 +465,15 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
               <ServiceCard key={service.id}>
                 <ServiceName>
                   {service.name}
-                  <ServiceType>{service.type.replace('_', ' ')}</ServiceType>
+                  <ServiceType style={{
+                    background: service.type === 'hospital' ? '#e74c3c' :
+                               service.type === 'clinic' ? '#3498db' :
+                               service.type === 'psychologist' ? '#9b59b6' : '#e67e22'
+                  }}>
+                    {service.type === 'hospital' ? '🏥 Hospital' :
+                     service.type === 'clinic' ? '🏥 Clínica' :
+                     service.type === 'psychologist' ? '🧠 Psicólogo' : '💬 Centro de Terapia'}
+                  </ServiceType>
                 </ServiceName>
                 <ServiceInfo data-icon="📍">
                   {service.address !== 'Dirección no disponible' ? (
