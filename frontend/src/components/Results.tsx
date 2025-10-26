@@ -325,8 +325,31 @@ const Results: React.FC = () => {
                     case 'low': return '#718096';
                     default: return '#718096';
                   }
-                })()}`
-              }}>
+                })()}`,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onClick={() => {
+                // Handle navigation based on recommendation type
+                if (rec.type === 'exercise') {
+                  navigate('/exercises');
+                } else if (rec.type === 'tip') {
+                  navigate('/tips');
+                } else if (rec.type === 'group_chat') {
+                  navigate('/chat');
+                } else if (rec.type === 'professional_help') {
+                  navigate('/maps');
+                }
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+              >
                 <div style={{
                   fontWeight: 'bold',
                   color: (() => {
