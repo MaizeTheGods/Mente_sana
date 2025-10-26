@@ -277,7 +277,7 @@ const Results: React.FC = () => {
             color: '#6b7280'
           }}>
             <strong>Nota:</strong> Los puntajes mostrados son para la versión completa de 42 ítems.
-            Para DASS-21 (21 ítems), multiplique los puntajes por 2 antes de interpretar.
+            Para DASS-21 (21 ítems), se multiplico los puntajes por 2 antes de interpretar.
           </div>
         </div>
 

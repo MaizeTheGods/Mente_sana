@@ -42,6 +42,7 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
+  role: 'user' | 'admin' | 'owner';
   questionnaireResults?: string[];
   preferences: {
     language: string;
@@ -91,6 +92,57 @@ export interface QuestionnaireResult {
     priority: string;
   }>;
   createdAt: string;
+}
+
+export interface Exercise {
+  _id: string;
+  title: string;
+  description: string;
+  category: string;
+  targetDisorders: string[];
+  difficulty: string;
+  duration: number;
+  instructions: Array<{
+    step: number;
+    text: string;
+    duration?: number;
+    audioUrl?: string;
+  }>;
+  benefits: string[];
+  prerequisites: string[];
+  tags: string[];
+  media: {
+    imageUrl?: string;
+    videoUrl?: string;
+    audioUrl?: string;
+  };
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Tip {
+  _id: string;
+  title: string;
+  content: string;
+  category: string;
+  targetDisorders: string[];
+  priority: string;
+  frequency: string;
+  tags: string[];
+  media: {
+    imageUrl?: string;
+    videoUrl?: string;
+  };
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Category {
+  id: string;
+  label: string;
+  icon: string;
 }
 
 export interface ApiError {
@@ -166,6 +218,80 @@ export const questionnaireAPI = {
     const response = await api.get(`/questionnaire/results/${id}`);
     return response.data;
   },
+};
+
+// Exercises API
+export const exercisesAPI = {
+ getExercises: async (params?: {
+   category?: string;
+   difficulty?: string;
+   limit?: number;
+   page?: number;
+ }): Promise<{ exercises: Exercise[]; pagination: any }> => {
+   const response = await api.get('/exercises', { params });
+   return response.data;
+ },
+
+ getExercise: async (id: string): Promise<{ exercise: Exercise }> => {
+   const response = await api.get(`/exercises/${id}`);
+   return response.data;
+ },
+
+ getCategories: async (): Promise<{ categories: Category[] }> => {
+   const response = await api.get('/exercises/categories');
+   return response.data;
+ },
+
+ createExercise: async (exerciseData: Partial<Exercise>): Promise<{ exercise: Exercise }> => {
+   const response = await api.post('/exercises', exerciseData);
+   return response.data;
+ },
+
+ updateExercise: async (id: string, exerciseData: Partial<Exercise>): Promise<{ exercise: Exercise }> => {
+   const response = await api.put(`/exercises/${id}`, exerciseData);
+   return response.data;
+ },
+
+ deleteExercise: async (id: string): Promise<void> => {
+   await api.delete(`/exercises/${id}`);
+ },
+};
+
+// Tips API
+export const tipsAPI = {
+ getTips: async (params?: {
+   category?: string;
+   priority?: string;
+   limit?: number;
+   page?: number;
+ }): Promise<{ tips: Tip[]; pagination: any }> => {
+   const response = await api.get('/tips', { params });
+   return response.data;
+ },
+
+ getTip: async (id: string): Promise<{ tip: Tip }> => {
+   const response = await api.get(`/tips/${id}`);
+   return response.data;
+ },
+
+ getCategories: async (): Promise<{ categories: Category[] }> => {
+   const response = await api.get('/tips/categories');
+   return response.data;
+ },
+
+ createTip: async (tipData: Partial<Tip>): Promise<{ tip: Tip }> => {
+   const response = await api.post('/tips', tipData);
+   return response.data;
+ },
+
+ updateTip: async (id: string, tipData: Partial<Tip>): Promise<{ tip: Tip }> => {
+   const response = await api.put(`/tips/${id}`, tipData);
+   return response.data;
+ },
+
+ deleteTip: async (id: string): Promise<void> => {
+   await api.delete(`/tips/${id}`);
+ },
 };
 
 export default api;

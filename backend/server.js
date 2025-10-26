@@ -50,10 +50,11 @@ mongoose.connect(process.env.MONGODB_URI)
 // Routes
 app.use('/', require('./routes/index'));
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/admin', require('./routes/admin'));
 app.use('/api/questionnaire', require('./routes/questionnaire'));
+app.use('/api/exercises', require('./routes/exercises'));
+app.use('/api/tips', require('./routes/tips'));
 // TODO: Implement remaining routes
-// app.use('/api/exercises', require('./routes/exercises'));
-// app.use('/api/tips', require('./routes/tips'));
 // app.use('/api/chat', require('./routes/chat'));
 // app.use('/api/maps', require('./routes/maps'));
 // app.use('/api/feedback', require('./routes/feedback'));

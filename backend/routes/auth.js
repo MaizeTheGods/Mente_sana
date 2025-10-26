@@ -129,6 +129,7 @@ router.post('/register', registerValidation, async (req, res) => {
       lastName: user.lastName,
       dateOfBirth: user.dateOfBirth,
       gender: user.gender,
+      role: user.role,
       preferences: user.preferences,
       createdAt: user.createdAt
     };
@@ -198,6 +199,7 @@ router.post('/login', loginValidation, async (req, res) => {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      role: user.role,
       preferences: user.preferences,
       progressTracking: user.progressTracking
     };
