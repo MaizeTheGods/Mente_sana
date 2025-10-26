@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { tipsAPI, Tip, Category } from '../services/api';
 
 const Container = styled.div`
   display: flex;
@@ -105,103 +106,45 @@ const BackButton = styled.button`
 
 const Tips: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [tips, setTips] = useState<Tip[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  const tipCategories = [
-    { id: 'all', label: 'Todos', icon: '💡' },
-    { id: 'daily', label: 'Diarios', icon: '🌅' },
-    { id: 'stress', label: 'Estrés', icon: '😰' },
-    { id: 'sleep', label: 'Sueño', icon: '😴' },
-    { id: 'relationships', label: 'Relaciones', icon: '❤️' },
-    { id: 'work', label: 'Trabajo', icon: '💼' }
-  ];
+  useEffect(() => {
+    loadTips();
+    loadCategories();
+  }, []);
 
-  const tips = [
-    {
-      id: 1,
-      title: 'Practica la Gratitud Diaria',
-      description: 'Cada noche, escribe 3 cosas por las que estás agradecido. Esto ayuda a cambiar el enfoque de lo negativo a lo positivo.',
-      category: 'daily',
-      icon: '🙏'
-    },
-    {
-      id: 2,
-      title: 'Establece Límites Saludables',
-      description: 'Aprende a decir "no" cuando sea necesario. Proteger tu energía es fundamental para mantener el equilibrio emocional.',
-      category: 'stress',
-      icon: '🛡️'
-    },
-    {
-      id: 3,
-      title: 'Crea una Rutina de Sueño',
-      description: 'Acuéstate y levántate a la misma hora todos los días. Evita pantallas al menos 1 hora antes de dormir.',
-      category: 'sleep',
-      icon: '🌙'
-    },
-    {
-      id: 4,
-      title: 'Comunicación Asertiva',
-      description: 'Expresa tus sentimientos y necesidades de manera clara y respetuosa. Usa frases como "Me siento..." en lugar de "Tú me haces sentir...".',
-      category: 'relationships',
-      icon: '💬'
-    },
-    {
-      id: 5,
-      title: 'Técnica Pomodoro en el Trabajo',
-      description: 'Trabaja 25 minutos concentrado y toma un descanso de 5 minutos. Después de 4 ciclos, toma un descanso más largo.',
-      category: 'work',
-      icon: '⏱️'
-    },
-    {
-      id: 6,
-      title: 'Mindful Eating',
-      description: 'Come despacio, saboreando cada bocado. Presta atención a los sabores, texturas y aromas de tu comida.',
-      category: 'daily',
-      icon: '🍽️'
-    },
-    {
-      id: 7,
-      title: 'Gestión del Estrés Agudo',
-      description: 'Cuando sientas estrés intenso, detente, respira profundamente 3 veces y pregúntate: "¿Qué puedo controlar en esta situación?".',
-      category: 'stress',
-      icon: '🫁'
-    },
-    {
-      id: 8,
-      title: 'Higiene del Sueño',
-      description: 'Mantén tu habitación fresca, oscura y silenciosa. Usa la cama solo para dormir y actividades íntimas.',
-      category: 'sleep',
-      icon: '🛏️'
-    },
-    {
-      id: 9,
-      title: 'Construye Confianza',
-      description: 'Sé consistente en tus palabras y acciones. La confianza se construye con el tiempo a través de la fiabilidad.',
-      category: 'relationships',
-      icon: '🤝'
-    },
-    {
-      id: 10,
-      title: 'Equilibrio Trabajo-Vida',
-      description: 'Establece horarios claros para el trabajo y el tiempo personal. Desconecta completamente del trabajo fuera del horario laboral.',
-      category: 'work',
-      icon: '⚖️'
-    },
-    {
-      id: 11,
-      title: 'Diálogo Interno Positivo',
-      description: 'Reemplaza pensamientos negativos con afirmaciones positivas. En lugar de "No puedo", di "Estoy aprendiendo".',
-      category: 'daily',
-      icon: '💭'
-    },
-    {
-      id: 12,
-      title: 'Técnicas de Relajación Rápida',
-      description: 'Tensa y relaja grupos musculares progresivamente. O visualiza un lugar tranquilo y seguro en tu mente.',
-      category: 'stress',
-      icon: '😌'
+  const loadTips = async () => {
+    try {
+      const response = await tipsAPI.getTips();
+      setTips(response.tips);
+    } catch (error) {
+      console.error('Failed to load tips:', error);
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
+
+  const loadCategories = async () => {
+    try {
+      const response = await tipsAPI.getCategories();
+      setCategories(response.categories);
+    } catch (error) {
+      console.error('Failed to load categories:', error);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Container>
+        <Card>
+          <Title>Cargando consejos...</Title>
+        </Card>
+      </Container>
+    );
+  }
 
   const filteredTips = selectedCategory === 'all'
     ? tips
@@ -220,7 +163,7 @@ const Tips: React.FC = () => {
           marginBottom: '30px',
           flexWrap: 'wrap'
         }}>
-          {tipCategories.map(category => (
+          {categories.map(category => (
             <button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
@@ -249,15 +192,15 @@ const Tips: React.FC = () => {
         <TipsGrid>
           {filteredTips.map(tip => (
             <TipCard
-              key={tip.id}
-              onClick={() => navigate(`/tip/${tip.id}`)}
+              key={tip._id}
+              onClick={() => navigate(`/tip/${tip._id}`)}
             >
-              <TipIcon>{tip.icon}</TipIcon>
+              <TipIcon>💡</TipIcon>
               <TipTitle>{tip.title}</TipTitle>
-              <TipDescription>{tip.description}</TipDescription>
+              <TipDescription>{tip.content}</TipDescription>
               <div style={{ textAlign: 'center' }}>
                 <TipCategory>
-                  {tipCategories.find(cat => cat.id === tip.category)?.label || tip.category}
+                  {categories.find(cat => cat.id === tip.category)?.label || tip.category}
                 </TipCategory>
               </div>
             </TipCard>

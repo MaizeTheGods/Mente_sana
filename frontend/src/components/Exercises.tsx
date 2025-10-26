@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { exercisesAPI, Exercise, Category } from '../services/api';
 
 const Container = styled.div`
   display: flex;
@@ -103,112 +104,49 @@ const BackButton = styled.button`
 
 const Exercises: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  const exerciseCategories = [
-    { id: 'all', label: 'Todos', icon: '🧘' },
-    { id: 'breathing', label: 'Respiración', icon: '🫁' },
-    { id: 'meditation', label: 'Meditación', icon: '🧘' },
-    { id: 'relaxation', label: 'Relajación', icon: '😌' },
-    { id: 'mindfulness', label: 'Mindfulness', icon: '🌸' }
-  ];
+  useEffect(() => {
+    loadExercises();
+    loadCategories();
+  }, []);
 
-  const exercises = [
-    {
-      id: 1,
-      title: 'Respiración 4-7-8',
-      description: 'Técnica de respiración profunda que ayuda a reducir la ansiedad y promover el sueño reparador.',
-      duration: '5 minutos',
-      category: 'breathing',
-      icon: '🫁',
-      instructions: [
-        'Siéntate cómodamente con la espalda recta',
-        'Inhala por la nariz durante 4 segundos',
-        'Retén la respiración por 7 segundos',
-        'Exhala por la boca durante 8 segundos',
-        'Repite el ciclo 4 veces'
-      ]
-    },
-    {
-      id: 2,
-      title: 'Meditación Mindfulness',
-      description: 'Práctica de atención plena para estar presente en el momento y reducir el estrés diario.',
-      duration: '10 minutos',
-      category: 'meditation',
-      icon: '🧘',
-      instructions: [
-        'Siéntate en un lugar tranquilo',
-        'Cierra los ojos y enfócate en tu respiración',
-        'Observa tus pensamientos sin juzgarlos',
-        'Cuando te distraigas, regresa suavemente a tu respiración',
-        'Continúa por el tiempo establecido'
-      ]
-    },
-    {
-      id: 3,
-      title: 'Relajación Muscular Progresiva',
-      description: 'Técnica que reduce la tensión muscular y ayuda a liberar el estrés acumulado en el cuerpo.',
-      duration: '15 minutos',
-      category: 'relaxation',
-      icon: '😌',
-      instructions: [
-        'Túmbate cómodamente en una superficie plana',
-        'Comienza por los pies: tense los músculos por 5 segundos',
-        'Libera la tensión lentamente',
-        'Continúa con las piernas, abdomen, brazos y rostro',
-        'Respira profundamente durante todo el proceso'
-      ]
-    },
-    {
-      id: 4,
-      title: 'Escaneo Corporal',
-      description: 'Práctica de mindfulness que conecta mente y cuerpo, ideal para reducir la ansiedad.',
-      duration: '20 minutos',
-      category: 'mindfulness',
-      icon: '🌸',
-      instructions: [
-        'Túmbate cómodamente con los ojos cerrados',
-        'Dirige tu atención a los dedos de los pies',
-        'Observa las sensaciones sin juzgar',
-        'Continúa moviendo tu atención hacia arriba',
-        'Termina enfocándote en la respiración'
-      ]
-    },
-    {
-      id: 5,
-      title: 'Respiración Abdominal',
-      description: 'Ejercicio básico de respiración que ayuda a activar el sistema nervioso parasimpático.',
-      duration: '3 minutos',
-      category: 'breathing',
-      icon: '🫁',
-      instructions: [
-        'Coloca una mano en el abdomen',
-        'Inhala lentamente por la nariz, sintiendo como se expande el abdomen',
-        'Exhala por la boca o nariz, sintiendo como se contrae',
-        'Mantén un ritmo constante y relajado',
-        'Practica por varios minutos'
-      ]
-    },
-    {
-      id: 6,
-      title: 'Meditación Guiada para Ansiedad',
-      description: 'Sesión guiada específicamente diseñada para personas que experimentan ansiedad frecuente.',
-      duration: '12 minutos',
-      category: 'meditation',
-      icon: '🧘',
-      instructions: [
-        'Siéntate cómodamente en un lugar tranquilo',
-        'Cierra los ojos y escucha las instrucciones',
-        'Sigue las visualizaciones guiadas',
-        'Permite que las emociones fluyan naturalmente',
-        'Termina con una respiración profunda'
-      ]
+  const loadExercises = async () => {
+    try {
+      const response = await exercisesAPI.getExercises();
+      setExercises(response.exercises);
+    } catch (error) {
+      console.error('Failed to load exercises:', error);
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
+
+  const loadCategories = async () => {
+    try {
+      const response = await exercisesAPI.getCategories();
+      setCategories(response.categories);
+    } catch (error) {
+      console.error('Failed to load categories:', error);
+    }
+  };
 
   const filteredExercises = selectedCategory === 'all'
     ? exercises
     : exercises.filter(exercise => exercise.category === selectedCategory);
+
+  if (isLoading) {
+    return (
+      <Container>
+        <Card>
+          <Title>Cargando ejercicios...</Title>
+        </Card>
+      </Container>
+    );
+  }
 
   return (
     <Container>
@@ -223,7 +161,7 @@ const Exercises: React.FC = () => {
           marginBottom: '30px',
           flexWrap: 'wrap'
         }}>
-          {exerciseCategories.map(category => (
+          {categories.map(category => (
             <button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
@@ -252,14 +190,14 @@ const Exercises: React.FC = () => {
         <ExerciseGrid>
           {filteredExercises.map(exercise => (
             <ExerciseCard
-              key={exercise.id}
-              onClick={() => navigate(`/exercise/${exercise.id}`)}
+              key={exercise._id}
+              onClick={() => navigate(`/exercise/${exercise._id}`)}
             >
-              <ExerciseIcon>{exercise.icon}</ExerciseIcon>
+              <ExerciseIcon>🧘</ExerciseIcon>
               <ExerciseTitle>{exercise.title}</ExerciseTitle>
               <ExerciseDescription>{exercise.description}</ExerciseDescription>
               <ExerciseDuration>
-                ⏱️ {exercise.duration}
+                ⏱️ {exercise.duration} minutos
               </ExerciseDuration>
             </ExerciseCard>
           ))}
