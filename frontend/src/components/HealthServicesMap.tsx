@@ -421,10 +421,10 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
     };
 
     const colors = {
-      hospital: '#e74c3c', // Red for hospitals
-      clinic: '#3498db',   // Blue for clinics
-      psychologist: '#9b59b6', // Purple for psychologists
-      therapy_center: '#e67e22' // Orange for therapy centers
+      hospital: '#4caf50', // Green for hospitals
+      clinic: '#4caf50',   // Green for clinics
+      psychologist: '#4caf50', // Green for psychologists
+      therapy_center: '#4caf50' // Green for therapy centers
     };
 
     return L.divIcon({
@@ -466,9 +466,7 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
                 <ServiceName>
                   {service.name}
                   <ServiceType style={{
-                    background: service.type === 'hospital' ? '#e74c3c' :
-                               service.type === 'clinic' ? '#3498db' :
-                               service.type === 'psychologist' ? '#9b59b6' : '#e67e22'
+                    background: '#4caf50'
                   }}>
                     {service.type === 'hospital' ? '🏥 Hospital' :
                      service.type === 'clinic' ? '🏥 Clínica' :
