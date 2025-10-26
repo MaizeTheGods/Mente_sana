@@ -202,6 +202,11 @@ const Tips: React.FC = () => {
                 <TipCategory>
                   {categories.find(cat => cat.id === tip.category)?.label || tip.category}
                 </TipCategory>
+                {tip.media?.videoUrl && (
+                  <div style={{ marginTop: '8px' }}>
+                    <span style={{ color: '#4caf50', fontSize: '0.8rem' }}>🎥 Video disponible</span>
+                  </div>
+                )}
               </div>
             </TipCard>
           ))}

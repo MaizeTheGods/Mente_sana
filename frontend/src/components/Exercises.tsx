@@ -199,6 +199,11 @@ const Exercises: React.FC = () => {
               <ExerciseDuration>
                 ⏱️ {exercise.duration} minutos
               </ExerciseDuration>
+              {exercise.media?.videoUrl && (
+                <div style={{ textAlign: 'center', marginTop: '10px' }}>
+                  <span style={{ color: '#4caf50', fontSize: '0.8rem' }}>🎥 Video disponible</span>
+                </div>
+              )}
             </ExerciseCard>
           ))}
         </ExerciseGrid>
