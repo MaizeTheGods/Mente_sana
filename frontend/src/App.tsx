@@ -179,11 +179,12 @@ const Dashboard: React.FC = () => {
   }, [user, hasCompletedQuestionnaire]);
 
   // Only redirect to questionnaire if user has never completed it
+  // But allow access to dashboard even if they haven't completed it yet
+  // The redirect should only happen when explicitly going to root "/"
   React.useEffect(() => {
-    if (user && !hasCompletedQuestionnaire) {
-      navigate('/questionnaire');
-    }
-  }, [user, hasCompletedQuestionnaire, navigate]);
+    // Don't auto-redirect - let users choose when to take the questionnaire
+    // They can access dashboard and use the "Realizar Cuestionario" button
+  }, []);
 
   // Prepare chart data
   const chartData = React.useMemo(() => {
