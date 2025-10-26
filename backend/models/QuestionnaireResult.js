@@ -20,22 +20,22 @@ const questionnaireResultSchema = new mongoose.Schema({
     depression: {
       type: Number,
       min: 0,
-      max: 21
+      max: 42
     },
     anxiety: {
       type: Number,
       min: 0,
-      max: 21
+      max: 42
     },
     stress: {
       type: Number,
       min: 0,
-      max: 21
+      max: 42
     },
     total: {
       type: Number,
       min: 0,
-      max: 63
+      max: 126
     }
   },
   severityLevels: {

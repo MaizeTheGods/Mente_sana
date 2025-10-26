@@ -20,7 +20,6 @@ const DASS_QUESTIONS = [
   "Me preocupo por situaciones en las que podría entrar en pánico y hacer el ridículo",
   "Siento que no tengo nada que esperar con ilusión",
   "Me encuentro poniéndome agitado",
-  "Me resulta difícil relajarme",
   "Me siento abatido y triste",
   "Soy intolerante con cualquier cosa que me impida continuar con lo que estoy haciendo",
   "Siento que estoy cerca del pánico",
