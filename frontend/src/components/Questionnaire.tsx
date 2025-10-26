@@ -98,13 +98,12 @@ const OptionsGrid = styled.div`
 const OptionLabel = styled.label`
   display: flex;
   align-items: center;
-  padding: 12px 12px 12px 30px;
+  padding: 12px;
   border: 2px solid #e9ecef;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
   background: white;
-  position: relative;
 
   &:hover {
     border-color: #4caf50;
@@ -113,22 +112,7 @@ const OptionLabel = styled.label`
 
   input:checked + & {
     border-color: #4caf50;
-    background: #4caf50;
-    color: white;
-    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
-    font-weight: bold;
-    transform: scale(1.02);
-
-    &::before {
-      content: '✓';
-      position: absolute;
-      left: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-    }
+    background: #f1f8e9;
   }
 `;
 
