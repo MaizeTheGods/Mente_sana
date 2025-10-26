@@ -238,25 +238,14 @@ const Questionnaire: React.FC = () => {
     console.log('Selected value:', value);
     console.log('Current responses before:', responses);
 
-    const newResponses = {
-      ...responses,
-      [questionIndex.toString()]: value
-    };
-
-    console.log('New responses after:', newResponses);
-    console.log('Setting responses state...');
-
-    setResponses(newResponses);
-
-    // Force re-render check
-    setTimeout(() => {
-      console.log('After setState - current responses:', responses);
-      console.log('After setState - new responses should be:', newResponses);
-      const currentResponse = responses[questionIndex.toString()];
-      console.log('Current response for question', questionIndex, ':', currentResponse);
-      console.log('Should be selected value:', value);
-      console.log('Is it equal?', currentResponse === value);
-    }, 0);
+    setResponses(prev => {
+      const newResponses = {
+        ...prev,
+        [questionIndex.toString()]: value
+      };
+      console.log('New responses after:', newResponses);
+      return newResponses;
+    });
   };
 
   const handleNext = () => {
