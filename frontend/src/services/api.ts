@@ -151,7 +151,9 @@ export const questionnaireAPI = {
     recommendations: QuestionnaireResult['recommendations'];
     createdAt: string;
   }> => {
+    console.log('Submitting questionnaire with data:', JSON.stringify(data, null, 2));
     const response = await api.post('/questionnaire/submit', data);
+    console.log('Questionnaire submission response:', response);
     return response.data;
   },
 
