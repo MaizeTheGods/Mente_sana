@@ -7,6 +7,28 @@ import Questionnaire from './components/Questionnaire';
 import Results from './components/Results';
 import HealthServicesMap from './components/HealthServicesMap';
 import styled, { createGlobalStyle } from 'styled-components';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { questionnaireAPI } from './services/api';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -129,24 +151,108 @@ const App: React.FC = () => {
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [results, setResults] = React.useState<any[]>([]);
+  const [selectedDisorder, setSelectedDisorder] = React.useState<'depression' | 'anxiety' | 'stress'>('depression');
+  const [isLoading, setIsLoading] = React.useState(true);
 
   // Check if user has completed questionnaire
   const hasCompletedQuestionnaire = user?.questionnaireResults && user.questionnaireResults.length > 0;
 
-  // Redirect to questionnaire if user hasn't completed it yet
+  // Load historical results
   React.useEffect(() => {
-    if (user && !hasCompletedQuestionnaire) {
-      navigate('/questionnaire');
+    const loadResults = async () => {
+      if (user && hasCompletedQuestionnaire) {
+        try {
+          const response = await questionnaireAPI.getResults();
+          setResults(response.results);
+        } catch (error) {
+          console.error('Failed to load results:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
+      }
+    };
+
+    loadResults();
+  }, [user, hasCompletedQuestionnaire]);
+
+  // Prepare chart data
+  const chartData = React.useMemo(() => {
+    if (!results.length) return null;
+
+    const sortedResults = results.sort((a, b) =>
+      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+
+    const labels = sortedResults.map(result =>
+      new Date(result.createdAt).toLocaleDateString('es-ES', {
+        month: 'short',
+        day: 'numeric'
+      })
+    );
+
+    const data = sortedResults.map(result => result.scores[selectedDisorder]);
+
+    return {
+      labels,
+      datasets: [{
+        label: selectedDisorder === 'depression' ? 'Depresión' :
+               selectedDisorder === 'anxiety' ? 'Ansiedad' : 'Estrés',
+        data,
+        borderColor: selectedDisorder === 'depression' ? '#dc3545' :
+                     selectedDisorder === 'anxiety' ? '#ffc107' : '#6f42c1',
+        backgroundColor: selectedDisorder === 'depression' ? 'rgba(220, 53, 69, 0.1)' :
+                        selectedDisorder === 'anxiety' ? 'rgba(255, 193, 7, 0.1)' : 'rgba(111, 66, 193, 0.1)',
+        tension: 0.4,
+        fill: true
+      }]
+    };
+  }, [results, selectedDisorder]);
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: `Progreso en ${selectedDisorder === 'depression' ? 'Depresión' :
+              selectedDisorder === 'anxiety' ? 'Ansiedad' : 'Estrés'}`,
+        font: {
+          size: 16,
+          weight: 'bold' as const
+        }
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 21,
+        ticks: {
+          stepSize: 3
+        }
+      }
     }
-  }, [user, hasCompletedQuestionnaire, navigate]);
+  };
 
   const features = [
+    {
+      id: 'questionnaire',
+      title: 'Realizar Cuestionario',
+      description: 'Evalúa tu estado de salud mental con el DASS-21',
+      icon: '📝',
+      gradient: 'linear-gradient(135deg, #81c784 0%, #a5d6a7 100%)',
+      action: () => navigate('/questionnaire')
+    },
     {
       id: 'exercises',
       title: 'Ejercicios y Consejos',
       description: 'Accede a técnicas de relajación y consejos prácticos',
       icon: '🧘',
-      gradient: 'linear-gradient(135deg, #81c784 0%, #a5d6a7 100%)',
+      gradient: 'linear-gradient(135deg, #a5d6a7 0%, #c8e6c9 100%)',
       action: () => console.log('Navigate to exercises')
     },
     {
@@ -154,7 +260,7 @@ const Dashboard: React.FC = () => {
       title: 'Grupos de Apoyo',
       description: 'Conecta con personas que comparten experiencias similares',
       icon: '💬',
-      gradient: 'linear-gradient(135deg, #a5d6a7 0%, #c8e6c9 100%)',
+      gradient: 'linear-gradient(135deg, #c8e6c9 0%, #e8f5e8 100%)',
       action: () => console.log('Navigate to groups')
     },
     {
@@ -162,16 +268,8 @@ const Dashboard: React.FC = () => {
       title: 'Ayuda Profesional',
       description: 'Encuentra especialistas y centros de salud mental cercanos',
       icon: '🗺️',
-      gradient: 'linear-gradient(135deg, #c8e6c9 0%, #e8f5e8 100%)',
-      action: () => navigate('/maps')
-    },
-    {
-      id: 'results',
-      title: 'Mis Resultados',
-      description: 'Revisa tus evaluaciones y progreso personal',
-      icon: '📊',
       gradient: 'linear-gradient(135deg, #66bb6a 0%, #81c784 100%)',
-      action: () => navigate('/results')
+      action: () => navigate('/maps')
     }
   ];
 
@@ -266,6 +364,81 @@ const Dashboard: React.FC = () => {
             Explora las herramientas disponibles para cuidar tu bienestar emocional
           </p>
         </div>
+
+        {/* Progress Chart Section */}
+        {results.length > 1 && (
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '16px',
+            padding: '32px',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            marginBottom: '48px'
+          }}>
+            <h2 style={{
+              color: '#2e7d32',
+              fontSize: '1.875rem',
+              fontWeight: '600',
+              margin: '0 0 24px 0',
+              textAlign: 'center'
+            }}>
+              📈 Mi Progreso en Salud Mental
+            </h2>
+
+            {/* Disorder Selector */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '16px',
+              marginBottom: '32px',
+              flexWrap: 'wrap'
+            }}>
+              {[
+                { key: 'depression', label: 'Depresión', color: '#dc3545' },
+                { key: 'anxiety', label: 'Ansiedad', color: '#ffc107' },
+                { key: 'stress', label: 'Estrés', color: '#6f42c1' }
+              ].map((disorder) => (
+                <button
+                  key={disorder.key}
+                  onClick={() => setSelectedDisorder(disorder.key as any)}
+                  style={{
+                    padding: '12px 24px',
+                    border: `2px solid ${selectedDisorder === disorder.key ? disorder.color : '#e9ecef'}`,
+                    borderRadius: '25px',
+                    background: selectedDisorder === disorder.key ? disorder.color : 'white',
+                    color: selectedDisorder === disorder.key ? 'white' : '#666',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    boxShadow: selectedDisorder === disorder.key ? `0 4px 12px ${disorder.color}40` : 'none'
+                  }}
+                >
+                  {disorder.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Chart */}
+            <div style={{ height: '400px', position: 'relative' }}>
+              {chartData && <Line data={chartData} options={chartOptions} />}
+            </div>
+
+            <div style={{
+              marginTop: '24px',
+              padding: '16px',
+              background: '#f8f9fa',
+              borderRadius: '8px',
+              textAlign: 'center',
+              color: '#6b7280',
+              fontSize: '14px'
+            }}>
+              <strong>💡 Tip:</strong> Realiza el cuestionario periódicamente para ver tu progreso.
+              Una disminución en las puntuaciones indica mejora en tu bienestar mental.
+            </div>
+          </div>
+        )}
 
         {/* Features Grid */}
         <div style={{

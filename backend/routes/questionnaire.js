@@ -64,18 +64,8 @@ router.post('/submit', authenticateToken, questionnaireValidation, async (req, r
       });
     }
 
-    // Check if user has already submitted a questionnaire recently (within 24 hours)
-    const recentSubmission = await QuestionnaireResult.findOne({
-      userId,
-      createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
-    });
-
-    if (recentSubmission) {
-      return res.status(429).json({
-        error: 'Too many submissions',
-        message: 'You can only submit the questionnaire once every 24 hours'
-      });
-    }
+    // Allow multiple submissions - users can retake the questionnaire
+    // No time restrictions for retaking
 
     // Analyze questionnaire using local DASS service (migrated from Python)
     const analysisResult = analyzeQuestionnaire({
