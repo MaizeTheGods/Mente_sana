@@ -17,23 +17,33 @@ const GlobalStyle = createGlobalStyle`
 
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f8f9fa;
-    color: #333;
+    background: #ffffff;
+    color: #2e7d32;
     line-height: 1.6;
   }
 
   button {
     font-family: inherit;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  button:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
   }
 
   input, select, textarea {
     font-family: inherit;
+    border: 1px solid #c8e6c9;
+    border-radius: 4px;
+    padding: 8px;
   }
 `;
 
 const AppContainer = styled.div`
   min-height: 100vh;
-  background: #f8f9fa;
+  background: linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%);
 `;
 
 const MainContent = styled.div`
@@ -121,9 +131,17 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
-      <h1>¡Bienvenido a Mente Sana, {user?.firstName}!</h1>
-      <p>Tu plataforma de apoyo para la salud mental - Desarrollada con ❤️ para ayudar a las personas.</p>
+    <div style={{
+      maxWidth: '800px',
+      margin: '0 auto',
+      padding: '20px',
+      background: 'rgba(255, 255, 255, 0.9)',
+      borderRadius: '16px',
+      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+      backdropFilter: 'blur(10px)'
+    }}>
+      <h1 style={{ color: '#2e7d32', marginBottom: '10px' }}>¡Bienvenido a Mente Sana, {user?.firstName}!</h1>
+      <p style={{ color: '#4caf50', fontSize: '18px' }}>Tu plataforma de apoyo para la salud mental - Desarrollada con ❤️ para ayudar a las personas.</p>
 
       <div style={{ marginTop: '30px' }}>
         <h2>¿Qué te gustaría hacer hoy?</h2>
@@ -132,12 +150,13 @@ const Dashboard: React.FC = () => {
             onClick={() => window.location.href = '/questionnaire'}
             style={{
               padding: '15px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)',
               color: 'white',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '12px',
               fontSize: '16px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              boxShadow: '0 4px 6px rgba(76, 175, 80, 0.2)'
             }}
           >
             📝 Realizar Evaluación de Salud Mental
@@ -146,12 +165,13 @@ const Dashboard: React.FC = () => {
           <button
             style={{
               padding: '15px',
-              background: '#28a745',
-              color: 'white',
+              background: 'linear-gradient(135deg, #81c784 0%, #a5d6a7 100%)',
+              color: '#2e7d32',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '12px',
               fontSize: '16px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              boxShadow: '0 4px 6px rgba(129, 199, 132, 0.2)'
             }}
           >
             🧘 Ver Ejercicios y Consejos
@@ -160,12 +180,13 @@ const Dashboard: React.FC = () => {
           <button
             style={{
               padding: '15px',
-              background: '#17a2b8',
-              color: 'white',
+              background: 'linear-gradient(135deg, #a5d6a7 0%, #c8e6c9 100%)',
+              color: '#2e7d32',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '12px',
               fontSize: '16px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              boxShadow: '0 4px 6px rgba(165, 214, 167, 0.2)'
             }}
           >
             💬 Unirse a Grupos de Apoyo
@@ -175,12 +196,13 @@ const Dashboard: React.FC = () => {
             onClick={() => navigate('/maps')}
             style={{
               padding: '15px',
-              background: '#ffc107',
-              color: 'black',
+              background: 'linear-gradient(135deg, #c8e6c9 0%, #e8f5e8 100%)',
+              color: '#2e7d32',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '12px',
               fontSize: '16px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              boxShadow: '0 4px 6px rgba(200, 230, 201, 0.2)'
             }}
           >
             🗺️ Encontrar Ayuda Profesional
@@ -193,11 +215,12 @@ const Dashboard: React.FC = () => {
         style={{
           marginTop: '40px',
           padding: '10px 20px',
-          background: '#dc3545',
+          background: 'linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)',
           color: 'white',
           border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer'
+          borderRadius: '12px',
+          cursor: 'pointer',
+          boxShadow: '0 4px 6px rgba(76, 175, 80, 0.2)'
         }}
       >
         Cerrar Sesión
