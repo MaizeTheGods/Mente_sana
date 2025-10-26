@@ -78,6 +78,136 @@ const Results: React.FC = () => {
           gap: '30px',
           marginBottom: '40px'
         }}>
+
+        {/* DASS-21 Scoring Chart */}
+        <div style={{
+          background: 'white',
+          borderRadius: '12px',
+          padding: '30px',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          border: '2px solid #f0f0f0',
+          marginBottom: '40px',
+          overflowX: 'auto'
+        }}>
+          <h3 style={{
+            color: '#333',
+            marginBottom: '20px',
+            fontSize: '20px',
+            textAlign: 'center'
+          }}>
+            Tabla de Interpretación DASS-21
+          </h3>
+
+          <div style={{ display: 'grid', gap: '10px' }}>
+            {/* Header */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '150px 1fr 1fr 1fr',
+              gap: '10px',
+              fontWeight: 'bold',
+              background: '#f8f9fa',
+              padding: '15px',
+              borderRadius: '8px'
+            }}>
+              <div>Severidad</div>
+              <div style={{ textAlign: 'center' }}>Depresión</div>
+              <div style={{ textAlign: 'center' }}>Ansiedad</div>
+              <div style={{ textAlign: 'center' }}>Estrés</div>
+            </div>
+
+            {/* Normal */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '150px 1fr 1fr 1fr',
+              gap: '10px',
+              padding: '15px',
+              background: '#ecfdf5',
+              borderRadius: '8px',
+              border: '1px solid #d1fae5'
+            }}>
+              <div style={{ fontWeight: '600', color: '#065f46' }}>Normal</div>
+              <div style={{ textAlign: 'center' }}>0-9</div>
+              <div style={{ textAlign: 'center' }}>0-7</div>
+              <div style={{ textAlign: 'center' }}>0-14</div>
+            </div>
+
+            {/* Leve */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '150px 1fr 1fr 1fr',
+              gap: '10px',
+              padding: '15px',
+              background: '#fffbeb',
+              borderRadius: '8px',
+              border: '1px solid #fed7aa'
+            }}>
+              <div style={{ fontWeight: '600', color: '#92400e' }}>Leve</div>
+              <div style={{ textAlign: 'center' }}>10-13</div>
+              <div style={{ textAlign: 'center' }}>8-9</div>
+              <div style={{ textAlign: 'center' }}>15-18</div>
+            </div>
+
+            {/* Moderado */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '150px 1fr 1fr 1fr',
+              gap: '10px',
+              padding: '15px',
+              background: '#fef3c7',
+              borderRadius: '8px',
+              border: '1px solid #fcd34d'
+            }}>
+              <div style={{ fontWeight: '600', color: '#78350f' }}>Moderado</div>
+              <div style={{ textAlign: 'center' }}>14-20</div>
+              <div style={{ textAlign: 'center' }}>10-14</div>
+              <div style={{ textAlign: 'center' }}>19-25</div>
+            </div>
+
+            {/* Grave */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '150px 1fr 1fr 1fr',
+              gap: '10px',
+              padding: '15px',
+              background: '#fee2e2',
+              borderRadius: '8px',
+              border: '1px solid #fca5a5'
+            }}>
+              <div style={{ fontWeight: '600', color: '#991b1b' }}>Grave</div>
+              <div style={{ textAlign: 'center' }}>21-27</div>
+              <div style={{ textAlign: 'center' }}>15-19</div>
+              <div style={{ textAlign: 'center' }}>26-33</div>
+            </div>
+
+            {/* Extremadamente Grave */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '150px 1fr 1fr 1fr',
+              gap: '10px',
+              padding: '15px',
+              background: '#f3e8ff',
+              borderRadius: '8px',
+              border: '1px solid #d8b4fe'
+            }}>
+              <div style={{ fontWeight: '600', color: '#6b21a8' }}>Extremadamente Grave</div>
+              <div style={{ textAlign: 'center' }}>28+</div>
+              <div style={{ textAlign: 'center' }}>20+</div>
+              <div style={{ textAlign: 'center' }}>34+</div>
+            </div>
+          </div>
+
+          <div style={{
+            marginTop: '20px',
+            padding: '15px',
+            background: '#f8f9fa',
+            borderRadius: '8px',
+            fontSize: '14px',
+            color: '#6b7280'
+          }}>
+            <strong>Nota:</strong> Los puntajes mostrados son para la versión completa de 42 ítems.
+            Para DASS-21 (21 ítems), multiplique los puntajes por 2 antes de interpretar.
+          </div>
+        </div>
           {[
             { title: 'Depresión', score: scores.depression, severity: severityLevels.depression },
             { title: 'Ansiedad', score: scores.anxiety, severity: severityLevels.anxiety },

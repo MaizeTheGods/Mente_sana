@@ -168,10 +168,10 @@ function analyzeQuestionnaire(data) {
     }
   });
 
-  // Calculate scores
-  const depressionScore = calculateDassScore(responses, DASS_DEPRESSION_ITEMS);
-  const anxietyScore = calculateDassScore(responses, DASS_ANXIETY_ITEMS);
-  const stressScore = calculateDassScore(responses, DASS_STRESS_ITEMS);
+  // Calculate scores (multiply by 2 for DASS-21 interpretation)
+  const depressionScore = calculateDassScore(responses, DASS_DEPRESSION_ITEMS) * 2;
+  const anxietyScore = calculateDassScore(responses, DASS_ANXIETY_ITEMS) * 2;
+  const stressScore = calculateDassScore(responses, DASS_STRESS_ITEMS) * 2;
   const totalScore = depressionScore + anxietyScore + stressScore;
 
   const scores = {
