@@ -232,13 +232,10 @@ const Questionnaire: React.FC = () => {
   };
 
   const handleResponseChange = (questionIndex: number, value: number) => {
-    console.log('Setting response for question', questionIndex, 'to value', value);
-    const newResponses = {
+    setResponses({
       ...responses,
       [questionIndex.toString()]: value
-    };
-    console.log('New responses state:', newResponses);
-    setResponses(newResponses);
+    });
   };
 
   const handleNext = () => {
@@ -268,9 +265,6 @@ const Questionnaire: React.FC = () => {
 
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
   const currentResponse = responses[currentQuestionIndex.toString()];
-  console.log('Current question index:', currentQuestionIndex);
-  console.log('Current response for question:', currentResponse);
-  console.log('All responses:', responses);
 
   if (isLoading) {
     return <Container>Cargando cuestionario...</Container>;
