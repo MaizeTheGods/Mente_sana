@@ -54,6 +54,10 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'QuestionnaireResult'
   }],
+  questionnaireCount: {
+    type: Number,
+    default: 0
+  },
   chatGroups: [{
     groupId: {
       type: mongoose.Schema.Types.ObjectId,

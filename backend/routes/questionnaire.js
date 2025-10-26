@@ -105,9 +105,10 @@ router.post('/submit', authenticateToken, questionnaireValidation, async (req, r
     console.log('Questionnaire result saved with ID:', questionnaireResult._id);
 
     console.log('Updating user with questionnaire result...');
-    // Update user's questionnaire results array
+    // Update user's questionnaire results array and increment count
     await User.findByIdAndUpdate(userId, {
-      $push: { questionnaireResults: questionnaireResult._id }
+      $push: { questionnaireResults: questionnaireResult._id },
+      $inc: { questionnaireCount: 1 }
     });
     console.log('User updated successfully');
 

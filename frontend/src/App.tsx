@@ -179,8 +179,8 @@ const Dashboard: React.FC = () => {
   const [selectedDisorder, setSelectedDisorder] = React.useState<'depression' | 'anxiety' | 'stress'>('depression');
   const [isLoading, setIsLoading] = React.useState(true);
 
-  // Check if user has completed questionnaire
-  const hasCompletedQuestionnaire = user?.questionnaireResults && user.questionnaireResults.length > 0;
+  // Check if user has completed questionnaire (questionnaireCount >= 1)
+  const hasCompletedQuestionnaire = user?.questionnaireCount && user.questionnaireCount >= 1;
 
   // Load historical results
   React.useEffect(() => {
@@ -202,7 +202,7 @@ const Dashboard: React.FC = () => {
     loadResults();
   }, [user, hasCompletedQuestionnaire]);
 
-  // Redirect to questionnaire only on first login (when user has no results)
+  // Redirect to questionnaire if user hasn't completed it at least once
   React.useEffect(() => {
     if (user && !hasCompletedQuestionnaire) {
       navigate('/questionnaire');
