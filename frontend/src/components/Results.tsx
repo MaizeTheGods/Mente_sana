@@ -78,6 +78,78 @@ const Results: React.FC = () => {
           gap: '30px',
           marginBottom: '40px'
         }}>
+          {[
+            { title: 'Depresión', score: scores.depression, severity: severityLevels.depression },
+            { title: 'Ansiedad', score: scores.anxiety, severity: severityLevels.anxiety },
+            { title: 'Estrés', score: scores.stress, severity: severityLevels.stress }
+          ].map((item, index) => (
+            <div key={index} style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '30px',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              border: '2px solid #f0f0f0',
+              textAlign: 'center'
+            }}>
+              <h3 style={{
+                color: '#333',
+                marginBottom: '20px',
+                fontSize: '24px'
+              }}>
+                {item.title}
+              </h3>
+
+              <div style={{ marginBottom: '20px' }}>
+                <div style={{
+                  fontSize: '48px',
+                  fontWeight: 'bold',
+                  color: getSeverityColor(item.severity),
+                  marginBottom: '10px'
+                }}>
+                  {item.score}
+                </div>
+                <div style={{
+                  fontSize: '16px',
+                  color: '#666'
+                }}>
+                  Puntuación DASS
+                </div>
+              </div>
+
+              <div style={{
+                display: 'inline-block',
+                padding: '8px 16px',
+                borderRadius: '20px',
+                fontWeight: '600',
+                fontSize: '14px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                background: (() => {
+                  switch (item.severity) {
+                    case 'normal': return '#d4edda';
+                    case 'mild': return '#fff3cd';
+                    case 'moderate': return '#ffeaa7';
+                    case 'severe': return '#f8d7da';
+                    case 'extremely_severe': return '#e2e3e5';
+                    default: return '#f8f9fa';
+                  }
+                })(),
+                color: (() => {
+                  switch (item.severity) {
+                    case 'normal': return '#155724';
+                    case 'mild': return '#856404';
+                    case 'moderate': return '#856404';
+                    case 'severe': return '#721c24';
+                    case 'extremely_severe': return '#383d41';
+                    default: return '#6c757d';
+                  }
+                })()
+              }}>
+                {getSeverityText(item.severity)}
+              </div>
+            </div>
+          ))}
+        </div>
 
         {/* DASS-21 Scoring Chart */}
         <div style={{
@@ -207,78 +279,6 @@ const Results: React.FC = () => {
             <strong>Nota:</strong> Los puntajes mostrados son para la versión completa de 42 ítems.
             Para DASS-21 (21 ítems), multiplique los puntajes por 2 antes de interpretar.
           </div>
-        </div>
-          {[
-            { title: 'Depresión', score: scores.depression, severity: severityLevels.depression },
-            { title: 'Ansiedad', score: scores.anxiety, severity: severityLevels.anxiety },
-            { title: 'Estrés', score: scores.stress, severity: severityLevels.stress }
-          ].map((item, index) => (
-            <div key={index} style={{
-              background: 'white',
-              borderRadius: '12px',
-              padding: '30px',
-              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-              border: '2px solid #f0f0f0',
-              textAlign: 'center'
-            }}>
-              <h3 style={{
-                color: '#333',
-                marginBottom: '20px',
-                fontSize: '24px'
-              }}>
-                {item.title}
-              </h3>
-
-              <div style={{ marginBottom: '20px' }}>
-                <div style={{
-                  fontSize: '48px',
-                  fontWeight: 'bold',
-                  color: getSeverityColor(item.severity),
-                  marginBottom: '10px'
-                }}>
-                  {item.score}
-                </div>
-                <div style={{
-                  fontSize: '16px',
-                  color: '#666'
-                }}>
-                  Puntuación DASS
-                </div>
-              </div>
-
-              <div style={{
-                display: 'inline-block',
-                padding: '8px 16px',
-                borderRadius: '20px',
-                fontWeight: '600',
-                fontSize: '14px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                background: (() => {
-                  switch (item.severity) {
-                    case 'normal': return '#d4edda';
-                    case 'mild': return '#fff3cd';
-                    case 'moderate': return '#ffeaa7';
-                    case 'severe': return '#f8d7da';
-                    case 'extremely_severe': return '#e2e3e5';
-                    default: return '#f8f9fa';
-                  }
-                })(),
-                color: (() => {
-                  switch (item.severity) {
-                    case 'normal': return '#155724';
-                    case 'mild': return '#856404';
-                    case 'moderate': return '#856404';
-                    case 'severe': return '#721c24';
-                    case 'extremely_severe': return '#383d41';
-                    default: return '#6c757d';
-                  }
-                })()
-              }}>
-                {getSeverityText(item.severity)}
-              </div>
-            </div>
-          ))}
         </div>
 
         {/* Recommendations */}
