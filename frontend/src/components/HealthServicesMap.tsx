@@ -367,7 +367,23 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
     if (tags?.['addr:street']) parts.push(tags['addr:street']);
     if (tags?.['addr:housenumber']) parts.push(tags['addr:housenumber']);
     if (tags?.['addr:city']) parts.push(tags['addr:city']);
-    return parts.length > 0 ? parts.join(', ') : 'Dirección no disponible';
+    if (tags?.['addr:state']) parts.push(tags['addr:state']);
+    if (tags?.['addr:country']) parts.push(tags['addr:country']);
+
+    // If we have any address parts, join them
+    if (parts.length > 0) {
+      return parts.join(', ');
+    }
+
+    // Try alternative address fields
+    if (tags?.['addr:full']) return tags['addr:full'];
+    if (tags?.['addr:place']) return tags['addr:place'];
+
+    // If no structured address, try to use name or other location info
+    if (tags?.name) return `Cerca de ${tags.name}`;
+
+    // Last resort - return coordinates as fallback
+    return 'Dirección no disponible';
   };
 
   // Get marker icon based on service type
@@ -419,7 +435,20 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
                   {service.name}
                   <ServiceType>{service.type.replace('_', ' ')}</ServiceType>
                 </ServiceName>
-                <ServiceInfo data-icon="📍">{service.address}</ServiceInfo>
+                <ServiceInfo data-icon="📍">
+                  {service.address !== 'Dirección no disponible' ? (
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${service.latitude},${service.longitude}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: '#4caf50', textDecoration: 'none' }}
+                    >
+                      {service.address}
+                    </a>
+                  ) : (
+                    <span style={{ color: '#999' }}>{service.address}</span>
+                  )}
+                </ServiceInfo>
                 {service.phone && (
                   <ServiceInfo data-icon="📞">{service.phone}</ServiceInfo>
                 )}
