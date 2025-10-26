@@ -71,6 +71,7 @@ const QuestionCard = styled.div`
   padding: 20px;
   margin-bottom: 20px;
   border: 1px solid #e9ecef;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 `;
 
 const QuestionNumber = styled.div`
@@ -84,7 +85,8 @@ const QuestionText = styled.p`
   color: #333;
   margin-bottom: 15px;
   line-height: 1.6;
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: 500;
 `;
 
 const OptionsGrid = styled.div`
