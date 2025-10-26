@@ -290,6 +290,14 @@ const Dashboard: React.FC = () => {
       action: () => navigate('/tips')
     },
     {
+      id: 'chat',
+      title: 'Grupos de Apoyo',
+      description: 'Conecta con personas que comparten experiencias similares',
+      icon: '👥',
+      gradient: 'linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%)',
+      action: () => navigate('/chat')
+    },
+    {
       id: 'maps',
       title: 'Ayuda Profesional',
       description: 'Encuentra especialistas y centros de salud mental cercanos',
