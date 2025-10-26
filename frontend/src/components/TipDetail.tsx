@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
+import { tipsAPI, Tip } from '../services/api';
 
 const Container = styled.div`
   display: flex;
@@ -181,32 +182,67 @@ const VideoFrame = styled.iframe`
 const TipDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [tip, setTip] = useState<Tip | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data - in a real app, this would come from an API
-  const tips = [
-    {
-      id: 1,
-      title: 'Practica la Gratitud Diaria',
-      description: 'La gratitud es una emoción poderosa que puede transformar nuestra perspectiva de la vida. Cuando nos enfocamos en lo que tenemos en lugar de lo que nos falta, cultivamos una mentalidad más positiva y reducimos los sentimientos de insatisfacción.',
-      category: 'Diarios',
-      icon: '🙏',
-      why: 'La gratitud ha sido científicamente probada para mejorar el bienestar mental. Estudios muestran que las personas que practican la gratitud regularmente experimentan menos depresión, mejor sueño y mayor satisfacción con la vida.',
-      how: [
-        'Elige un momento específico del día (mañana o noche) para tu práctica',
-        'Escribe 3-5 cosas por las que estás agradecido',
-        'Sé específico: en lugar de "mi familia", escribe "la sonrisa de mi hijo esta mañana"',
-        'Lee lo que escribiste en voz alta si es posible',
-        'Reflexiona por un momento sobre por qué te sientes agradecido'
-      ],
-      benefits: [
-        'Reduce síntomas de depresión',
-        'Mejora la calidad del sueño',
-        'Aumenta la satisfacción con la vida',
-        'Fortalece las relaciones sociales',
-        'Mejora la resiliencia emocional'
-      ],
-      videoId: 'WPPPFqsECz0'
-    },
+  useEffect(() => {
+    const loadTip = async () => {
+      if (!id) return;
+
+      try {
+        const response = await tipsAPI.getTip(id);
+        setTip(response.tip);
+      } catch (error) {
+        console.error('Failed to load tip:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTip();
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <Container>
+        <Card>
+          <ContentSection>
+            <Title>Cargando consejo...</Title>
+          </ContentSection>
+        </Card>
+      </Container>
+    );
+  }
+
+  if (!tip) {
+    return (
+      <Container>
+        <Card>
+          <ContentSection>
+            <Title>Consejo no encontrado</Title>
+            <BackButton onClick={() => navigate('/tips')}>
+              ← Regresar a Consejos
+            </BackButton>
+          </ContentSection>
+        </Card>
+      </Container>
+    );
+  }
+
+  // Mock data for how and benefits - in a real app, this would come from the API
+  const mockHow = [
+    'Identifica situaciones donde puedes aplicar este consejo.',
+    'Practica el consejo en momentos de calma.',
+    'Integra el consejo gradualmente en tu rutina diaria.',
+    'Reflexiona sobre los resultados y ajusta según sea necesario.'
+  ];
+
+  const mockBenefits = [
+    'Mejora tu bienestar emocional',
+    'Desarrolla hábitos saludables',
+    'Aumenta tu resiliencia',
+    'Mejora tu calidad de vida'
+  ];
     {
       id: 2,
       title: 'Establece Límites Saludables',
@@ -497,14 +533,14 @@ const TipDetail: React.FC = () => {
 
           <HowTitle>Cómo practicarlo:</HowTitle>
           <HowList>
-            {tip.how.map((step, index) => (
+            {mockHow.map((step, index) => (
               <HowItem key={index}>{step}</HowItem>
             ))}
           </HowList>
 
           <BenefitsTitle>Beneficios:</BenefitsTitle>
           <BenefitsList>
-            {tip.benefits.map((benefit, index) => (
+            {mockBenefits.map((benefit, index) => (
               <BenefitItem key={index}>{benefit}</BenefitItem>
             ))}
           </BenefitsList>
@@ -518,7 +554,7 @@ const TipDetail: React.FC = () => {
           <VideoContainer>
             <VideoTitle>Video Explicativo</VideoTitle>
             <VideoFrame
-              src={`https://www.youtube.com/embed/${tip.videoId}`}
+              src={`https://www.youtube.com/embed/${tip.media?.videoUrl || 'dQw4w9WgXcQ'}`}
               title={`${tip.title} - Tutorial`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
