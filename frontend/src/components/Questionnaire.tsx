@@ -104,6 +104,7 @@ const OptionLabel = styled.label`
   cursor: pointer;
   transition: all 0.3s ease;
   background: white;
+  position: relative;
 
   &:hover {
     border-color: #4caf50;
@@ -113,6 +114,16 @@ const OptionLabel = styled.label`
   input:checked + & {
     border-color: #4caf50;
     background: #f1f8e9;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+  }
+
+  input:checked + &::after {
+    content: '✓';
+    position: absolute;
+    right: 12px;
+    color: #4caf50;
+    font-weight: bold;
+    font-size: 18px;
   }
 `;
 
@@ -310,7 +321,6 @@ const Questionnaire: React.FC = () => {
               />
               <OptionValue>{value}</OptionValue>
               <OptionText>{scale[value]}</OptionText>
-              {currentResponse === value && <span> ✓</span>}
             </OptionLabel>
           ))}
         </OptionsGrid>
