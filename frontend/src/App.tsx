@@ -130,15 +130,17 @@ const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+  // Check if user has completed questionnaire
+  const hasCompletedQuestionnaire = user?.questionnaireResults && user.questionnaireResults.length > 0;
+
+  // Redirect to questionnaire if user hasn't completed it yet
+  React.useEffect(() => {
+    if (user && !hasCompletedQuestionnaire) {
+      navigate('/questionnaire');
+    }
+  }, [user, hasCompletedQuestionnaire, navigate]);
+
   const features = [
-    {
-      id: 'questionnaire',
-      title: 'Evaluación de Salud Mental',
-      description: 'Realiza una evaluación completa de tu bienestar emocional',
-      icon: '📝',
-      gradient: 'linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)',
-      action: () => window.location.href = '/questionnaire'
-    },
     {
       id: 'exercises',
       title: 'Ejercicios y Consejos',
@@ -162,6 +164,14 @@ const Dashboard: React.FC = () => {
       icon: '🗺️',
       gradient: 'linear-gradient(135deg, #c8e6c9 0%, #e8f5e8 100%)',
       action: () => navigate('/maps')
+    },
+    {
+      id: 'results',
+      title: 'Mis Resultados',
+      description: 'Revisa tus evaluaciones y progreso personal',
+      icon: '📊',
+      gradient: 'linear-gradient(135deg, #66bb6a 0%, #81c784 100%)',
+      action: () => navigate('/results')
     }
   ];
 
