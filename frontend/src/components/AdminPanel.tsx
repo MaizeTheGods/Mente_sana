@@ -212,7 +212,7 @@ const AdminPanel: React.FC = () => {
       ]);
 
       if (!statsResponse.ok || !usersResponse.ok) {
-        throw new Error('Failed to load admin data');
+        throw new Error('Failed to load admin data') as never;
       }
 
       const statsData = await statsResponse.json();
@@ -246,7 +246,7 @@ const AdminPanel: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update user role');
+        throw new Error(errorData.error || 'Failed to update user role') as never;
       }
 
       // Reload data
@@ -269,7 +269,7 @@ const AdminPanel: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update user status');
+        throw new Error(errorData.error || 'Failed to update user status') as never;
       }
 
       // Reload data
@@ -294,7 +294,7 @@ const AdminPanel: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete user');
+        throw new Error(errorData.error || 'Failed to delete user') as never;
       }
 
       // Reload data
