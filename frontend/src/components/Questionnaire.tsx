@@ -114,6 +114,7 @@ const OptionLabel = styled.label`
     border-color: #4caf50;
     background: #4caf50;
     color: white;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
   }
 `;
 
