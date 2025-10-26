@@ -1,215 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
 import { useLocation, useNavigate } from 'react-router-dom';
-
-const Container = styled.div`
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 20px;
-`;
-
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 40px;
-`;
-
-const Title = styled.h1`
-  color: #333;
-  margin-bottom: 10px;
-  font-size: 32px;
-`;
-
-const Subtitle = styled.p`
-  color: #666;
-  font-size: 18px;
-`;
-
-const ResultsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
-  margin-bottom: 40px;
-`;
-
-const ResultCard = styled.div`
-  background: white;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 2px solid #f0f0f0;
-`;
-
-const CardTitle = styled.h3`
-  color: #333;
-  margin-bottom: 20px;
-  font-size: 24px;
-  text-align: center;
-`;
-
-const ScoreDisplay = styled.div`
-  text-align: center;
-  margin-bottom: 20px;
-`;
-
-const ScoreNumber = styled.div<{ severity: string }>`
-  font-size: 48px;
-  font-weight: bold;
-  color: ${props => {
-    switch (props.severity) {
-      case 'normal': return '#28a745';
-      case 'mild': return '#ffc107';
-      case 'moderate': return '#fd7e14';
-      case 'severe': return '#dc3545';
-      case 'extremely_severe': return '#6f42c1';
-      default: return '#6c757d';
-    }
-  }};
-  margin-bottom: 10px;
-`;
-
-const ScoreLabel = styled.div`
-  font-size: 16px;
-  color: #666;
-  text-transform: capitalize;
-`;
-
-const SeverityBadge = styled.div<{ severity: string }>`
-  display: inline-block;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  background: ${props => {
-    switch (props.severity) {
-      case 'normal': return '#d4edda';
-      case 'mild': return '#fff3cd';
-      case 'moderate': return '#ffeaa7';
-      case 'severe': return '#f8d7da';
-      case 'extremely_severe': return '#e2e3e5';
-      default: return '#f8f9fa';
-    }
-  }};
-  color: ${props => {
-    switch (props.severity) {
-      case 'normal': return '#155724';
-      case 'mild': return '#856404';
-      case 'moderate': return '#856404';
-      case 'severe': return '#721c24';
-      case 'extremely_severe': return '#383d41';
-      default: return '#6c757d';
-    }
-  }};
-`;
-
-const RecommendationsSection = styled.div`
-  background: white;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 40px;
-`;
-
-const RecommendationsTitle = styled.h2`
-  color: #333;
-  margin-bottom: 20px;
-  font-size: 28px;
-`;
-
-const RecommendationList = styled.div`
-  display: grid;
-  gap: 15px;
-`;
-
-const RecommendationItem = styled.div<{ priority: string }>`
-  background: ${props => {
-    switch (props.priority) {
-      case 'high': return '#fff5f5';
-      case 'medium': return '#fffbf0';
-      case 'low': return '#f8f9fa';
-      default: return '#f8f9fa';
-    }
-  }};
-  border: 1px solid ${props => {
-    switch (props.priority) {
-      case 'high': return '#fed7d7';
-      case 'medium': return '#feebc8';
-      case 'low': return '#e9ecef';
-      default: return '#e9ecef';
-    }
-  }};
-  border-radius: 8px;
-  padding: 20px;
-  border-left: 4px solid ${props => {
-    switch (props.priority) {
-      case 'high': return '#e53e3e';
-      case 'medium': return '#dd6b20';
-      case 'low': return '#718096';
-      default: return '#718096';
-    }
-  }};
-`;
-
-const RecommendationType = styled.div`
-  font-weight: bold;
-  color: #667eea;
-  margin-bottom: 5px;
-  text-transform: capitalize;
-`;
-
-const RecommendationTitle = styled.h4`
-  color: #333;
-  margin-bottom: 8px;
-  font-size: 18px;
-`;
-
-const RecommendationDescription = styled.p`
-  color: #666;
-  margin: 0;
-  line-height: 1.5;
-`;
-
-const ActionsSection = styled.div`
-  text-align: center;
-`;
-
-const ActionButton = styled.button`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  padding: 15px 30px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  margin: 0 10px 10px 0;
-  transition: transform 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-  }
-`;
-
-const Disclaimer = styled.div`
-  background: #fff3cd;
-  border: 1px solid #ffeaa7;
-  border-radius: 8px;
-  padding: 20px;
-  margin-top: 30px;
-  text-align: center;
-`;
-
-const DisclaimerTitle = styled.h4`
-  color: #856404;
-  margin-bottom: 10px;
-`;
-
-const DisclaimerText = styled.p`
-  color: #856404;
-  margin: 0;
-  line-height: 1.5;
-`;
 
 const Results: React.FC = () => {
   const location = useLocation();
@@ -234,96 +24,332 @@ const Results: React.FC = () => {
     return texts[severity as keyof typeof texts] || severity;
   };
 
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case 'normal': return '#10b981';
+      case 'mild': return '#f59e0b';
+      case 'moderate': return '#f97316';
+      case 'severe': return '#ef4444';
+      case 'extremely_severe': return '#8b5cf6';
+      default: return '#6b7280';
+    }
+  };
+
+  const getSeverityBgColor = (severity: string) => {
+    switch (severity) {
+      case 'normal': return '#ecfdf5';
+      case 'mild': return '#fffbeb';
+      case 'moderate': return '#fff7ed';
+      case 'severe': return '#fef2f2';
+      case 'extremely_severe': return '#f3e8ff';
+      default: return '#f9fafb';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return '#ef4444';
+      case 'medium': return '#f59e0b';
+      case 'low': return '#10b981';
+      default: return '#6b7280';
+    }
+  };
+
+  const getPriorityBgColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return '#fef2f2';
+      case 'medium': return '#fffbeb';
+      case 'low': return '#ecfdf5';
+      default: return '#f9fafb';
+    }
+  };
+
   return (
-    <Container>
-      <Header>
-        <Title>Tus Resultados</Title>
-        <Subtitle>Evaluación completada el {new Date(result.createdAt).toLocaleDateString('es-ES')}</Subtitle>
-      </Header>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      padding: '20px'
+    }}>
+      <div style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: '40px 20px'
+      }}>
+        {/* Header */}
+        <div style={{
+          textAlign: 'center',
+          marginBottom: '50px',
+          background: 'rgba(255, 255, 255, 0.95)',
+          borderRadius: '20px',
+          padding: '40px',
+          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <h1 style={{
+            color: '#1f2937',
+            fontSize: '3rem',
+            fontWeight: '700',
+            marginBottom: '10px',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            🎉 Tus Resultados
+          </h1>
+          <p style={{
+            color: '#6b7280',
+            fontSize: '1.2rem',
+            margin: '0'
+          }}>
+            Evaluación completada el {new Date(result.createdAt).toLocaleDateString('es-ES')}
+          </p>
+        </div>
 
-      <ResultsGrid>
-        <ResultCard>
-          <CardTitle>Depresión</CardTitle>
-          <ScoreDisplay>
-            <ScoreNumber severity={severityLevels.depression}>
-              {scores.depression}
-            </ScoreNumber>
-            <ScoreLabel>Puntuación DASS</ScoreLabel>
-          </ScoreDisplay>
-          <div style={{ textAlign: 'center', marginTop: '15px' }}>
-            <SeverityBadge severity={severityLevels.depression}>
-              {getSeverityText(severityLevels.depression)}
-            </SeverityBadge>
-          </div>
-        </ResultCard>
+        {/* Scores Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '30px',
+          marginBottom: '50px'
+        }}>
+          {[
+            { title: 'Depresión', score: scores.depression, severity: severityLevels.depression, icon: '😔' },
+            { title: 'Ansiedad', score: scores.anxiety, severity: severityLevels.anxiety, icon: '😰' },
+            { title: 'Estrés', score: scores.stress, severity: severityLevels.stress, icon: '😫' }
+          ].map((item, index) => (
+            <div key={index} style={{
+              background: 'rgba(255, 255, 255, 0.95)',
+              borderRadius: '20px',
+              padding: '40px 30px',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
+              backdropFilter: 'blur(10px)',
+              border: `2px solid ${getSeverityColor(item.severity)}`,
+              transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-10px)';
+              e.currentTarget.style.boxShadow = '0 30px 60px rgba(0, 0, 0, 0.2)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.1)';
+            }}>
+              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '10px' }}>{item.icon}</div>
+                <h3 style={{
+                  color: '#1f2937',
+                  fontSize: '1.5rem',
+                  fontWeight: '600',
+                  margin: '0 0 20px 0'
+                }}>
+                  {item.title}
+                </h3>
+              </div>
 
-        <ResultCard>
-          <CardTitle>Ansiedad</CardTitle>
-          <ScoreDisplay>
-            <ScoreNumber severity={severityLevels.anxiety}>
-              {scores.anxiety}
-            </ScoreNumber>
-            <ScoreLabel>Puntuación DASS</ScoreLabel>
-          </ScoreDisplay>
-          <div style={{ textAlign: 'center', marginTop: '15px' }}>
-            <SeverityBadge severity={severityLevels.anxiety}>
-              {getSeverityText(severityLevels.anxiety)}
-            </SeverityBadge>
-          </div>
-        </ResultCard>
+              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                <div style={{
+                  fontSize: '4rem',
+                  fontWeight: 'bold',
+                  color: getSeverityColor(item.severity),
+                  marginBottom: '10px',
+                  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.1)'
+                }}>
+                  {item.score}
+                </div>
+                <div style={{
+                  color: '#6b7280',
+                  fontSize: '1rem',
+                  fontWeight: '500'
+                }}>
+                  Puntuación DASS
+                </div>
+              </div>
 
-        <ResultCard>
-          <CardTitle>Estrés</CardTitle>
-          <ScoreDisplay>
-            <ScoreNumber severity={severityLevels.stress}>
-              {scores.stress}
-            </ScoreNumber>
-            <ScoreLabel>Puntuación DASS</ScoreLabel>
-          </ScoreDisplay>
-          <div style={{ textAlign: 'center', marginTop: '15px' }}>
-            <SeverityBadge severity={severityLevels.stress}>
-              {getSeverityText(severityLevels.stress)}
-            </SeverityBadge>
-          </div>
-        </ResultCard>
-      </ResultsGrid>
-
-      <RecommendationsSection>
-        <RecommendationsTitle>Recomendaciones Personalizadas</RecommendationsTitle>
-        <RecommendationList>
-          {recommendations.map((rec: any, index: number) => (
-            <RecommendationItem key={index} priority={rec.priority}>
-              <RecommendationType>{rec.type.replace('_', ' ')}</RecommendationType>
-              <RecommendationTitle>{rec.title}</RecommendationTitle>
-              <RecommendationDescription>{rec.description}</RecommendationDescription>
-            </RecommendationItem>
+              <div style={{
+                display: 'inline-block',
+                padding: '10px 20px',
+                borderRadius: '25px',
+                fontWeight: '600',
+                fontSize: '0.9rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                background: getSeverityBgColor(item.severity),
+                color: getSeverityColor(item.severity),
+                border: `2px solid ${getSeverityColor(item.severity)}`
+              }}>
+                {getSeverityText(item.severity)}
+              </div>
+            </div>
           ))}
-        </RecommendationList>
-      </RecommendationsSection>
+        </div>
 
-      <ActionsSection>
-        <ActionButton onClick={() => navigate('/exercises')}>
-          Ver Ejercicios
-        </ActionButton>
-        <ActionButton onClick={() => navigate('/tips')}>
-          Ver Consejos
-        </ActionButton>
-        <ActionButton onClick={() => navigate('/chat')}>
-          Unirse a Grupos
-        </ActionButton>
-        <ActionButton onClick={() => navigate('/maps')}>
-          Encontrar Ayuda
-        </ActionButton>
-      </ActionsSection>
+        {/* Recommendations */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.95)',
+          borderRadius: '20px',
+          padding: '40px',
+          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
+          backdropFilter: 'blur(10px)',
+          marginBottom: '50px'
+        }}>
+          <h2 style={{
+            color: '#1f2937',
+            fontSize: '2.5rem',
+            fontWeight: '700',
+            marginBottom: '30px',
+            textAlign: 'center',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            💡 Recomendaciones Personalizadas
+          </h2>
 
-      <Disclaimer>
-        <DisclaimerTitle>Importante</DisclaimerTitle>
-        <DisclaimerText>
-          Estos resultados son solo una evaluación preliminar y no reemplazan el diagnóstico profesional.
-          Si experimentas síntomas graves o persistentes, te recomendamos buscar ayuda de un profesional de la salud mental calificado.
-        </DisclaimerText>
-      </Disclaimer>
-    </Container>
+          <div style={{ display: 'grid', gap: '20px' }}>
+            {recommendations.map((rec: any, index: number) => (
+              <div key={index} style={{
+                background: getPriorityBgColor(rec.priority),
+                border: `2px solid ${getPriorityColor(rec.priority)}`,
+                borderRadius: '15px',
+                padding: '25px',
+                borderLeft: `5px solid ${getPriorityColor(rec.priority)}`,
+                transition: 'transform 0.2s ease',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateX(10px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateX(0)';
+              }}>
+                <div style={{
+                  fontWeight: 'bold',
+                  color: getPriorityColor(rec.priority),
+                  marginBottom: '8px',
+                  textTransform: 'capitalize',
+                  fontSize: '0.9rem'
+                }}>
+                  {rec.type.replace('_', ' ')}
+                </div>
+                <h4 style={{
+                  color: '#1f2937',
+                  marginBottom: '10px',
+                  fontSize: '1.3rem',
+                  fontWeight: '600'
+                }}>
+                  {rec.title}
+                </h4>
+                <p style={{
+                  color: '#4b5563',
+                  margin: '0',
+                  lineHeight: '1.6',
+                  fontSize: '1rem'
+                }}>
+                  {rec.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.95)',
+          borderRadius: '20px',
+          padding: '40px',
+          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
+          backdropFilter: 'blur(10px)',
+          marginBottom: '50px'
+        }}>
+          <h3 style={{
+            color: '#1f2937',
+            fontSize: '2rem',
+            fontWeight: '600',
+            marginBottom: '30px',
+            textAlign: 'center'
+          }}>
+            🚀 ¿Qué te gustaría hacer ahora?
+          </h3>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gap: '20px'
+          }}>
+            {[
+              { text: 'Ver Ejercicios', icon: '🏃‍♂️', path: '/exercises', color: '#10b981' },
+              { text: 'Ver Consejos', icon: '💡', path: '/tips', color: '#f59e0b' },
+              { text: 'Unirse a Grupos', icon: '👥', path: '/chat', color: '#8b5cf6' },
+              { text: 'Encontrar Ayuda', icon: '🏥', path: '/maps', color: '#ef4444' }
+            ].map((action, index) => (
+              <button
+                key={index}
+                onClick={() => navigate(action.path)}
+                style={{
+                  background: `linear-gradient(135deg, ${action.color} 0%, ${action.color}dd 100%)`,
+                  color: 'white',
+                  border: 'none',
+                  padding: '20px',
+                  borderRadius: '15px',
+                  fontSize: '1.1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  boxShadow: '0 10px 20px rgba(0, 0, 0, 0.1)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-5px)';
+                  e.currentTarget.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.1)';
+                }}
+              >
+                <span style={{ fontSize: '1.5rem' }}>{action.icon}</span>
+                {action.text}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Disclaimer */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.95)',
+          border: '2px solid #f59e0b',
+          borderRadius: '15px',
+          padding: '30px',
+          boxShadow: '0 10px 20px rgba(0, 0, 0, 0.1)',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <h4 style={{
+            color: '#92400e',
+            marginBottom: '15px',
+            fontSize: '1.3rem',
+            textAlign: 'center'
+          }}>
+            ⚠️ Importante
+          </h4>
+          <p style={{
+            color: '#92400e',
+            margin: '0',
+            lineHeight: '1.6',
+            fontSize: '1rem',
+            textAlign: 'center'
+          }}>
+            Estos resultados son solo una evaluación preliminar y no reemplazan el diagnóstico profesional.
+            Si experimentas síntomas graves o persistentes, te recomendamos buscar ayuda de un profesional de la salud mental calificado.
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
 
