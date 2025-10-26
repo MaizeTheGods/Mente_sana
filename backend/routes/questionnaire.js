@@ -9,27 +9,27 @@ const router = express.Router();
 
 // DASS-21 questionnaire structure in Spanish (corrected translations)
 const DASS_QUESTIONS = [
-  "Me resultó difícil relajarme",
-  "Tuve conciencia de la sequedad de mi boca",
-  "No pude experimentar ningún sentimiento positivo",
-  "Experimenté dificultad para respirar (ej. respiración excesivamente rápida, falta de aliento sin esfuerzo físico)",
-  "Me resultó difícil iniciar las cosas",
-  "Tendía a reaccionar de manera exagerada ante las situaciones",
-  "Experimenté temblor (ej. en las manos)",
-  "Sentí que estaba usando mucha energía nerviosa",
-  "Me preocupaba por situaciones en las que podría entrar en pánico y hacer el ridículo",
-  "Sentí que no tenía nada que esperar con ilusión",
-  "Me encontré poniéndome agitado",
-  "Me resultó difícil relajarme",
-  "Me sentí abatido y triste",
-  "Era intolerante con cualquier cosa que me impidiera continuar con lo que estaba haciendo",
-  "Sentí que estaba cerca del pánico",
-  "Era incapaz de entusiasmarme por cualquier cosa",
-  "Sentí que no valía mucho como persona",
-  "Sentí que era bastante irritable",
-  "Tuve conciencia de la acción de mi corazón sin esfuerzo físico (ej. sensación de aumento del ritmo cardíaco, corazón perdiendo un latido)",
-  "Me sentí asustado sin ninguna buena razón",
-  "Sentí que la vida no tenía sentido"
+  "Me resulta difícil relajarme",
+  "Tengo conciencia de la sequedad de mi boca",
+  "No puedo experimentar ningún sentimiento positivo",
+  "Experimento dificultad para respirar (ej. respiración excesivamente rápida, falta de aliento sin esfuerzo físico)",
+  "Me resulta difícil iniciar las cosas",
+  "Tiende a reaccionar de manera exagerada ante las situaciones",
+  "Experimento temblor (ej. en las manos)",
+  "Siento que estoy usando mucha energía nerviosa",
+  "Me preocupo por situaciones en las que podría entrar en pánico y hacer el ridículo",
+  "Siento que no tengo nada que esperar con ilusión",
+  "Me encuentro poniéndome agitado",
+  "Me resulta difícil relajarme",
+  "Me siento abatido y triste",
+  "Soy intolerante con cualquier cosa que me impida continuar con lo que estoy haciendo",
+  "Siento que estoy cerca del pánico",
+  "Soy incapaz de entusiasmarme por cualquier cosa",
+  "Siento que no valgo mucho como persona",
+  "Siento que soy bastante irritable",
+  "Tengo conciencia de la acción de mi corazón sin esfuerzo físico (ej. sensación de aumento del ritmo cardíaco, corazón perdiendo un latido)",
+  "Me siento asustado sin ninguna buena razón",
+  "Siento que la vida no tiene sentido"
 ];
 
 // Validation for questionnaire submission
