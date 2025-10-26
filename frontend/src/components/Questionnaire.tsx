@@ -1,210 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
 import { questionnaireAPI, QuestionnaireQuestion } from '../services/api';
 import { useNavigate } from 'react-router-dom';
-
-const Container = styled.div`
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-`;
-
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 30px;
-`;
-
-const Title = styled.h1`
-  color: #2e7d32;
-  margin-bottom: 10px;
-  font-size: 28px;
-`;
-
-const Instructions = styled.div`
-  background: #f1f8e9;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 30px;
-  border-left: 4px solid #4caf50;
-`;
-
-const InstructionsTitle = styled.h3`
-  color: #2e7d32;
-  margin-bottom: 10px;
-`;
-
-const InstructionsText = styled.p`
-  color: #666;
-  line-height: 1.6;
-`;
-
-const ScaleInfo = styled.div`
-  background: #e8f5e8;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-`;
-
-const ScaleTitle = styled.h4`
-  color: #2e7d32;
-  margin-bottom: 10px;
-`;
-
-const ScaleList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-`;
-
-const ScaleItem = styled.li`
-  margin-bottom: 5px;
-  color: #555;
-  font-size: 14px;
-`;
-
-const QuestionCard = styled.div`
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  border: 1px solid #e9ecef;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-`;
-
-const QuestionNumber = styled.div`
-  font-weight: bold;
-  color: #4caf50;
-  margin-bottom: 10px;
-  font-size: 18px;
-`;
-
-const QuestionText = styled.p`
-  color: #333;
-  margin-bottom: 15px;
-  line-height: 1.6;
-  font-size: 18px;
-  font-weight: 500;
-`;
-
-const OptionsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 10px;
-`;
-
-const OptionLabel = styled.label`
-  display: flex;
-  align-items: center;
-  padding: 12px;
-  border: 2px solid #e9ecef;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: white;
-  position: relative;
-
-  &:hover {
-    border-color: #4caf50;
-    background: #f1f8e9;
-  }
-
-  input:checked + & {
-    border-color: #4caf50;
-    background: #4caf50;
-    color: white;
-    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
-  }
-
-  input:checked + &::after {
-    content: '✓';
-    position: absolute;
-    right: 12px;
-    color: white;
-    font-weight: bold;
-    font-size: 18px;
-  }
-`;
-
-const OptionInput = styled.input`
-  display: none;
-`;
-
-const OptionValue = styled.span`
-  font-weight: bold;
-  margin-right: 10px;
-  color: #4caf50;
-`;
-
-const OptionText = styled.span`
-  flex: 1;
-`;
-
-const NavigationButtons = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 30px;
-`;
-
-const Button = styled.button`
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`;
-
-const PrevButton = styled(Button)`
-  background: #6c757d;
-  color: white;
-
-  &:hover:not(:disabled) {
-    background: #5a6268;
-  }
-`;
-
-const NextButton = styled(Button)`
-  background: #4caf50;
-  color: white;
-
-  &:hover:not(:disabled) {
-    background: #45a049;
-  }
-`;
-
-const SubmitButton = styled(Button)`
-  background: #66bb6a;
-  color: white;
-
-  &:hover:not(:disabled) {
-    background: #5cb85c;
-  }
-`;
-
-const ProgressBar = styled.div`
-  width: 100%;
-  height: 8px;
-  background: #e9ecef;
-  border-radius: 4px;
-  margin-bottom: 20px;
-  overflow: hidden;
-`;
-
-const ProgressFill = styled.div<{ progress: number }>`
-  height: 100%;
-  background: linear-gradient(90deg, #4caf50, #66bb6a);
-  width: ${props => props.progress}%;
-  transition: width 0.3s ease;
-`;
 
 const Questionnaire: React.FC = () => {
   const [questions, setQuestions] = useState<string[]>([]);
@@ -233,19 +29,10 @@ const Questionnaire: React.FC = () => {
   };
 
   const handleResponseChange = (questionIndex: number, value: number) => {
-    console.log('=== RADIO BUTTON CLICKED ===');
-    console.log('Question index:', questionIndex);
-    console.log('Selected value:', value);
-    console.log('Current responses before:', responses);
-
-    setResponses(prev => {
-      const newResponses = {
-        ...prev,
-        [questionIndex.toString()]: value
-      };
-      console.log('New responses after:', newResponses);
-      return newResponses;
-    });
+    setResponses(prev => ({
+      ...prev,
+      [questionIndex.toString()]: value
+    }));
   };
 
   const handleNext = () => {
@@ -276,94 +63,183 @@ const Questionnaire: React.FC = () => {
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
   const currentResponse = responses[currentQuestionIndex.toString()];
 
-  console.log('=== RENDER DEBUG ===');
-  console.log('Current question index:', currentQuestionIndex);
-  console.log('Current response:', currentResponse);
-  console.log('All responses:', responses);
-  console.log('Checked state for value 0:', currentResponse === 0);
-  console.log('Checked state for value 1:', currentResponse === 1);
-  console.log('Checked state for value 2:', currentResponse === 2);
-  console.log('Checked state for value 3:', currentResponse === 3);
-
   if (isLoading) {
-    return <Container>Cargando cuestionario...</Container>;
+    return <div>Cargando cuestionario...</div>;
   }
 
   return (
-    <Container>
-      <Header>
-        <Title>Evaluación de Salud Mental</Title>
-        <ProgressBar>
-          <ProgressFill progress={progress} />
-        </ProgressBar>
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+        <h1>Evaluación de Salud Mental</h1>
+        <div style={{
+          width: '100%',
+          height: '8px',
+          background: '#e9ecef',
+          borderRadius: '4px',
+          marginBottom: '20px',
+          overflow: 'hidden'
+        }}>
+          <div style={{
+            height: '100%',
+            background: 'linear-gradient(90deg, #4caf50, #66bb6a)',
+            width: `${progress}%`,
+            transition: 'width 0.3s ease'
+          }} />
+        </div>
         <p>Pregunta {currentQuestionIndex + 1} de {questions.length}</p>
-      </Header>
+      </div>
 
-      <Instructions>
-        <InstructionsTitle>Instrucciones</InstructionsTitle>
-        <InstructionsText>
+      <div style={{
+        background: '#f1f8e9',
+        padding: '20px',
+        borderRadius: '8px',
+        marginBottom: '30px',
+        borderLeft: '4px solid #4caf50'
+      }}>
+        <h3 style={{ color: '#2e7d32', marginBottom: '10px' }}>Instrucciones</h3>
+        <p style={{ color: '#666', lineHeight: '1.6' }}>
           Lee cada declaración y selecciona el número que indica cuánto se aplicó a ti durante la semana pasada.
           No hay respuestas correctas o incorrectas. No pases demasiado tiempo en cada declaración.
-        </InstructionsText>
-      </Instructions>
+        </p>
+      </div>
 
-      <ScaleInfo>
-        <ScaleTitle>Escala de respuesta:</ScaleTitle>
-        <ScaleList>
+      <div style={{
+        background: '#e8f5e8',
+        padding: '15px',
+        borderRadius: '8px',
+        marginBottom: '20px'
+      }}>
+        <h4 style={{ color: '#2e7d32', marginBottom: '10px' }}>Escala de respuesta:</h4>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {Object.entries(scale).map(([value, text]) => (
-            <ScaleItem key={value}>
+            <li key={value} style={{ marginBottom: '5px', color: '#555', fontSize: '14px' }}>
               <strong>{value}:</strong> {text}
-            </ScaleItem>
+            </li>
           ))}
-        </ScaleList>
-      </ScaleInfo>
+        </ul>
+      </div>
 
-      <QuestionCard>
-        <QuestionNumber>Pregunta {currentQuestionIndex + 1}</QuestionNumber>
-        <QuestionText>{questions[currentQuestionIndex]}</QuestionText>
+      <div style={{
+        background: '#f8f9fa',
+        borderRadius: '8px',
+        padding: '20px',
+        marginBottom: '20px',
+        border: '1px solid #e9ecef',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
+      }}>
+        <div style={{ fontWeight: 'bold', color: '#4caf50', marginBottom: '10px', fontSize: '18px' }}>
+          Pregunta {currentQuestionIndex + 1}
+        </div>
+        <p style={{ color: '#333', marginBottom: '15px', lineHeight: '1.6', fontSize: '18px', fontWeight: '500' }}>
+          {questions[currentQuestionIndex]}
+        </p>
 
-        <OptionsGrid>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '10px'
+        }}>
           {[0, 1, 2, 3].map((value) => (
-            <OptionLabel key={value}>
-              <OptionInput
+            <label key={value} style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '12px',
+              border: `2px solid ${currentResponse === value ? '#4caf50' : '#e9ecef'}`,
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              background: currentResponse === value ? '#4caf50' : 'white',
+              color: currentResponse === value ? 'white' : 'inherit',
+              position: 'relative'
+            }}>
+              <input
                 type="radio"
                 name={`question-${currentQuestionIndex}`}
                 value={value}
                 checked={currentResponse === value}
                 onChange={() => handleResponseChange(currentQuestionIndex, value)}
+                style={{ display: 'none' }}
               />
-              <OptionValue>{value}</OptionValue>
-              <OptionText>{scale[value]}</OptionText>
-            </OptionLabel>
+              <span style={{ fontWeight: 'bold', marginRight: '10px', color: currentResponse === value ? 'white' : '#4caf50' }}>
+                {value}
+              </span>
+              <span style={{ flex: 1 }}>
+                {scale[value]}
+              </span>
+              {currentResponse === value && (
+                <span style={{
+                  position: 'absolute',
+                  right: '12px',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  fontSize: '18px'
+                }}>
+                  ✓
+                </span>
+              )}
+            </label>
           ))}
-        </OptionsGrid>
-      </QuestionCard>
+        </div>
+      </div>
 
-      <NavigationButtons>
-        <PrevButton
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px' }}>
+        <button
           onClick={handlePrevious}
           disabled={currentQuestionIndex === 0}
+          style={{
+            padding: '12px 24px',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '16px',
+            fontWeight: '600',
+            cursor: currentQuestionIndex === 0 ? 'not-allowed' : 'pointer',
+            opacity: currentQuestionIndex === 0 ? 0.5 : 1,
+            background: '#6c757d',
+            color: 'white'
+          }}
         >
           Anterior
-        </PrevButton>
+        </button>
 
         {currentQuestionIndex === questions.length - 1 ? (
-          <SubmitButton
+          <button
             onClick={handleSubmit}
             disabled={isSubmitting || currentResponse === undefined}
+            style={{
+              padding: '12px 24px',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: (isSubmitting || currentResponse === undefined) ? 'not-allowed' : 'pointer',
+              opacity: (isSubmitting || currentResponse === undefined) ? 0.5 : 1,
+              background: '#66bb6a',
+              color: 'white'
+            }}
           >
             {isSubmitting ? 'Enviando...' : 'Enviar Cuestionario'}
-          </SubmitButton>
+          </button>
         ) : (
-          <NextButton
+          <button
             onClick={handleNext}
             disabled={currentResponse === undefined}
+            style={{
+              padding: '12px 24px',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: currentResponse === undefined ? 'not-allowed' : 'pointer',
+              opacity: currentResponse === undefined ? 0.5 : 1,
+              background: '#4caf50',
+              color: 'white'
+            }}
           >
             Siguiente
-          </NextButton>
+          </button>
         )}
-      </NavigationButtons>
-    </Container>
+      </div>
+    </div>
   );
 };
 
