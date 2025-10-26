@@ -178,6 +178,13 @@ const Dashboard: React.FC = () => {
     loadResults();
   }, [user, hasCompletedQuestionnaire]);
 
+  // Only redirect to questionnaire if user has never completed it
+  React.useEffect(() => {
+    if (user && !hasCompletedQuestionnaire) {
+      navigate('/questionnaire');
+    }
+  }, [user, hasCompletedQuestionnaire, navigate]);
+
   // Prepare chart data
   const chartData = React.useMemo(() => {
     if (!results.length) return null;
