@@ -202,12 +202,7 @@ const Dashboard: React.FC = () => {
     loadResults();
   }, [user, hasCompletedQuestionnaire]);
 
-  // Redirect to questionnaire if user hasn't completed it at least once
-  React.useEffect(() => {
-    if (user && !hasCompletedQuestionnaire) {
-      navigate('/questionnaire');
-    }
-  }, [user, hasCompletedQuestionnaire, navigate]);
+  // Don't auto-redirect to questionnaire - users can access it from dashboard
 
   // Prepare chart data
   const chartData = React.useMemo(() => {
