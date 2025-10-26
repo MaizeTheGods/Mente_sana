@@ -54,6 +54,10 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'QuestionnaireResult'
   }],
+  questionnaireCompleted: {
+    type: Boolean,
+    default: false
+  },
   questionnaireCount: {
     type: Number,
     default: 0

@@ -179,8 +179,8 @@ const Dashboard: React.FC = () => {
   const [selectedDisorder, setSelectedDisorder] = React.useState<'depression' | 'anxiety' | 'stress'>('depression');
   const [isLoading, setIsLoading] = React.useState(true);
 
-  // Check if user has completed questionnaire (questionnaireCount >= 1)
-  const hasCompletedQuestionnaire = user?.questionnaireCount && user.questionnaireCount >= 1;
+  // Check if user has completed questionnaire (questionnaireCompleted is true)
+  const hasCompletedQuestionnaire = user?.questionnaireCompleted === true;
 
   // Load historical results
   React.useEffect(() => {

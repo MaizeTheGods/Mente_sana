@@ -45,6 +45,7 @@ export interface User {
   role: 'user' | 'admin' | 'owner';
   questionnaireResults?: string[];
   questionnaireCount?: number;
+  questionnaireCompleted?: boolean;
   preferences: {
     language: string;
     theme: string;

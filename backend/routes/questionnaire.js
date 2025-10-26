@@ -64,11 +64,11 @@ router.post('/submit', authenticateToken, questionnaireValidation, async (req, r
     // Validate that we have responses for all DASS-21 questions
     const questionCount = Object.keys(responses).length;
     console.log('Question count:', questionCount);
-    if (questionCount !== 20) {
+    if (questionCount !== 21) {
       console.log('Invalid question count');
       return res.status(400).json({
         error: 'Invalid questionnaire',
-        message: `Expected 20 responses, received ${questionCount}`
+        message: `Expected 21 responses, received ${questionCount}`
       });
     }
 
@@ -105,10 +105,19 @@ router.post('/submit', authenticateToken, questionnaireValidation, async (req, r
 
     console.log('Updating user with questionnaire result...');
     // Update user's questionnaire results array and increment count
-    await User.findByIdAndUpdate(userId, {
+    // Set questionnaireCompleted to true on first completion
+    const userUpdate = {
       $push: { questionnaireResults: questionnaireResult._id },
       $inc: { questionnaireCount: 1 }
-    });
+    };
+
+    // Check if this is the first questionnaire completion
+    const user = await User.findById(userId);
+    if (!user.questionnaireCompleted) {
+      userUpdate.$set = { questionnaireCompleted: true };
+    }
+
+    await User.findByIdAndUpdate(userId, userUpdate);
     console.log('User updated successfully');
 
     // Return the analysis result
