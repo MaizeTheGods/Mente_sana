@@ -113,7 +113,8 @@ const OptionLabel = styled.label`
 
   input:checked + & {
     border-color: #4caf50;
-    background: #f1f8e9;
+    background: #4caf50;
+    color: white;
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
   }
 
@@ -121,7 +122,7 @@ const OptionLabel = styled.label`
     content: '✓';
     position: absolute;
     right: 12px;
-    color: #4caf50;
+    color: white;
     font-weight: bold;
     font-size: 18px;
   }
