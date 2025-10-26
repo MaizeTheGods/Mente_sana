@@ -49,9 +49,12 @@ const loginValidation = [
 // @access  Public
 router.post('/register', registerValidation, async (req, res) => {
   try {
+    console.log('Registration request received:', JSON.stringify(req.body, null, 2));
+
     // Check validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
       return res.status(400).json({
         error: 'Validation failed',
         details: errors.array()
@@ -59,6 +62,7 @@ router.post('/register', registerValidation, async (req, res) => {
     }
 
     const { username, email, password, firstName, lastName, dateOfBirth, gender, location } = req.body;
+    console.log('Extracted fields:', { username, email, firstName, lastName, dateOfBirth, gender });
 
     // Check if user already exists
     const existingUser = await User.findOne({
@@ -66,6 +70,7 @@ router.post('/register', registerValidation, async (req, res) => {
     });
 
     if (existingUser) {
+      console.log('User already exists:', existingUser.email === email ? 'Email' : 'Username');
       return res.status(400).json({
         error: 'User already exists',
         message: existingUser.email === email ? 'Email already registered' : 'Username already taken'
@@ -74,12 +79,25 @@ router.post('/register', registerValidation, async (req, res) => {
 
     // Validate age (must be 13+)
     const birthDate = new Date(dateOfBirth);
+    console.log('Birth date parsed:', birthDate);
     const age = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+    console.log('Calculated age:', age);
     if (age < 13) {
+      console.log('User too young:', age);
       return res.status(400).json({ error: 'Must be at least 13 years old to register' });
     }
 
     // Create new user
+    console.log('Creating user with data:', {
+      username,
+      email,
+      firstName,
+      lastName,
+      dateOfBirth: birthDate,
+      gender,
+      location: location || {}
+    });
+
     const user = new User({
       username,
       email,
@@ -91,7 +109,9 @@ router.post('/register', registerValidation, async (req, res) => {
       location: location || {}
     });
 
+    console.log('Saving user...');
     await user.save();
+    console.log('User saved successfully');
 
     // Generate JWT token
     const token = jwt.sign(
@@ -121,7 +141,9 @@ router.post('/register', registerValidation, async (req, res) => {
 
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ error: 'Registration failed' });
+    console.error('Error stack:', error.stack);
+    console.error('Error message:', error.message);
+    res.status(500).json({ error: 'Registration failed', details: error.message });
   }
 });
 

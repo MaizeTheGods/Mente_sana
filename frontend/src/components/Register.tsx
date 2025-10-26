@@ -164,6 +164,7 @@ const Register: React.FC = () => {
     setIsLoading(true);
 
     console.log('Submitting registration form:', formData);
+    console.log('Full formData:', JSON.stringify(formData, null, 2));
 
     try {
       console.log('Calling register function...');
@@ -173,6 +174,7 @@ const Register: React.FC = () => {
     } catch (err: any) {
       console.error('Registration error:', err);
       console.error('Error response:', err.response);
+      console.error('Error data:', JSON.stringify(err.response?.data, null, 2));
       setError(err.response?.data?.error || 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
