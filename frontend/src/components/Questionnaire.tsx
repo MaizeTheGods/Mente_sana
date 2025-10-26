@@ -24,11 +24,11 @@ const Title = styled.h1`
 `;
 
 const Instructions = styled.div`
-  background: #f8f9fa;
+  background: #f1f8e9;
   padding: 20px;
   border-radius: 8px;
   margin-bottom: 30px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #4caf50;
 `;
 
 const InstructionsTitle = styled.h3`
@@ -42,7 +42,7 @@ const InstructionsText = styled.p`
 `;
 
 const ScaleInfo = styled.div`
-  background: #e8f4f8;
+  background: #e8f5e8;
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
