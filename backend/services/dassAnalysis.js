@@ -61,98 +61,85 @@ function getSeverityLevel(score, subscale) {
  * Generate personalized recommendations based on scores and severity levels
  * @param {Object} scores - Object with depression, anxiety, stress scores
  * @param {Object} severityLevels - Object with severity levels
- * @returns {Array} Array of recommendation objects
+ * @returns {Array} Array of recommendation objects (max 3)
  */
 function generateRecommendations(scores, severityLevels) {
   const recommendations = [];
 
-  // Depression recommendations
-  if (severityLevels.depression === 'moderate' ||
-      severityLevels.depression === 'severe' ||
-      severityLevels.depression === 'extremely_severe') {
-    recommendations.push({
-      type: 'exercise',
-      title: 'Respiración mindful para depresión',
-      description: 'Ejercicio de respiración para reducir síntomas depresivos',
-      resourceId: 'breathing_depression',
-      priority: 'high'
-    });
-    recommendations.push({
-      type: 'group_chat',
-      title: 'Grupo de apoyo para depresión',
-      description: 'Conecta con otros que enfrentan síntomas similares',
-      resourceId: 'depression_support_group',
-      priority: 'high'
-    });
-  }
+  // Generate one recommendation per disorder based on severity level
+  const disorders = [
+    { name: 'depression', displayName: 'Depresión', score: scores.depression },
+    { name: 'anxiety', displayName: 'Ansiedad', score: scores.anxiety },
+    { name: 'stress', displayName: 'Estrés', score: scores.stress }
+  ];
 
-  // Anxiety recommendations
-  if (severityLevels.anxiety === 'moderate' ||
-      severityLevels.anxiety === 'severe' ||
-      severityLevels.anxiety === 'extremely_severe') {
-    recommendations.push({
-      type: 'exercise',
-      title: 'Relajación muscular para ansiedad',
-      description: 'Técnicas para reducir la ansiedad física',
-      resourceId: 'muscle_relaxation',
-      priority: 'high'
-    });
-    recommendations.push({
-      type: 'tip',
-      title: 'Consejos para manejar ataques de pánico',
-      description: 'Estrategias prácticas para momentos de alta ansiedad',
-      resourceId: 'panic_management_tips',
-      priority: 'high'
-    });
-  }
+  disorders.forEach(disorder => {
+    const severity = severityLevels[disorder.name];
+    let recommendation;
 
-  // Stress recommendations
-  if (severityLevels.stress === 'moderate' ||
-      severityLevels.stress === 'severe' ||
-      severityLevels.stress === 'extremely_severe') {
-    recommendations.push({
-      type: 'exercise',
-      title: 'Meditación guiada para el estrés',
-      description: 'Sesión de 10 minutos para reducir el estrés diario',
-      resourceId: 'stress_meditation',
-      priority: 'high'
-    });
-    recommendations.push({
-      type: 'tip',
-      title: 'Hábitos para reducir el estrés',
-      description: 'Cambios diarios para mejorar el manejo del estrés',
-      resourceId: 'stress_reduction_habits',
-      priority: 'medium'
-    });
-  }
+    switch (severity) {
+      case 'normal':
+        recommendation = {
+          type: 'exercise',
+          title: `Mantén tu bienestar - ${disorder.displayName}`,
+          description: `Ejercicios preventivos para mantener una buena salud mental en ${disorder.displayName.toLowerCase()}`,
+          resourceId: `${disorder.name}_maintenance`,
+          priority: 'low'
+        };
+        break;
 
-  // General recommendations for all users
-  const maxScore = Math.max(scores.depression, scores.anxiety, scores.stress);
-  if (maxScore <= 21) { // If no severe symptoms
-    recommendations.push({
-      type: 'exercise',
-      title: 'Rutina diaria de bienestar',
-      description: 'Ejercicios diarios para mantener la salud mental',
-      resourceId: 'daily_wellness',
-      priority: 'medium'
-    });
-  }
+      case 'mild':
+        recommendation = {
+          type: 'tip',
+          title: `Consejos para ${disorder.displayName} leve`,
+          description: `Estrategias prácticas para manejar síntomas leves de ${disorder.displayName.toLowerCase()}`,
+          resourceId: `${disorder.name}_mild_tips`,
+          priority: 'low'
+        };
+        break;
 
-  // Professional help for severe cases
-  if (severityLevels.depression === 'severe' || severityLevels.depression === 'extremely_severe' ||
-      severityLevels.anxiety === 'severe' || severityLevels.anxiety === 'extremely_severe' ||
-      severityLevels.stress === 'severe' || severityLevels.stress === 'extremely_severe') {
-    recommendations.push({
-      type: 'professional_help',
-      title: 'Buscar ayuda profesional',
-      description: 'Considera consultar con un especialista en salud mental',
-      resourceId: 'professional_help',
-      priority: 'high'
-    });
-  }
+      case 'moderate':
+        recommendation = {
+          type: 'exercise',
+          title: `Ejercicio para ${disorder.displayName} moderada`,
+          description: `Técnicas específicas para reducir síntomas moderados de ${disorder.displayName.toLowerCase()}`,
+          resourceId: `${disorder.name}_moderate_exercise`,
+          priority: 'medium'
+        };
+        break;
 
-  // Limit to 5 recommendations max
-  return recommendations.slice(0, 5);
+      case 'severe':
+        recommendation = {
+          type: 'group_chat',
+          title: `Apoyo para ${disorder.displayName} severa`,
+          description: `Conecta con profesionales y comunidad para ${disorder.displayName.toLowerCase()} severa`,
+          resourceId: `${disorder.name}_severe_support`,
+          priority: 'high'
+        };
+        break;
+
+      case 'extremely_severe':
+        recommendation = {
+          type: 'professional_help',
+          title: `Ayuda profesional para ${disorder.displayName}`,
+          description: `Busca atención especializada inmediata para ${disorder.displayName.toLowerCase()} extremadamente severa`,
+          resourceId: `${disorder.name}_extreme_help`,
+          priority: 'high'
+        };
+        break;
+    }
+
+    if (recommendation) {
+      recommendations.push(recommendation);
+    }
+  });
+
+  // Sort by priority (high -> medium -> low)
+  const priorityOrder = { high: 3, medium: 2, low: 1 };
+  recommendations.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]);
+
+  // Return top 3 recommendations
+  return recommendations.slice(0, 3);
 }
 
 /**
