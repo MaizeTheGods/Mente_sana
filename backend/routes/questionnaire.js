@@ -107,6 +107,15 @@ router.post('/submit', authenticateToken, questionnaireValidation, async (req, r
 
   } catch (error) {
     console.error('Questionnaire submission error:', error);
+    console.error('Error details:', error.stack);
+
+    // Check if it's a database connection error
+    if (error.name === 'MongoNetworkError' || error.name === 'MongoServerError') {
+      return res.status(503).json({
+        error: 'Database temporarily unavailable',
+        message: 'Please try again in a few moments'
+      });
+    }
 
     res.status(500).json({
       error: 'Submission failed',

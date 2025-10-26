@@ -42,7 +42,10 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Database connection
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('MongoDB connected successfully'))
-.catch(err => console.error('MongoDB connection error:', err));
+.catch(err => {
+  console.error('MongoDB connection error:', err);
+  // Don't exit process, let it continue - database operations will fail gracefully
+});
 
 // Routes
 app.use('/', require('./routes/index'));
