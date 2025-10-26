@@ -12,6 +12,34 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%);
+  padding: 20px;
+`;
+
+const MapCard = styled.div`
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 1000px;
+  max-height: 90vh;
+  overflow-y: auto;
+  backdrop-filter: blur(10px);
+`;
+
+const Title = styled.h2`
+  text-align: center;
+  color: #2e7d32;
+  margin-bottom: 30px;
+  font-size: 28px;
+  font-weight: 600;
+`;
 
 const MapWrapper = styled.div`
   height: 500px;
@@ -19,6 +47,7 @@ const MapWrapper = styled.div`
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 `;
 
 const LoadingMessage = styled.div`
@@ -34,20 +63,29 @@ const LoadingMessage = styled.div`
 
 const SearchButton = styled.button`
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 20px;
+  right: 20px;
   z-index: 1000;
-  padding: 10px 15px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 14px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-weight: 600;
+  box-shadow: 0 4px 6px rgba(76, 175, 80, 0.2);
+  transition: all 0.3s ease;
 
-  &:hover {
-    transform: translateY(-1px);
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
   }
 `;
 
@@ -55,6 +93,119 @@ const MapContainerWrapper = styled.div`
   position: relative;
   height: 500px;
   width: 100%;
+`;
+
+const InfoSection = styled.div`
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-left: 4px solid #4caf50;
+`;
+
+const InfoTitle = styled.h3`
+  color: #2e7d32;
+  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: 600;
+`;
+
+const InfoText = styled.p`
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+`;
+
+const ServiceTypeFilter = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+`;
+
+const FilterButton = styled.button<{ active: boolean }>`
+  padding: 8px 16px;
+  border: 2px solid ${props => props.active ? '#4caf50' : '#e9ecef'};
+  border-radius: 20px;
+  background: ${props => props.active ? '#4caf50' : 'white'};
+  color: ${props => props.active ? 'white' : '#666'};
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #4caf50;
+    background: ${props => props.active ? '#4caf50' : '#f1f8e9'};
+  }
+`;
+
+const ServicesList = styled.div`
+  margin-top: 20px;
+`;
+
+const ServiceCard = styled.div`
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+`;
+
+const ServiceName = styled.h4`
+  color: #2e7d32;
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+`;
+
+const ServiceInfo = styled.p`
+  color: #666;
+  font-size: 14px;
+  margin: 4px 0;
+  display: flex;
+  align-items: center;
+
+  &::before {
+    content: attr(data-icon);
+    margin-right: 8px;
+    font-size: 16px;
+  }
+`;
+
+const ServiceType = styled.span`
+  background: #e8f5e8;
+  color: #2e7d32;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-left: 8px;
+`;
+
+const BackButton = styled.button`
+  padding: 12px 24px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+
+  &:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+  }
 `;
 
 interface HealthService {
@@ -89,7 +240,9 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
 }) => {
   const [services, setServices] = useState<HealthService[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>('');
   const [mapCenter, setMapCenter] = useState<[number, number]>([19.4326, -99.1332]); // Default: Mexico City
+  const [selectedType, setSelectedType] = useState<HealthService['type'] | 'all'>('all');
 
   // Get user's location
   useEffect(() => {
@@ -113,6 +266,7 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
   // Search for health services using Overpass API (OpenStreetMap)
   const searchNearbyServices = async () => {
     setLoading(true);
+    setError('');
     try {
       const [lat, lng] = mapCenter;
       const radius = 5000; // 5km radius
@@ -140,6 +294,10 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
         body: query
       });
 
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+
       const data = await response.json();
 
       // Transform Overpass data to our format
@@ -159,8 +317,14 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
         }));
 
       setServices(transformedServices);
+
+      if (transformedServices.length === 0) {
+        setError('No se encontraron centros de salud en tu área. Intenta buscar en otra ubicación.');
+      }
     } catch (error) {
       console.error('Error searching services:', error);
+      setError('Error al buscar centros de salud. Por favor, intenta de nuevo más tarde.');
+
       // Fallback: mock data for demonstration
       setServices([
         {
@@ -224,73 +388,129 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
   };
 
   return (
-    <MapContainerWrapper>
-      <SearchButton onClick={searchNearbyServices} disabled={loading}>
-        {loading ? 'Buscando...' : 'Buscar Centros de Salud'}
-      </SearchButton>
+    <Container>
+      <MapCard>
+        <Title>Ayuda Profesional Cercana</Title>
 
-      {loading ? (
-        <LoadingMessage>Buscando centros de salud cercanos...</LoadingMessage>
-      ) : (
-        <MapWrapper>
-          <MapContainer
-            center={mapCenter}
-            zoom={13}
-            style={{ height: '100%', width: '100%' }}
-          >
-            <MapController center={mapCenter} />
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
+        <InfoSection>
+          <InfoTitle>¿Cómo funciona?</InfoTitle>
+          <InfoText>
+            Esta herramienta te ayuda a encontrar centros de salud mental, hospitales, clínicas y psicólogos
+            cerca de tu ubicación. Haz clic en "Buscar Centros de Salud" para encontrar servicios disponibles
+            en un radio de 5 kilómetros.
+          </InfoText>
+        </InfoSection>
 
-            {/* User location marker */}
-            <Marker position={mapCenter}>
-              <Popup>
-                <strong>Tu ubicación</strong>
-              </Popup>
-            </Marker>
+        {error && (
+          <InfoSection style={{ borderLeftColor: '#e74c3c', background: '#fdf2f2' }}>
+            <InfoTitle style={{ color: '#e74c3c' }}>Error</InfoTitle>
+            <InfoText style={{ color: '#c0392b' }}>{error}</InfoText>
+          </InfoSection>
+        )}
 
-            {/* Health services markers */}
+        {services.length > 0 && (
+          <ServicesList>
+            <h3 style={{ color: '#2e7d32', marginBottom: '15px', fontSize: '18px' }}>
+              Centros encontrados ({services.length})
+            </h3>
             {services.map((service) => (
-              <Marker
-                key={service.id}
-                position={[service.latitude, service.longitude]}
-                icon={getMarkerIcon(service.type)}
-              >
-                <Popup>
-                  <div style={{ maxWidth: '200px' }}>
-                    <h4 style={{ margin: '0 0 8px 0', color: '#333' }}>
-                      {service.name}
-                    </h4>
-                    <p style={{ margin: '4px 0', fontSize: '14px', color: '#666' }}>
-                      📍 {service.address}
-                    </p>
-                    {service.phone && (
-                      <p style={{ margin: '4px 0', fontSize: '14px' }}>
-                        📞 {service.phone}
-                      </p>
-                    )}
-                    {service.website && (
-                      <p style={{ margin: '4px 0', fontSize: '14px' }}>
-                        🌐 <a href={service.website} target="_blank" rel="noopener noreferrer">
-                          Sitio web
-                        </a>
-                      </p>
-                    )}
-                    {service.description && (
-                      <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#555' }}>
-                        {service.description}
-                      </p>
-                    )}
-                  </div>
-                </Popup>
-              </Marker>
+              <ServiceCard key={service.id}>
+                <ServiceName>
+                  {service.name}
+                  <ServiceType>{service.type.replace('_', ' ')}</ServiceType>
+                </ServiceName>
+                <ServiceInfo data-icon="📍">{service.address}</ServiceInfo>
+                {service.phone && (
+                  <ServiceInfo data-icon="📞">{service.phone}</ServiceInfo>
+                )}
+                {service.website && (
+                  <ServiceInfo data-icon="🌐">
+                    <a href={service.website} target="_blank" rel="noopener noreferrer" style={{ color: '#4caf50' }}>
+                      Sitio web
+                    </a>
+                  </ServiceInfo>
+                )}
+                {service.description && (
+                  <ServiceInfo data-icon="ℹ️">{service.description}</ServiceInfo>
+                )}
+              </ServiceCard>
             ))}
-          </MapContainer>
-        </MapWrapper>
-      )}
-    </MapContainerWrapper>
+          </ServicesList>
+        )}
+
+        <MapContainerWrapper>
+          <SearchButton onClick={searchNearbyServices} disabled={loading}>
+            {loading ? 'Buscando...' : 'Buscar Centros de Salud'}
+          </SearchButton>
+
+          {loading ? (
+            <LoadingMessage>Buscando centros de salud cercanos...</LoadingMessage>
+          ) : (
+            <MapWrapper>
+              <MapContainer
+                center={mapCenter}
+                zoom={13}
+                style={{ height: '100%', width: '100%' }}
+              >
+                <MapController center={mapCenter} />
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+
+                {/* User location marker */}
+                <Marker position={mapCenter}>
+                  <Popup>
+                    <strong>Tu ubicación</strong>
+                  </Popup>
+                </Marker>
+
+                {/* Health services markers */}
+                {services.map((service) => (
+                  <Marker
+                    key={service.id}
+                    position={[service.latitude, service.longitude]}
+                    icon={getMarkerIcon(service.type)}
+                  >
+                    <Popup>
+                      <div style={{ maxWidth: '200px' }}>
+                        <h4 style={{ margin: '0 0 8px 0', color: '#333' }}>
+                          {service.name}
+                        </h4>
+                        <p style={{ margin: '4px 0', fontSize: '14px', color: '#666' }}>
+                          📍 {service.address}
+                        </p>
+                        {service.phone && (
+                          <p style={{ margin: '4px 0', fontSize: '14px' }}>
+                            📞 {service.phone}
+                          </p>
+                        )}
+                        {service.website && (
+                          <p style={{ margin: '4px 0', fontSize: '14px' }}>
+                            🌐 <a href={service.website} target="_blank" rel="noopener noreferrer">
+                              Sitio web
+                            </a>
+                          </p>
+                        )}
+                        {service.description && (
+                          <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#555' }}>
+                            {service.description}
+                          </p>
+                        )}
+                      </div>
+                    </Popup>
+                  </Marker>
+                ))}
+              </MapContainer>
+            </MapWrapper>
+          )}
+        </MapContainerWrapper>
+
+        <BackButton onClick={() => window.history.back()}>
+          ← Regresar al Dashboard
+        </BackButton>
+      </MapCard>
+    </Container>
   );
 };
 
