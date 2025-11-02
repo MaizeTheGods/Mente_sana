@@ -8,8 +8,36 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%);
+  background: linear-gradient(
+    to right,
+    #2c3e50 0%,
+    #2c3e50 33.33%,
+    #34495e 33.33%,
+    #34495e 66.66%,
+    #2c3e50 66.66%,
+    #2c3e50 100%
+  );
   padding: 20px;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      to right,
+      rgba(52, 73, 94, 0.1) 0%,
+      rgba(52, 73, 94, 0.1) 33.33%,
+      rgba(44, 62, 80, 0.1) 33.33%,
+      rgba(44, 62, 80, 0.1) 66.66%,
+      rgba(52, 73, 94, 0.1) 66.66%,
+      rgba(52, 73, 94, 0.1) 100%
+    );
+    pointer-events: none;
+  }
 `;
 
 const FormCard = styled.div`
