@@ -191,6 +191,7 @@ const Login: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Tu contraseña"
+              autoComplete="current-password"
             />
           </FormGroup>
 
