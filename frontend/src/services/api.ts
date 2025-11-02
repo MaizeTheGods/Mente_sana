@@ -126,19 +126,20 @@ export interface Exercise {
 export interface Tip {
   _id: string;
   title: string;
-  content: string;
+  content?: string;
+  description?: string;
   category: string;
-  targetDisorders: string[];
-  priority: string;
-  frequency: string;
-  tags: string[];
-  media: {
+  targetDisorders?: string[];
+  priority?: string;
+  frequency?: string;
+  tags?: string[];
+  media?: {
     imageUrl?: string;
     videoUrl?: string;
   };
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Category {
