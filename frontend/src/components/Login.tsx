@@ -7,7 +7,8 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
+  width: 100vw;
   background: linear-gradient(
     to right,
     #2c3e50 0%,
@@ -18,7 +19,11 @@ const Container = styled.div`
     #2c3e50 100%
   );
   padding: 20px;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 
   &::before {
     content: '';
