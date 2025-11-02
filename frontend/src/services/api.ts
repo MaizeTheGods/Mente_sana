@@ -132,6 +132,7 @@ export interface Tip {
   targetDisorders?: string[];
   priority?: string;
   frequency?: string;
+  why?: string;
   tags?: string[];
   media?: {
     imageUrl?: string;
