@@ -182,14 +182,34 @@ const ExerciseDetail: React.FC = () => {
 
   useEffect(() => {
     const loadExercise = async () => {
-      if (!id) return;
+      console.log('🏋️ ExerciseDetail: Starting to load exercise with ID:', id);
+
+      if (!id) {
+        console.log('🏋️ ExerciseDetail: No ID provided, returning early');
+        setIsLoading(false);
+        return;
+      }
 
       try {
+        console.log('🏋️ ExerciseDetail: Calling exercisesAPI.getExercise with ID:', id);
         const response = await exercisesAPI.getExercise(id);
-        setExercise(response.exercise);
+        console.log('🏋️ ExerciseDetail: API response received:', response);
+
+        if (response && response.exercise) {
+          console.log('🏋️ ExerciseDetail: Exercise data loaded successfully:', response.exercise);
+          setExercise(response.exercise);
+        } else {
+          console.log('🏋️ ExerciseDetail: No exercise data in response');
+        }
       } catch (error) {
-        console.error('Failed to load exercise:', error);
+        console.error('🏋️ ExerciseDetail: Failed to load exercise:', error);
+        console.error('🏋️ ExerciseDetail: Error details:', {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : 'No stack trace',
+          name: error instanceof Error ? error.name : 'Unknown error type'
+        });
       } finally {
+        console.log('🏋️ ExerciseDetail: Setting loading to false');
         setIsLoading(false);
       }
     };

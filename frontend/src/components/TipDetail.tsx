@@ -187,14 +187,34 @@ const TipDetail: React.FC = () => {
 
   useEffect(() => {
     const loadTip = async () => {
-      if (!id) return;
+      console.log('💡 TipDetail: Starting to load tip with ID:', id);
+
+      if (!id) {
+        console.log('💡 TipDetail: No ID provided, returning early');
+        setIsLoading(false);
+        return;
+      }
 
       try {
+        console.log('💡 TipDetail: Calling tipsAPI.getTip with ID:', id);
         const response = await tipsAPI.getTip(id);
-        setTip(response.tip);
+        console.log('💡 TipDetail: API response received:', response);
+
+        if (response && response.tip) {
+          console.log('💡 TipDetail: Tip data loaded successfully:', response.tip);
+          setTip(response.tip);
+        } else {
+          console.log('💡 TipDetail: No tip data in response');
+        }
       } catch (error) {
-        console.error('Failed to load tip:', error);
+        console.error('💡 TipDetail: Failed to load tip:', error);
+        console.error('💡 TipDetail: Error details:', {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : 'No stack trace',
+          name: error instanceof Error ? error.name : 'Unknown error type'
+        });
       } finally {
+        console.log('💡 TipDetail: Setting loading to false');
         setIsLoading(false);
       }
     };
@@ -243,278 +263,7 @@ const TipDetail: React.FC = () => {
     'Aumenta tu resiliencia',
     'Mejora tu calidad de vida'
   ];
-    {
-      id: 2,
-      title: 'Establece Límites Saludables',
-      description: 'Los límites saludables son esenciales para mantener el equilibrio emocional y prevenir el agotamiento. Aprender a decir "no" cuando es necesario protege nuestra energía y nos permite cuidar mejor de nosotros mismos.',
-      category: 'Estrés',
-      icon: '🛡️',
-      why: 'Sin límites claros, podemos sobrecargarnos emocionalmente, lo que lleva a estrés crónico, resentimiento y agotamiento. Los límites nos ayudan a preservar nuestra energía mental y emocional.',
-      how: [
-        'Identifica tus valores y prioridades personales',
-        'Reconoce situaciones donde te sientes sobrecargado',
-        'Practica frases como "Lo siento, no puedo comprometerme con eso ahora"',
-        'Sé consistente en mantener tus límites',
-        'Recuerda que decir "no" a otros significa decir "sí" a ti mismo'
-      ],
-      benefits: [
-        'Reduce el estrés y la ansiedad',
-        'Previene el agotamiento emocional',
-        'Mejora la autoestima',
-        'Fortalece las relaciones saludables',
-        'Aumenta la productividad y el enfoque'
-      ],
-      videoId: 'V2WkXgQBnSg'
-    },
-    {
-      id: 3,
-      title: 'Crea una Rutina de Sueño',
-      description: 'El sueño de calidad es fundamental para la salud mental. Una rutina consistente de sueño ayuda a regular nuestros ritmos circadianos y mejora el funcionamiento cognitivo y emocional.',
-      category: 'Sueño',
-      icon: '🌙',
-      why: 'La falta de sueño afecta directamente nuestro estado de ánimo, capacidad de concentración y salud mental. Una buena rutina de sueño puede prevenir problemas como la depresión y la ansiedad.',
-      how: [
-        'Establece horarios consistentes para acostarte y levantarte',
-        'Crea un ritual relajante antes de dormir (leer, meditación)',
-        'Evita pantallas al menos 1 hora antes de dormir',
-        'Mantén tu habitación fresca, oscura y silenciosa',
-        'Evita cafeína después del mediodía y comidas pesadas por la noche'
-      ],
-      benefits: [
-        'Mejora el estado de ánimo',
-        'Aumenta la concentración y productividad',
-        'Reduce el riesgo de depresión',
-        'Fortalece el sistema inmunológico',
-        'Mejora la regulación emocional'
-      ],
-      videoId: 'qJx6QF3ZrKM'
-    },
-    {
-      id: 4,
-      title: 'Comunicación Asertiva',
-      description: 'La comunicación asertiva implica expresar nuestros pensamientos y sentimientos de manera clara, honesta y respetuosa, sin violar los derechos de los demás ni permitir que violen los nuestros.',
-      category: 'Relaciones',
-      icon: '💬',
-      why: 'La comunicación efectiva es clave para relaciones saludables. La asertividad nos ayuda a expresar nuestras necesidades, resolver conflictos y construir conexiones más profundas con los demás.',
-      how: [
-        'Usa frases en primera persona: "Me siento..." en lugar de "Tú me haces..."',
-        'Sé específico sobre tus sentimientos y necesidades',
-        'Escucha activamente la respuesta del otro',
-        'Mantén un tono calmado y respetuoso',
-        'Practica en situaciones de bajo riesgo primero'
-      ],
-      benefits: [
-        'Mejora las relaciones interpersonales',
-        'Reduce conflictos y malentendidos',
-        'Aumenta la confianza en uno mismo',
-        'Facilita la resolución de problemas',
-        'Promueve un ambiente de respeto mutuo'
-      ],
-      videoId: '3Qm59PVxQ3I'
-    },
-    {
-      id: 5,
-      title: 'Técnica Pomodoro en el Trabajo',
-      description: 'La Técnica Pomodoro es un método de gestión del tiempo que alterna períodos de trabajo concentrado con descansos cortos, ayudando a mantener la concentración y prevenir el agotamiento mental.',
-      category: 'Trabajo',
-      icon: '⏱️',
-      why: 'El trabajo prolongado sin descansos lleva a la fatiga mental y reducción de la productividad. La Técnica Pomodoro optimiza nuestro rendimiento cognitivo y previene el burnout.',
-      how: [
-        'Elige una tarea para trabajar',
-        'Configura un temporizador por 25 minutos',
-        'Trabaja en la tarea hasta que suene el temporizador',
-        'Toma un descanso corto de 5 minutos',
-        'Después de 4 pomodoros, toma un descanso más largo de 15-30 minutos',
-        'Repite el ciclo según sea necesario'
-      ],
-      benefits: [
-        'Mejora la concentración y el enfoque',
-        'Reduce la fatiga mental',
-        'Aumenta la productividad',
-        'Previene el agotamiento laboral',
-        'Mejora la gestión del tiempo'
-      ],
-      videoId: 'L4N1q4RNi9I'
-    },
-    {
-      id: 6,
-      title: 'Mindful Eating',
-      description: 'El mindful eating, o alimentación consciente, implica prestar atención plena a la experiencia de comer, saboreando cada bocado y reconociendo las señales de hambre y saciedad del cuerpo.',
-      category: 'Diarios',
-      icon: '🍽️',
-      why: 'Comer de manera consciente mejora nuestra relación con la comida, ayuda con problemas de alimentación y aumenta el disfrute de las comidas. También puede ayudar con la gestión del peso y la digestión.',
-      how: [
-        'Siéntate en un lugar tranquilo sin distracciones',
-        'Observa el aspecto, aroma y textura de tu comida',
-        'Come despacio, masticando completamente cada bocado',
-        'Presta atención a los sabores y texturas',
-        'Detente cuando sientas saciedad, no cuando estés lleno'
-      ],
-      benefits: [
-        'Mejora la relación con la comida',
-        'Ayuda con problemas de alimentación',
-        'Aumenta el disfrute de las comidas',
-        'Facilita la digestión',
-        'Promueve hábitos alimenticios saludables'
-      ],
-      videoId: '4YB9nZ4xK9M'
-    },
-    {
-      id: 7,
-      title: 'Gestión del Estrés Agudo',
-      description: 'Cuando enfrentamos estrés agudo, es importante tener herramientas inmediatas para calmar el sistema nervioso y recuperar el equilibrio emocional.',
-      category: 'Estrés',
-      icon: '🫁',
-      why: 'El estrés agudo activa la respuesta de "lucha o huida", lo que puede ser útil en situaciones de peligro pero problemático cuando se activa frecuentemente. Técnicas rápidas nos ayudan a regular esta respuesta.',
-      how: [
-        'Detente inmediatamente cuando sientas estrés intenso',
-        'Toma 3 respiraciones profundas y lentas',
-        'Pregúntate: "¿Qué puedo controlar en esta situación?"',
-        'Nombra 3 cosas que puedes ver, oír y sentir en el momento presente',
-        'Practica una afirmación positiva como "Estoy a salvo en este momento"'
-      ],
-      benefits: [
-        'Reduce la activación del estrés agudo',
-        'Recupera el equilibrio emocional rápidamente',
-        'Previene la escalada de la ansiedad',
-        'Mejora la capacidad de respuesta ante situaciones difíciles',
-        'Fortalece la resiliencia emocional'
-      ],
-      videoId: 'SEfsRYdK_WY'
-    },
-    {
-      id: 8,
-      title: 'Higiene del Sueño',
-      description: 'La higiene del sueño se refiere a las prácticas y hábitos que promueven un sueño de calidad y ayudan a mantener ritmos circadianos saludables.',
-      category: 'Sueño',
-      icon: '🛏️',
-      why: 'La higiene del sueño es fundamental porque el sueño afecta todos los aspectos de nuestra salud mental y física. Prácticas pobres de sueño pueden contribuir a problemas como depresión, ansiedad y problemas cognitivos.',
-      how: [
-        'Mantén horarios consistentes de sueño',
-        'Crea un ambiente propicio: fresco, oscuro y silencioso',
-        'Evita estimulantes como cafeína y nicotina por la tarde',
-        'Establece una rutina relajante antes de dormir',
-        'Usa la cama solo para dormir y actividades íntimas'
-      ],
-      benefits: [
-        'Mejora la calidad y duración del sueño',
-        'Reduce la somnolencia diurna',
-        'Mejora el estado de ánimo y la energía',
-        'Fortalece la memoria y el aprendizaje',
-        'Reduce el riesgo de problemas de salud mental'
-      ],
-      videoId: 'aW2QK5H3WjM'
-    },
-    {
-      id: 9,
-      title: 'Construye Confianza',
-      description: 'La confianza es el fundamento de todas las relaciones saludables. Construir confianza requiere consistencia, honestidad y fiabilidad a lo largo del tiempo.',
-      category: 'Relaciones',
-      icon: '🤝',
-      why: 'La confianza crea un sentido de seguridad emocional en las relaciones. Sin confianza, las relaciones se vuelven tensas y difíciles de mantener. La confianza se construye con acciones consistentes a lo largo del tiempo.',
-      how: [
-        'Sé consistente en tus palabras y acciones',
-        'Cumple tus compromisos y promesas',
-        'Sé honesto y transparente en tu comunicación',
-        'Admite cuando te equivocas y aprende de ello',
-        'Demuestra interés genuino en los demás'
-      ],
-      benefits: [
-        'Crea relaciones más profundas y significativas',
-        'Reduce la ansiedad en las interacciones sociales',
-        'Facilita la resolución de conflictos',
-        'Aumenta la satisfacción en las relaciones',
-        'Promueve un ambiente de apoyo mutuo'
-      ],
-      videoId: '3vYD6FnmL8E'
-    },
-    {
-      id: 10,
-      title: 'Equilibrio Trabajo-Vida',
-      description: 'Mantener un equilibrio saludable entre el trabajo y la vida personal es esencial para prevenir el agotamiento y mantener la salud mental.',
-      category: 'Trabajo',
-      icon: '⚖️',
-      why: 'El desequilibrio trabajo-vida lleva al burnout, estrés crónico y problemas de salud mental. Un equilibrio adecuado nos permite recargar energías y mantener la motivación en todas las áreas de nuestra vida.',
-      how: [
-        'Establece límites claros entre trabajo y tiempo personal',
-        'Programa tiempo para actividades que disfrutes',
-        'Aprende a desconectar completamente del trabajo',
-        'Prioriza el autocuidado y el descanso',
-        'Revisa regularmente tu equilibrio y ajusta según sea necesario'
-      ],
-      benefits: [
-        'Previene el agotamiento laboral',
-        'Mejora la salud mental y física',
-        'Aumenta la satisfacción general con la vida',
-        'Mejora el rendimiento laboral',
-        'Fortalece las relaciones personales'
-      ],
-      videoId: 'bJBYk2QxS-0'
-    },
-    {
-      id: 11,
-      title: 'Diálogo Interno Positivo',
-      description: 'El diálogo interno positivo implica reemplazar pensamientos negativos y autocríticos con afirmaciones constructivas y compasivas.',
-      category: 'Diarios',
-      icon: '💭',
-      why: 'Nuestro diálogo interno afecta directamente nuestro estado emocional y comportamiento. Los pensamientos negativos pueden crear ciclos de ansiedad y depresión, mientras que los positivos promueven resiliencia y bienestar.',
-      how: [
-        'Identifica pensamientos negativos recurrentes',
-        'Reemplázalos con afirmaciones positivas y realistas',
-        'Practica la autocompasión cuando cometas errores',
-        'Usa evidencia para desafiar pensamientos distorsionados',
-        'Repite afirmaciones positivas regularmente'
-      ],
-      benefits: [
-        'Reduce la ansiedad y la depresión',
-        'Mejora la autoestima',
-        'Aumenta la resiliencia emocional',
-        'Mejora el rendimiento en diversas áreas',
-        'Promueve una mentalidad más positiva'
-      ],
-      videoId: 'PDjQpJzDWUs'
-    },
-    {
-      id: 12,
-      title: 'Técnicas de Relajación Rápida',
-      description: 'Técnicas de relajación rápida son herramientas que podemos usar en cualquier momento para reducir el estrés y recuperar la calma.',
-      category: 'Estrés',
-      icon: '😌',
-      why: 'En nuestro ritmo de vida acelerado, necesitamos herramientas accesibles para manejar el estrés diario. Técnicas rápidas nos permiten intervenir inmediatamente cuando sentimos tensión emocional.',
-      how: [
-        'Técnica 4-7-8: inhala 4 segundos, retiene 7, exhala 8',
-        'Relajación muscular progresiva: tense y relaje grupos musculares',
-        'Visualización: imagina un lugar tranquilo y seguro',
-        'Anclaje: nombra 5 cosas que puedes ver, 4 que puedes tocar, etc.',
-        'Afirmaciones: repite frases calmantes como "Estoy seguro"'
-      ],
-      benefits: [
-        'Reduce el estrés agudo rápidamente',
-        'Mejora la capacidad de respuesta al estrés',
-        'Aumenta la consciencia emocional',
-        'Previene la acumulación de tensión',
-        'Mejora la calidad de vida diaria'
-      ],
-      videoId: '1nX7QYqO4yE'
-    }
-  ];
 
-  const tip = tips.find(t => t.id === parseInt(id || '0'));
-
-  if (!tip) {
-    return (
-      <Container>
-        <Card>
-          <ContentSection>
-            <Title>Consejo no encontrado</Title>
-            <BackButton onClick={() => navigate('/tips')}>
-              ← Regresar a Consejos
-            </BackButton>
-          </ContentSection>
-        </Card>
-      </Container>
-    );
-  }
 
   return (
     <Container>
