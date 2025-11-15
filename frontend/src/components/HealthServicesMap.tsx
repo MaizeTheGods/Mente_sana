@@ -67,7 +67,7 @@ const SearchButton = styled.button`
   right: 20px;
   z-index: 1000;
   padding: 12px 24px;
-  background: linear-gradient(135deg, #81d68bff 0%, #66bb6a 100%);
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
   color: white;
   border: none;
   border-radius: 12px;
