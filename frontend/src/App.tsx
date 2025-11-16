@@ -563,31 +563,17 @@ const Dashboard: React.FC = () => {
 
       <style>
         {`
-          /* From Uiverse.io by SelfMadeSystem */
-          /*
-          More comprehensive version at shenanigans.shoghisimon.ca/collection/css-blur-blob-bg/
-           */
-
-          .container::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            z-index: 1;
-            backdrop-filter: hue-rotate(90deg);
-            mask: linear-gradient(45deg, #0000, #000);
-            animation: rotaty 5s linear infinite;
-            transform-origin: center;
-          }
+          /* Adapted background for site theme */
 
           .container {
             position: absolute;
             background-image: radial-gradient(
               circle at 50% 50%,
               #0000 0,
-              #0000 2px,
-              hsl(0 0 4%) 2px
+              #0000 3px,
+              rgba(129, 199, 132, 0.1) 3px
             );
-            background-size: 8px 8px;
+            background-size: 20px 20px;
             width: 100%;
             height: 100%;
           }
@@ -604,35 +590,34 @@ const Dashboard: React.FC = () => {
           .container::before {
             content: "";
             position: absolute;
-            inset: -8em;
+            inset: -4em;
             z-index: -1;
-            --f: blur(7em) brightness(5);
-            --c: #09f;
+            --f: blur(3em) brightness(1.2);
             animation:
-              blobs-1e28bd3d 150s linear infinite,
-              thingy 5s linear infinite;
-            background-color: #000;
+              blobs-1e28bd3d 200s linear infinite,
+              thingy 10s linear infinite;
+            background-color: transparent;
             background-image: radial-gradient(
-                ellipse 66px 50px at 50% 50%,
-                #0f0 0%,
+                ellipse 60px 45px at 50% 50%,
+                rgba(76, 175, 80, 0.3) 0%,
                 transparent 100%
               ),
-              radial-gradient(ellipse 77px 60px at 50% 50%, #0f0 0%, transparent 100%),
-              radial-gradient(ellipse 78px 100px at 50% 50%, #0f0 0%, transparent 100%),
-              radial-gradient(ellipse 73px 96px at 50% 50%, #0f0 0%, transparent 100%),
-              radial-gradient(ellipse 76px 77px at 50% 50%, #0f0 0%, transparent 100%),
-              radial-gradient(ellipse 66px 51px at 50% 50%, #0f0 0%, transparent 100%),
-              radial-gradient(ellipse 90px 57px at 50% 50%, #0f0 0%, transparent 100%),
-              radial-gradient(ellipse 89px 93px at 50% 50%, #0f0 0%, transparent 100%);
+              radial-gradient(ellipse 70px 55px at 50% 50%, rgba(76, 175, 80, 0.3) 0%, transparent 100%),
+              radial-gradient(ellipse 75px 90px at 50% 50%, rgba(76, 175, 80, 0.3) 0%, transparent 100%),
+              radial-gradient(ellipse 68px 85px at 50% 50%, rgba(76, 175, 80, 0.3) 0%, transparent 100%),
+              radial-gradient(ellipse 70px 70px at 50% 50%, rgba(76, 175, 80, 0.3) 0%, transparent 100%),
+              radial-gradient(ellipse 60px 46px at 50% 50%, rgba(76, 175, 80, 0.3) 0%, transparent 100%),
+              radial-gradient(ellipse 85px 52px at 50% 50%, rgba(76, 175, 80, 0.3) 0%, transparent 100%),
+              radial-gradient(ellipse 83px 87px at 50% 50%, rgba(76, 175, 80, 0.3) 0%, transparent 100%);
             background-size:
-              726px 576px,
-              1242px 454px,
-              876px 1160px,
-              691px 873px,
-              914px 550px,
-              1159px 340px,
-              1017px 831px,
-              313px 977px;
+              800px 640px,
+              1400px 510px,
+              980px 1300px,
+              770px 970px,
+              1020px 610px,
+              1300px 380px,
+              1140px 930px,
+              350px 1090px;
           }
 
           @keyframes blobs-1e28bd3d {
@@ -661,14 +646,6 @@ const Dashboard: React.FC = () => {
             }
           }
 
-          @keyframes rotaty {
-            0% {
-              transform: rotate(0deg);
-            }
-            100% {
-              transform: rotate(360deg);
-            }
-          }
 
           @keyframes fadeInUp {
             from {
