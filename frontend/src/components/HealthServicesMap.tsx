@@ -246,40 +246,56 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState<string>('');
   const [manualLocation, setManualLocation] = useState<string>('');
+  const [debugLogs, setDebugLogs] = useState<string[]>([]);
+  const [showDebug, setShowDebug] = useState(false);
+
+  // Helper function to add debug logs
+  const addLog = (message: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    setDebugLogs(prev => [...prev.slice(-19), `[${timestamp}] ${message}`]); // Keep last 20 logs
+  };
 
   // Function to geocode manual location input
   const handleManualLocation = async () => {
     if (!manualLocation.trim()) return;
 
+    addLog(`Buscando ubicación manual: "${manualLocation}"`);
     setLocationLoading(true);
     setLocationError('');
 
     try {
       // Use Nominatim API for geocoding
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(manualLocation)}&limit=1&countrycodes=mx`
-      );
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(manualLocation)}&limit=1&countrycodes=mx`;
+      addLog(`Llamando a Nominatim API: ${url}`);
+
+      const response = await fetch(url);
 
       if (!response.ok) {
-        throw new Error('Error en la búsqueda de ubicación');
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
+      addLog(`Respuesta de Nominatim: ${data.length} resultados encontrados`);
 
       if (data.length > 0) {
-        const { lat, lon } = data[0];
+        const { lat, lon, display_name } = data[0];
         const newCenter: [number, number] = [parseFloat(lat), parseFloat(lon)];
+        addLog(`Ubicación encontrada: ${display_name} (${newCenter[0]}, ${newCenter[1]})`);
         setMapCenter(newCenter);
         setLocationLoading(false);
         onLocationSelect?.(newCenter);
         setLocationError('');
       } else {
-        setLocationError('No se encontró la ubicación especificada. Intenta con una dirección más específica.');
+        const msg = 'No se encontró la ubicación especificada. Intenta con una dirección más específica.';
+        setLocationError(msg);
+        addLog(`ERROR: ${msg}`);
         setLocationLoading(false);
       }
     } catch (error) {
+      const msg = 'Error al buscar la ubicación. Intenta de nuevo.';
       console.error('Error geocoding location:', error);
-      setLocationError('Error al buscar la ubicación. Intenta de nuevo.');
+      setLocationError(msg);
+      addLog(`ERROR geocoding: ${error}`);
       setLocationLoading(false);
     }
   };
@@ -313,18 +329,24 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
 
   // Get user's location with improved mobile support
   useEffect(() => {
+    addLog('Iniciando obtención de ubicación...');
+
     if (userLocation) {
       setMapCenter(userLocation);
+      addLog(`Ubicación proporcionada manualmente: ${userLocation[0]}, ${userLocation[1]}`);
       return;
     }
 
     if (!navigator.geolocation) {
-      setLocationError('La geolocalización no está disponible en este navegador.');
+      const msg = 'La geolocalización no está disponible en este navegador.';
+      setLocationError(msg);
+      addLog(`ERROR: ${msg}`);
       return;
     }
 
     setLocationLoading(true);
     setLocationError('');
+    addLog('Solicitando permisos de geolocalización...');
 
     const options = {
       enableHighAccuracy: true,
@@ -332,15 +354,19 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
       maximumAge: 300000 // 5 minutes
     };
 
+    addLog(`Opciones de geolocalización: ${JSON.stringify(options)}`);
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude, accuracy } = position.coords;
+        addLog(`Ubicación obtenida exitosamente: ${latitude}, ${longitude} (precisión: ${accuracy}m)`);
         console.log('Location obtained:', { latitude, longitude, accuracy });
         setMapCenter([latitude, longitude]);
         setLocationLoading(false);
         onLocationSelect?.([latitude, longitude]);
       },
       (error) => {
+        addLog(`ERROR de geolocalización: Código ${error.code} - ${error.message}`);
         console.error('Geolocation error:', error);
         setLocationLoading(false);
 
@@ -367,11 +393,13 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
 
   // Search for health services using Overpass API (OpenStreetMap)
   const searchNearbyServices = async () => {
+    addLog('Iniciando búsqueda de servicios de salud...');
     setLoading(true);
     setError('');
     try {
       const [lat, lng] = mapCenter;
       const radius = 10000; // 10km radius
+      addLog(`Buscando servicios en radio de ${radius/1000}km alrededor de ${lat}, ${lng}`);
 
       // Overpass API query for health facilities - expanded search
       const query = `
@@ -404,16 +432,20 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
         out center meta;
       `;
 
+      addLog('Enviando consulta a Overpass API...');
       const response = await fetch('https://overpass-api.de/api/interpreter', {
         method: 'POST',
         body: query
       });
+
+      addLog(`Respuesta de Overpass API: ${response.status} ${response.statusText}`);
 
       if (!response.ok) {
         throw new Error(`API request failed: ${response.status}`);
       }
 
       const data = await response.json();
+      addLog(`Datos recibidos: ${data.elements?.length || 0} elementos encontrados`);
 
       // Transform Overpass data to our format
       const transformedServices: HealthService[] = data.elements
@@ -432,9 +464,11 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
         }));
 
       if (transformedServices.length > 0) {
+        addLog(`Mostrando ${transformedServices.length} servicios reales encontrados`);
         setServices(transformedServices);
       } else {
         // Fallback to mock data when no real services found
+        addLog('No se encontraron servicios reales, usando datos de ejemplo');
         console.log('No real services found, using mock data');
         setServices([
           {
@@ -481,10 +515,12 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
         setError(''); // Clear any previous error
       }
     } catch (error) {
+      addLog(`ERROR en búsqueda de servicios: ${error}`);
       console.error('Error searching services:', error);
       setError('Error al buscar centros de salud. Por favor, intenta de nuevo más tarde.');
 
       // Fallback: provide basic mock data even on API error
+      addLog('Usando datos de respaldo debido a error en API');
       setServices([
         {
           id: 'fallback-1',
@@ -595,230 +631,302 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
   };
 
   return (
-    <Container>
-      <MapCard>
-        <Title>Ayuda Profesional Cercana</Title>
+    <>
+      <Container>
+        <MapCard>
+          <Title>Ayuda Profesional Cercana</Title>
 
-        <InfoSection>
-          <InfoTitle>¿Cómo funciona?</InfoTitle>
-          <InfoText>
-            Esta herramienta te ayuda a encontrar centros de salud mental, hospitales, clínicas y psicólogos
-            cerca de tu ubicación. Haz clic en "Buscar Centros de Salud" para encontrar servicios disponibles
-            en un radio de 5 kilómetros.
-          </InfoText>
-        </InfoSection>
-
-        {/* Location Status */}
-        <InfoSection>
-          <InfoTitle>Ubicación Actual</InfoTitle>
-          <InfoText>
-            {locationLoading ? (
-              'Obteniendo tu ubicación...'
-            ) : locationError ? (
-              <span style={{ color: '#e74c3c' }}>{locationError}</span>
-            ) : (
-              `Mapa centrado en: ${mapCenter[0].toFixed(4)}, ${mapCenter[1].toFixed(4)}`
-            )}
-          </InfoText>
-
-          {locationError && (
-            <div style={{ marginTop: '15px' }}>
-              <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                <button
-                  onClick={retryLocation}
-                  disabled={locationLoading}
-                  style={{
-                    padding: '8px 16px',
-                    background: '#4caf50',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: locationLoading ? 'not-allowed' : 'pointer',
-                    fontSize: '14px'
-                  }}
-                >
-                  {locationLoading ? 'Intentando...' : 'Reintentar Ubicación'}
-                </button>
-              </div>
-
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                <input
-                  type="text"
-                  placeholder="Ingresa tu ciudad o dirección (ej: Acapulco, Guerrero)"
-                  value={manualLocation}
-                  onChange={(e) => setManualLocation(e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: '8px 12px',
-                    border: '1px solid #c8e6c9',
-                    borderRadius: '6px',
-                    fontSize: '14px'
-                  }}
-                  onKeyPress={(e) => e.key === 'Enter' && handleManualLocation()}
-                />
-                <button
-                  onClick={handleManualLocation}
-                  disabled={locationLoading || !manualLocation.trim()}
-                  style={{
-                    padding: '8px 16px',
-                    background: '#4caf50',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: (locationLoading || !manualLocation.trim()) ? 'not-allowed' : 'pointer',
-                    fontSize: '14px'
-                  }}
-                >
-                  {locationLoading ? 'Buscando...' : 'Buscar'}
-                </button>
-              </div>
-            </div>
-          )}
-        </InfoSection>
-
-        {error && (
-          <InfoSection style={{ borderLeftColor: '#e74c3c', background: '#fdf2f2' }}>
-            <InfoTitle style={{ color: '#e74c3c' }}>Error</InfoTitle>
-            <InfoText style={{ color: '#c0392b' }}>{error}</InfoText>
+          <InfoSection>
+            <InfoTitle>¿Cómo funciona?</InfoTitle>
+            <InfoText>
+              Esta herramienta te ayuda a encontrar centros de salud mental, hospitales, clínicas y psicólogos
+              cerca de tu ubicación. Haz clic en "Buscar Centros de Salud" para encontrar servicios disponibles
+              en un radio de 5 kilómetros.
+            </InfoText>
           </InfoSection>
-        )}
 
-        {services.length > 0 && (
-          <ServicesList>
-            <h3 style={{ color: '#2e7d32', marginBottom: '15px', fontSize: '18px' }}>
-              Centros encontrados ({services.length})
-            </h3>
-            {services.some(s => s.id.startsWith('mock-') || s.id.startsWith('fallback-')) && (
-              <div style={{
-                background: '#fff3cd',
-                border: '1px solid #ffeaa7',
-                borderRadius: '8px',
-                padding: '12px',
-                marginBottom: '15px',
-                fontSize: '14px',
-                color: '#856404'
-              }}>
-                <strong>ℹ️ Nota:</strong> Algunos centros mostrados son servicios de referencia. Para información actualizada,
-                contacta a las autoridades de salud local o busca en directorios oficiales.
+          {/* Location Status */}
+          <InfoSection>
+            <InfoTitle>Ubicación Actual</InfoTitle>
+            <InfoText>
+              {locationLoading ? (
+                'Obteniendo tu ubicación...'
+              ) : locationError ? (
+                <span style={{ color: '#e74c3c' }}>{locationError}</span>
+              ) : (
+                `Mapa centrado en: ${mapCenter[0].toFixed(4)}, ${mapCenter[1].toFixed(4)}`
+              )}
+            </InfoText>
+
+            {locationError && (
+              <div style={{ marginTop: '15px' }}>
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                  <button
+                    onClick={retryLocation}
+                    disabled={locationLoading}
+                    style={{
+                      padding: '8px 16px',
+                      background: '#4caf50',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: locationLoading ? 'not-allowed' : 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    {locationLoading ? 'Intentando...' : 'Reintentar Ubicación'}
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    placeholder="Ingresa tu ciudad o dirección (ej: Acapulco, Guerrero)"
+                    value={manualLocation}
+                    onChange={(e) => setManualLocation(e.target.value)}
+                    style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      border: '1px solid #c8e6c9',
+                      borderRadius: '6px',
+                      fontSize: '14px'
+                    }}
+                    onKeyPress={(e) => e.key === 'Enter' && handleManualLocation()}
+                  />
+                  <button
+                    onClick={handleManualLocation}
+                    disabled={locationLoading || !manualLocation.trim()}
+                    style={{
+                      padding: '8px 16px',
+                      background: '#4caf50',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: (locationLoading || !manualLocation.trim()) ? 'not-allowed' : 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    {locationLoading ? 'Buscando...' : 'Buscar'}
+                  </button>
+                </div>
               </div>
             )}
-            {services.map((service) => (
-              <ServiceCard key={service.id}>
-                <ServiceName>
-                  {service.name}
-                  <ServiceType style={{
-                    background: '#4caf50'
-                  }}>
-                    {service.type === 'hospital' ? '🏥 Hospital' :
-                     service.type === 'clinic' ? '🏥 Clínica' :
-                     service.type === 'psychologist' ? '🧠 Psicólogo' : '💬 Centro de Terapia'}
-                  </ServiceType>
-                </ServiceName>
-                <ServiceInfo data-icon="📍">
-                  {service.address !== 'Dirección no disponible' ? (
-                    <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${service.latitude},${service.longitude}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ color: '#4caf50', textDecoration: 'none' }}
-                    >
-                      {service.address}
-                    </a>
-                  ) : (
-                    <span style={{ color: '#999' }}>{service.address}</span>
-                  )}
-                </ServiceInfo>
-                {service.phone && (
-                  <ServiceInfo data-icon="📞">{service.phone}</ServiceInfo>
-                )}
-                {service.website && (
-                  <ServiceInfo data-icon="🌐">
-                    <a href={service.website} target="_blank" rel="noopener noreferrer" style={{ color: '#4caf50' }}>
-                      Sitio web
-                    </a>
+          </InfoSection>
+
+          {error && (
+            <InfoSection style={{ borderLeftColor: '#e74c3c', background: '#fdf2f2' }}>
+              <InfoTitle style={{ color: '#e74c3c' }}>Error</InfoTitle>
+              <InfoText style={{ color: '#c0392b' }}>{error}</InfoText>
+            </InfoSection>
+          )}
+
+          {services.length > 0 && (
+            <ServicesList>
+              <h3 style={{ color: '#2e7d32', marginBottom: '15px', fontSize: '18px' }}>
+                Centros encontrados ({services.length})
+              </h3>
+              {services.some(s => s.id.startsWith('mock-') || s.id.startsWith('fallback-')) && (
+                <div style={{
+                  background: '#fff3cd',
+                  border: '1px solid #ffeaa7',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  marginBottom: '15px',
+                  fontSize: '14px',
+                  color: '#856404'
+                }}>
+                  <strong>ℹ️ Nota:</strong> Algunos centros mostrados son servicios de referencia. Para información actualizada,
+                  contacta a las autoridades de salud local o busca en directorios oficiales.
+                </div>
+              )}
+              {services.map((service) => (
+                <ServiceCard key={service.id}>
+                  <ServiceName>
+                    {service.name}
+                    <ServiceType style={{
+                      background: '#4caf50'
+                    }}>
+                      {service.type === 'hospital' ? '🏥 Hospital' :
+                       service.type === 'clinic' ? '🏥 Clínica' :
+                       service.type === 'psychologist' ? '🧠 Psicólogo' : '💬 Centro de Terapia'}
+                    </ServiceType>
+                  </ServiceName>
+                  <ServiceInfo data-icon="📍">
+                    {service.address !== 'Dirección no disponible' ? (
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${service.latitude},${service.longitude}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: '#4caf50', textDecoration: 'none' }}
+                      >
+                        {service.address}
+                      </a>
+                    ) : (
+                      <span style={{ color: '#999' }}>{service.address}</span>
+                    )}
                   </ServiceInfo>
-                )}
-                {service.description && (
-                  <ServiceInfo data-icon="ℹ️">{service.description}</ServiceInfo>
-                )}
-              </ServiceCard>
-            ))}
-          </ServicesList>
-        )}
+                  {service.phone && (
+                    <ServiceInfo data-icon="📞">{service.phone}</ServiceInfo>
+                  )}
+                  {service.website && (
+                    <ServiceInfo data-icon="🌐">
+                      <a href={service.website} target="_blank" rel="noopener noreferrer" style={{ color: '#4caf50' }}>
+                        Sitio web
+                      </a>
+                    </ServiceInfo>
+                  )}
+                  {service.description && (
+                    <ServiceInfo data-icon="ℹ️">{service.description}</ServiceInfo>
+                  )}
+                </ServiceCard>
+              ))}
+            </ServicesList>
+          )}
 
-        <MapContainerWrapper>
-          <SearchButton onClick={searchNearbyServices} disabled={loading}>
-            {loading ? 'Buscando...' : 'Buscar Centros de Salud'}
-          </SearchButton>
+          <MapContainerWrapper>
+            <SearchButton onClick={searchNearbyServices} disabled={loading}>
+              {loading ? 'Buscando...' : 'Buscar Centros de Salud'}
+            </SearchButton>
 
-          {loading ? (
-            <LoadingMessage>Buscando centros de salud cercanos...</LoadingMessage>
-          ) : (
-            <MapWrapper>
-              <MapContainer
-                center={mapCenter}
-                zoom={13}
-                style={{ height: '100%', width: '100%' }}
-              >
-                <MapController center={mapCenter} />
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
+            {loading ? (
+              <LoadingMessage>Buscando centros de salud cercanos...</LoadingMessage>
+            ) : (
+              <MapWrapper>
+                <MapContainer
+                  center={mapCenter}
+                  zoom={13}
+                  style={{ height: '100%', width: '100%' }}
+                >
+                  <MapController center={mapCenter} />
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
 
-                {/* User location marker */}
-                <Marker position={mapCenter}>
-                  <Popup>
-                    <strong>Tu ubicación</strong>
-                  </Popup>
-                </Marker>
-
-                {/* Health services markers */}
-                {services.map((service) => (
-                  <Marker
-                    key={service.id}
-                    position={[service.latitude, service.longitude]}
-                    icon={getMarkerIcon(service.type)}
-                  >
+                  {/* User location marker */}
+                  <Marker position={mapCenter}>
                     <Popup>
-                      <div style={{ maxWidth: '200px' }}>
-                        <h4 style={{ margin: '0 0 8px 0', color: '#333' }}>
-                          {service.name}
-                        </h4>
-                        <p style={{ margin: '4px 0', fontSize: '14px', color: '#666' }}>
-                          📍 {service.address}
-                        </p>
-                        {service.phone && (
-                          <p style={{ margin: '4px 0', fontSize: '14px' }}>
-                            📞 {service.phone}
-                          </p>
-                        )}
-                        {service.website && (
-                          <p style={{ margin: '4px 0', fontSize: '14px' }}>
-                            🌐 <a href={service.website} target="_blank" rel="noopener noreferrer">
-                              Sitio web
-                            </a>
-                          </p>
-                        )}
-                        {service.description && (
-                          <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#555' }}>
-                            {service.description}
-                          </p>
-                        )}
-                      </div>
+                      <strong>Tu ubicación</strong>
                     </Popup>
                   </Marker>
-                ))}
-              </MapContainer>
-            </MapWrapper>
-          )}
-        </MapContainerWrapper>
 
-        <BackButton onClick={() => window.history.back()}>
-          ← Regresar al Dashboard
-        </BackButton>
-      </MapCard>
-    </Container>
+                  {/* Health services markers */}
+                  {services.map((service) => (
+                    <Marker
+                      key={service.id}
+                      position={[service.latitude, service.longitude]}
+                      icon={getMarkerIcon(service.type)}
+                    >
+                      <Popup>
+                        <div style={{ maxWidth: '200px' }}>
+                          <h4 style={{ margin: '0 0 8px 0', color: '#333' }}>
+                            {service.name}
+                          </h4>
+                          <p style={{ margin: '4px 0', fontSize: '14px', color: '#666' }}>
+                            📍 {service.address}
+                          </p>
+                          {service.phone && (
+                            <p style={{ margin: '4px 0', fontSize: '14px' }}>
+                              📞 {service.phone}
+                            </p>
+                          )}
+                          {service.website && (
+                            <p style={{ margin: '4px 0', fontSize: '14px' }}>
+                              🌐 <a href={service.website} target="_blank" rel="noopener noreferrer">
+                                Sitio web
+                              </a>
+                            </p>
+                          )}
+                          {service.description && (
+                            <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#555' }}>
+                              {service.description}
+                            </p>
+                          )}
+                        </div>
+                      </Popup>
+                    </Marker>
+                  ))}
+                </MapContainer>
+              </MapWrapper>
+            )}
+          </MapContainerWrapper>
+
+          <BackButton onClick={() => window.history.back()}>
+            ← Regresar al Dashboard
+          </BackButton>
+        </MapCard>
+      </Container>
+
+      {/* Debug Panel */}
+      <div style={{
+        position: 'fixed',
+        bottom: '10px',
+        right: '10px',
+        zIndex: 10000,
+        maxWidth: window.innerWidth <= 768 ? '90vw' : '400px'
+      }}>
+        <button
+          onClick={() => setShowDebug(!showDebug)}
+          style={{
+            padding: '8px 12px',
+            background: '#ff6b6b',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            fontSize: '12px',
+            cursor: 'pointer',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+          }}
+        >
+          {showDebug ? 'Ocultar Debug' : '🐛 Debug'}
+        </button>
+
+        {showDebug && (
+          <div style={{
+            marginTop: '8px',
+            background: 'rgba(0,0,0,0.9)',
+            color: '#00ff00',
+            borderRadius: '8px',
+            padding: '12px',
+            fontSize: '11px',
+            fontFamily: 'monospace',
+            maxHeight: '300px',
+            overflowY: 'auto',
+            border: '1px solid #333'
+          }}>
+            <div style={{ marginBottom: '8px', fontWeight: 'bold' }}>Debug Logs:</div>
+            {debugLogs.length === 0 ? (
+              <div style={{ color: '#888' }}>No hay logs aún...</div>
+            ) : (
+              debugLogs.map((log, index) => (
+                <div key={index} style={{
+                  marginBottom: '4px',
+                  padding: '2px 0',
+                  borderBottom: index < debugLogs.length - 1 ? '1px solid #333' : 'none'
+                }}>
+                  {log}
+                </div>
+              ))
+            )}
+            <button
+              onClick={() => setDebugLogs([])}
+              style={{
+                marginTop: '8px',
+                padding: '4px 8px',
+                background: '#666',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '10px',
+                cursor: 'pointer'
+              }}
+            >
+              Limpiar Logs
+            </button>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
