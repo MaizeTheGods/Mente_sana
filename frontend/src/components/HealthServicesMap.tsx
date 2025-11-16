@@ -327,15 +327,19 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
     );
   };
 
-  // Get user's location with improved mobile support
+  // Initialize with user location if provided, otherwise show default
   useEffect(() => {
-    addLog('Iniciando obtención de ubicación...');
-
     if (userLocation) {
       setMapCenter(userLocation);
       addLog(`Ubicación proporcionada manualmente: ${userLocation[0]}, ${userLocation[1]}`);
-      return;
+    } else {
+      addLog('Esperando solicitud manual de ubicación (requerido para iOS Safari)');
     }
+  }, [userLocation, onLocationSelect]);
+
+  // Function to request user location (requires user gesture for iOS Safari)
+  const requestUserLocation = () => {
+    addLog('Usuario solicitó ubicación manualmente...');
 
     if (!navigator.geolocation) {
       const msg = 'La geolocalización no está disponible en este navegador.';
@@ -373,7 +377,7 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
         let errorMessage = '';
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage = 'Acceso a la ubicación denegado. Por favor, permite el acceso a la ubicación en la configuración de tu navegador.';
+            errorMessage = 'Acceso a la ubicación denegado. Por favor, permite el acceso a la ubicación en la configuración de tu navegador y toca "Obtener mi ubicación".';
             break;
           case error.POSITION_UNAVAILABLE:
             errorMessage = 'La ubicación no está disponible. Verifica tu conexión a internet y GPS.';
@@ -389,7 +393,7 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
       },
       options
     );
-  }, [userLocation, onLocationSelect]);
+  };
 
   // Search for health services using Overpass API (OpenStreetMap)
   const searchNearbyServices = async () => {
@@ -653,40 +657,77 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
                 'Obteniendo tu ubicación...'
               ) : locationError ? (
                 <span style={{ color: '#e74c3c' }}>{locationError}</span>
+              ) : userLocation ? (
+                `Ubicación manual: ${mapCenter[0].toFixed(4)}, ${mapCenter[1].toFixed(4)}`
               ) : (
-                `Mapa centrado en: ${mapCenter[0].toFixed(4)}, ${mapCenter[1].toFixed(4)}`
+                'Ubicación no establecida. Usa los botones abajo para obtener tu ubicación.'
               )}
             </InfoText>
 
-            {locationError && (
-              <div style={{ marginTop: '15px' }}>
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+            <div style={{ marginTop: '15px' }}>
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', flexWrap: 'wrap' }}>
+                <button
+                  onClick={requestUserLocation}
+                  disabled={locationLoading}
+                  style={{
+                    padding: '10px 20px',
+                    background: '#4caf50',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: locationLoading ? 'not-allowed' : 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    boxShadow: '0 2px 4px rgba(76, 175, 80, 0.2)',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!locationLoading) {
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(76, 175, 80, 0.3)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(76, 175, 80, 0.2)';
+                  }}
+                >
+                  📍 {locationLoading ? 'Obteniendo...' : 'Obtener mi ubicación'}
+                </button>
+
+                {locationError && (
                   <button
-                    onClick={retryLocation}
+                    onClick={requestUserLocation}
                     disabled={locationLoading}
                     style={{
-                      padding: '8px 16px',
-                      background: '#4caf50',
+                      padding: '10px 20px',
+                      background: '#ff9800',
                       color: 'white',
                       border: 'none',
-                      borderRadius: '6px',
+                      borderRadius: '8px',
                       cursor: locationLoading ? 'not-allowed' : 'pointer',
-                      fontSize: '14px'
+                      fontSize: '14px',
+                      fontWeight: '600'
                     }}
                   >
-                    {locationLoading ? 'Intentando...' : 'Reintentar Ubicación'}
+                    🔄 Reintentar
                   </button>
-                </div>
+                )}
+              </div>
 
+              <div style={{ borderTop: '1px solid #e9ecef', paddingTop: '15px', marginTop: '15px' }}>
+                <div style={{ fontSize: '14px', color: '#666', marginBottom: '10px', fontWeight: '500' }}>
+                  O ingresa manualmente tu ubicación:
+                </div>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <input
                     type="text"
-                    placeholder="Ingresa tu ciudad o dirección (ej: Acapulco, Guerrero)"
+                    placeholder="Ej: Acapulco, Guerrero"
                     value={manualLocation}
                     onChange={(e) => setManualLocation(e.target.value)}
                     style={{
                       flex: 1,
-                      padding: '8px 12px',
+                      padding: '10px 12px',
                       border: '1px solid #c8e6c9',
                       borderRadius: '6px',
                       fontSize: '14px'
@@ -697,20 +738,21 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
                     onClick={handleManualLocation}
                     disabled={locationLoading || !manualLocation.trim()}
                     style={{
-                      padding: '8px 16px',
-                      background: '#4caf50',
+                      padding: '10px 16px',
+                      background: '#2196f3',
                       color: 'white',
                       border: 'none',
                       borderRadius: '6px',
                       cursor: (locationLoading || !manualLocation.trim()) ? 'not-allowed' : 'pointer',
-                      fontSize: '14px'
+                      fontSize: '14px',
+                      fontWeight: '600'
                     }}
                   >
                     {locationLoading ? 'Buscando...' : 'Buscar'}
                   </button>
                 </div>
               </div>
-            )}
+            </div>
           </InfoSection>
 
           {error && (
