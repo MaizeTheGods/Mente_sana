@@ -249,6 +249,12 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
   const [debugLogs, setDebugLogs] = useState<string[]>([]);
   const [showDebug, setShowDebug] = useState(false);
 
+  // Detect iOS device
+  const isIOS = () => {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  };
+
   // Helper function to add debug logs
   const addLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -375,18 +381,73 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
         setLocationLoading(false);
 
         let errorMessage = '';
+        const iosInstructions = isIOS() ? `
+📱 INSTRUCCIONES PARA iOS/iPhone:
+1. Ve a: Ajustes → Safari → Ubicación
+2. Selecciona "Preguntar" o "Permitir"
+3. También: Ajustes → Privacidad → Servicios de ubicación → Safari → Permitir
+4. 🔄 IMPORTANTE: Actualiza esta página (pulsa el botón de recarga ↻)
+5. Toca "Obtener mi ubicación" nuevamente
+
+Si aún falla:
+• Cierra Safari completamente y vuelve a abrirlo
+• Verifica que tienes buena señal GPS
+• Intenta en otra red WiFi
+• Reinicia tu iPhone si es necesario` : '';
+
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage = 'Acceso a la ubicación denegado. Por favor, permite el acceso a la ubicación en la configuración de tu navegador y toca "Obtener mi ubicación".';
+            errorMessage = `❌ PERMISO DENEGADO
+El acceso a tu ubicación fue rechazado por el navegador.
+
+${iosInstructions}
+
+Para otros navegadores:
+• Haz clic en el ícono de candado/descarga segura en la barra de direcciones
+• Selecciona "Permitir" para Ubicación
+• Actualiza la página e intenta nuevamente
+
+También puedes ingresar manualmente tu ubicación abajo.`;
             break;
           case error.POSITION_UNAVAILABLE:
-            errorMessage = 'La ubicación no está disponible. Verifica tu conexión a internet y GPS.';
+            errorMessage = `❌ UBICACIÓN NO DISPONIBLE
+No se pudo determinar tu ubicación.
+
+Posibles causas:
+• GPS desactivado
+• Sin conexión a internet
+• Estás en un área sin cobertura GPS
+• Problemas con los servicios de ubicación del dispositivo
+
+${iosInstructions}
+
+Solución alternativa: Ingresa manualmente tu ciudad abajo (ej: "Acapulco, Guerrero").`;
             break;
           case error.TIMEOUT:
-            errorMessage = 'Tiempo de espera agotado al obtener la ubicación. Intenta de nuevo.';
+            errorMessage = `⏰ TIEMPO AGOTADO
+La solicitud de ubicación tardó demasiado en responder.
+
+Posibles causas:
+• Conexión a internet lenta
+• GPS tardando en obtener señal
+• Servicios de ubicación sobrecargados
+
+${iosInstructions}
+
+Intenta:
+• Esperar un momento y tocar "Reintentar"
+• Verificar que tienes buena señal de internet
+• Moverte a un área con mejor recepción GPS
+
+O usa la búsqueda manual abajo.`;
             break;
           default:
-            errorMessage = 'Error al obtener tu ubicación. Puedes ingresar manualmente tu ubicación abajo.';
+            errorMessage = `❌ ERROR DESCONOCIDO
+Ocurrió un error inesperado al obtener tu ubicación (Código: ${error.code}).
+
+${iosInstructions}
+
+Solución: Intenta nuevamente o usa la búsqueda manual de ubicación abajo.`;
             break;
         }
         setLocationError(errorMessage);
@@ -645,9 +706,24 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
             <InfoText>
               Esta herramienta te ayuda a encontrar centros de salud mental, hospitales, clínicas y psicólogos
               cerca de tu ubicación. Haz clic en "Buscar Centros de Salud" para encontrar servicios disponibles
-              en un radio de 5 kilómetros.
+              en un radio de 10 kilómetros.
             </InfoText>
           </InfoSection>
+  
+          {isIOS() && (
+            <InfoSection style={{ borderLeftColor: '#2196f3', background: '#e3f2fd' }}>
+              <InfoTitle style={{ color: '#1976d2' }}>📱 Importante para usuarios de iPhone/iPad</InfoTitle>
+              <InfoText style={{ color: '#1976d2' }}>
+                <strong>Para que funcione la ubicación en iOS:</strong>
+                <br />• Ve a: <strong>Ajustes → Safari → Ubicación</strong>
+                <br />• Selecciona <strong>"Preguntar" o "Permitir"</strong>
+                <br />• También verifica: <strong>Ajustes → Privacidad → Servicios de ubicación → Safari</strong>
+                <br />• Si ya lo hiciste, toca "Obtener mi ubicación" abajo
+                <br />
+                <br /><em>Si aún no funciona, usa la búsqueda manual con tu ciudad.</em>
+              </InfoText>
+            </InfoSection>
+          )}
 
           {/* Location Status */}
           <InfoSection>
