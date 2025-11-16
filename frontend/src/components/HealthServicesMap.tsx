@@ -249,30 +249,17 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
   const [debugLogs, setDebugLogs] = useState<string[]>([]);
   const [showDebug, setShowDebug] = useState(false);
 
-  // Detect iOS device
-  const isIOS = () => {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  };
-
-  // Helper function to add debug logs
-  const addLog = (message: string) => {
-    const timestamp = new Date().toLocaleTimeString();
-    setDebugLogs(prev => [...prev.slice(-19), `[${timestamp}] ${message}`]); // Keep last 20 logs
-  };
 
   // Function to geocode manual location input
   const handleManualLocation = async () => {
     if (!manualLocation.trim()) return;
 
-    addLog(`Buscando ubicación manual: "${manualLocation}"`);
     setLocationLoading(true);
     setLocationError('');
 
     try {
       // Use Nominatim API for geocoding
       const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(manualLocation)}&limit=1&countrycodes=mx`;
-      addLog(`Llamando a Nominatim API: ${url}`);
 
       const response = await fetch(url);
 
@@ -281,12 +268,10 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
       }
 
       const data = await response.json();
-      addLog(`Respuesta de Nominatim: ${data.length} resultados encontrados`);
 
       if (data.length > 0) {
         const { lat, lon, display_name } = data[0];
         const newCenter: [number, number] = [parseFloat(lat), parseFloat(lon)];
-        addLog(`Ubicación encontrada: ${display_name} (${newCenter[0]}, ${newCenter[1]})`);
         setMapCenter(newCenter);
         setLocationLoading(false);
         onLocationSelect?.(newCenter);
@@ -294,14 +279,12 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
       } else {
         const msg = 'No se encontró la ubicación especificada. Intenta con una dirección más específica.';
         setLocationError(msg);
-        addLog(`ERROR: ${msg}`);
         setLocationLoading(false);
       }
     } catch (error) {
       const msg = 'Error al buscar la ubicación. Intenta de nuevo.';
       console.error('Error geocoding location:', error);
       setLocationError(msg);
-      addLog(`ERROR geocoding: ${error}`);
       setLocationLoading(false);
     }
   };
@@ -337,26 +320,21 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
   useEffect(() => {
     if (userLocation) {
       setMapCenter(userLocation);
-      addLog(`Ubicación proporcionada manualmente: ${userLocation[0]}, ${userLocation[1]}`);
     } else {
-      addLog('Esperando solicitud manual de ubicación (requerido para iOS Safari)');
     }
   }, [userLocation, onLocationSelect]);
 
   // Function to request user location (requires user gesture for iOS Safari)
   const requestUserLocation = () => {
-    addLog('Usuario solicitó ubicación manualmente...');
 
     if (!navigator.geolocation) {
       const msg = 'La geolocalización no está disponible en este navegador.';
       setLocationError(msg);
-      addLog(`ERROR: ${msg}`);
       return;
     }
 
     setLocationLoading(true);
     setLocationError('');
-    addLog('Solicitando permisos de geolocalización...');
 
     const options = {
       enableHighAccuracy: true,
@@ -364,24 +342,21 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
       maximumAge: 300000 // 5 minutes
     };
 
-    addLog(`Opciones de geolocalización: ${JSON.stringify(options)}`);
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude, accuracy } = position.coords;
-        addLog(`Ubicación obtenida exitosamente: ${latitude}, ${longitude} (precisión: ${accuracy}m)`);
         console.log('Location obtained:', { latitude, longitude, accuracy });
         setMapCenter([latitude, longitude]);
         setLocationLoading(false);
         onLocationSelect?.([latitude, longitude]);
       },
       (error) => {
-        addLog(`ERROR de geolocalización: Código ${error.code} - ${error.message}`);
         console.error('Geolocation error:', error);
         setLocationLoading(false);
 
         let errorMessage = '';
-        const iosInstructions = isIOS() ? `
+        const iosInstructions = /iPad|iPhone|iPod/.test(navigator.userAgent) ? `
 📱 INSTRUCCIONES PARA iOS/iPhone:
 1. Ve a: Ajustes → Safari → Ubicación
 2. Selecciona "Preguntar" o "Permitir"
@@ -458,13 +433,11 @@ Solución: Intenta nuevamente o usa la búsqueda manual de ubicación abajo.`;
 
   // Search for health services using Overpass API (OpenStreetMap)
   const searchNearbyServices = async () => {
-    addLog('Iniciando búsqueda de servicios de salud...');
     setLoading(true);
     setError('');
     try {
       const [lat, lng] = mapCenter;
       const radius = 10000; // 10km radius
-      addLog(`Buscando servicios en radio de ${radius/1000}km alrededor de ${lat}, ${lng}`);
 
       // Overpass API query for health facilities - expanded search
       const query = `
@@ -497,20 +470,17 @@ Solución: Intenta nuevamente o usa la búsqueda manual de ubicación abajo.`;
         out center meta;
       `;
 
-      addLog('Enviando consulta a Overpass API...');
       const response = await fetch('https://overpass-api.de/api/interpreter', {
         method: 'POST',
         body: query
       });
 
-      addLog(`Respuesta de Overpass API: ${response.status} ${response.statusText}`);
 
       if (!response.ok) {
         throw new Error(`API request failed: ${response.status}`);
       }
 
       const data = await response.json();
-      addLog(`Datos recibidos: ${data.elements?.length || 0} elementos encontrados`);
 
       // Transform Overpass data to our format
       const transformedServices: HealthService[] = data.elements
@@ -529,11 +499,9 @@ Solución: Intenta nuevamente o usa la búsqueda manual de ubicación abajo.`;
         }));
 
       if (transformedServices.length > 0) {
-        addLog(`Mostrando ${transformedServices.length} servicios reales encontrados`);
         setServices(transformedServices);
       } else {
         // Fallback to mock data when no real services found
-        addLog('No se encontraron servicios reales, usando datos de ejemplo');
         console.log('No real services found, using mock data');
         setServices([
           {
@@ -580,12 +548,10 @@ Solución: Intenta nuevamente o usa la búsqueda manual de ubicación abajo.`;
         setError(''); // Clear any previous error
       }
     } catch (error) {
-      addLog(`ERROR en búsqueda de servicios: ${error}`);
       console.error('Error searching services:', error);
       setError('Error al buscar centros de salud. Por favor, intenta de nuevo más tarde.');
 
       // Fallback: provide basic mock data even on API error
-      addLog('Usando datos de respaldo debido a error en API');
       setServices([
         {
           id: 'fallback-1',
@@ -709,21 +675,6 @@ Solución: Intenta nuevamente o usa la búsqueda manual de ubicación abajo.`;
               en un radio de 10 kilómetros.
             </InfoText>
           </InfoSection>
-  
-          {isIOS() && (
-            <InfoSection style={{ borderLeftColor: '#2196f3', background: '#e3f2fd' }}>
-              <InfoTitle style={{ color: '#1976d2' }}>📱 Importante para usuarios de iPhone/iPad</InfoTitle>
-              <InfoText style={{ color: '#1976d2' }}>
-                <strong>Para que funcione la ubicación en iOS:</strong>
-                <br />• Ve a: <strong>Ajustes → Safari → Ubicación</strong>
-                <br />• Selecciona <strong>"Preguntar" o "Permitir"</strong>
-                <br />• También verifica: <strong>Ajustes → Privacidad → Servicios de ubicación → Safari</strong>
-                <br />• Si ya lo hiciste, toca "Obtener mi ubicación" abajo
-                <br />
-                <br /><em>Si aún no funciona, usa la búsqueda manual con tu ciudad.</em>
-              </InfoText>
-            </InfoSection>
-          )}
 
           {/* Location Status */}
           <InfoSection>
@@ -1049,3 +1000,5 @@ Solución: Intenta nuevamente o usa la búsqueda manual de ubicación abajo.`;
 };
 
 export default HealthServicesMap;
+
+
