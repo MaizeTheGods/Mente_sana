@@ -243,24 +243,126 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
   const [error, setError] = useState<string>('');
   const [mapCenter, setMapCenter] = useState<[number, number]>([19.4326, -99.1332]); // Default: Mexico City
   const [selectedType, setSelectedType] = useState<HealthService['type'] | 'all'>('all');
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationError, setLocationError] = useState<string>('');
+  const [manualLocation, setManualLocation] = useState<string>('');
 
-  // Get user's location
-  useEffect(() => {
-    if (navigator.geolocation && !userLocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setMapCenter([latitude, longitude]);
-          onLocationSelect?.([latitude, longitude]);
-        },
-        (error) => {
-          console.log('Error getting location:', error);
-          // Keep default location
-        }
+  // Function to geocode manual location input
+  const handleManualLocation = async () => {
+    if (!manualLocation.trim()) return;
+
+    setLocationLoading(true);
+    setLocationError('');
+
+    try {
+      // Use Nominatim API for geocoding
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(manualLocation)}&limit=1&countrycodes=mx`
       );
-    } else if (userLocation) {
-      setMapCenter(userLocation);
+
+      if (!response.ok) {
+        throw new Error('Error en la búsqueda de ubicación');
+      }
+
+      const data = await response.json();
+
+      if (data.length > 0) {
+        const { lat, lon } = data[0];
+        const newCenter: [number, number] = [parseFloat(lat), parseFloat(lon)];
+        setMapCenter(newCenter);
+        setLocationLoading(false);
+        onLocationSelect?.(newCenter);
+        setLocationError('');
+      } else {
+        setLocationError('No se encontró la ubicación especificada. Intenta con una dirección más específica.');
+        setLocationLoading(false);
+      }
+    } catch (error) {
+      console.error('Error geocoding location:', error);
+      setLocationError('Error al buscar la ubicación. Intenta de nuevo.');
+      setLocationLoading(false);
     }
+  };
+
+  // Function to retry getting current location
+  const retryLocation = () => {
+    setLocationError('');
+    setLocationLoading(true);
+
+    const options = {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0 // Force fresh location
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setMapCenter([latitude, longitude]);
+        setLocationLoading(false);
+        onLocationSelect?.([latitude, longitude]);
+      },
+      (error) => {
+        console.error('Retry geolocation error:', error);
+        setLocationLoading(false);
+        setLocationError('No se pudo obtener tu ubicación. Intenta ingresar manualmente tu ubicación abajo.');
+      },
+      options
+    );
+  };
+
+  // Get user's location with improved mobile support
+  useEffect(() => {
+    if (userLocation) {
+      setMapCenter(userLocation);
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      setLocationError('La geolocalización no está disponible en este navegador.');
+      return;
+    }
+
+    setLocationLoading(true);
+    setLocationError('');
+
+    const options = {
+      enableHighAccuracy: true,
+      timeout: 15000, // 15 seconds
+      maximumAge: 300000 // 5 minutes
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude, accuracy } = position.coords;
+        console.log('Location obtained:', { latitude, longitude, accuracy });
+        setMapCenter([latitude, longitude]);
+        setLocationLoading(false);
+        onLocationSelect?.([latitude, longitude]);
+      },
+      (error) => {
+        console.error('Geolocation error:', error);
+        setLocationLoading(false);
+
+        let errorMessage = '';
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = 'Acceso a la ubicación denegado. Por favor, permite el acceso a la ubicación en la configuración de tu navegador.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = 'La ubicación no está disponible. Verifica tu conexión a internet y GPS.';
+            break;
+          case error.TIMEOUT:
+            errorMessage = 'Tiempo de espera agotado al obtener la ubicación. Intenta de nuevo.';
+            break;
+          default:
+            errorMessage = 'Error al obtener tu ubicación. Puedes ingresar manualmente tu ubicación abajo.';
+            break;
+        }
+        setLocationError(errorMessage);
+      },
+      options
+    );
   }, [userLocation, onLocationSelect]);
 
   // Search for health services using Overpass API (OpenStreetMap)
@@ -447,6 +549,74 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
             cerca de tu ubicación. Haz clic en "Buscar Centros de Salud" para encontrar servicios disponibles
             en un radio de 5 kilómetros.
           </InfoText>
+        </InfoSection>
+
+        {/* Location Status */}
+        <InfoSection>
+          <InfoTitle>Ubicación Actual</InfoTitle>
+          <InfoText>
+            {locationLoading ? (
+              'Obteniendo tu ubicación...'
+            ) : locationError ? (
+              <span style={{ color: '#e74c3c' }}>{locationError}</span>
+            ) : (
+              `Mapa centrado en: ${mapCenter[0].toFixed(4)}, ${mapCenter[1].toFixed(4)}`
+            )}
+          </InfoText>
+
+          {locationError && (
+            <div style={{ marginTop: '15px' }}>
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                <button
+                  onClick={retryLocation}
+                  disabled={locationLoading}
+                  style={{
+                    padding: '8px 16px',
+                    background: '#4caf50',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: locationLoading ? 'not-allowed' : 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  {locationLoading ? 'Intentando...' : 'Reintentar Ubicación'}
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  placeholder="Ingresa tu ciudad o dirección (ej: Acapulco, Guerrero)"
+                  value={manualLocation}
+                  onChange={(e) => setManualLocation(e.target.value)}
+                  style={{
+                    flex: 1,
+                    padding: '8px 12px',
+                    border: '1px solid #c8e6c9',
+                    borderRadius: '6px',
+                    fontSize: '14px'
+                  }}
+                  onKeyPress={(e) => e.key === 'Enter' && handleManualLocation()}
+                />
+                <button
+                  onClick={handleManualLocation}
+                  disabled={locationLoading || !manualLocation.trim()}
+                  style={{
+                    padding: '8px 16px',
+                    background: '#4caf50',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: (locationLoading || !manualLocation.trim()) ? 'not-allowed' : 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  {locationLoading ? 'Buscando...' : 'Buscar'}
+                </button>
+              </div>
+            </div>
+          )}
         </InfoSection>
 
         {error && (
