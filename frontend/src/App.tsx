@@ -563,86 +563,32 @@ const Dashboard: React.FC = () => {
 
       <style>
         {`
-          /* Adapted background for site theme */
-
+          /* From Uiverse.io by jeremyssocial - adapted to site colors */
           .container {
             position: absolute;
-            background-image: radial-gradient(
-              circle at 50% 50%,
-              #0000 0,
-              #0000 3px,
-              rgba(129, 199, 132, 0.1) 3px
-            );
-            background-size: 20px 20px;
             width: 100%;
             height: 100%;
+            background: #f1f8e9; /* Fallback */
+            background: linear-gradient(
+              135deg,
+              #f1f8e9 25%,
+              #e8f5e8 25%,
+              #e8f5e8 50%,
+              #f1f8e9 50%,
+              #f1f8e9 75%,
+              #e8f5e8 75%,
+              #e8f5e8
+            );
+            background-size: 40px 40px;
+            animation: move 4s linear infinite;
           }
 
-          @keyframes thingy {
+          @keyframes move {
             0% {
-              filter: var(--f) hue-rotate(0deg);
+              background-position: 0 0;
             }
-            to {
-              filter: var(--f) hue-rotate(1turn);
-            }
-          }
-
-          .container::before {
-            content: "";
-            position: absolute;
-            inset: -4em;
-            z-index: -1;
-            --f: blur(3em) brightness(1.2);
-            animation:
-              blobs-1e28bd3d 200s linear infinite,
-              thingy 10s linear infinite;
-            background-color: transparent;
-            background-image: radial-gradient(
-                ellipse 60px 45px at 50% 50%,
-                rgba(76, 175, 80, 0.3) 0%,
-                transparent 100%
-              ),
-              radial-gradient(ellipse 70px 55px at 50% 50%, rgba(76, 175, 80, 0.3) 0%, transparent 100%),
-              radial-gradient(ellipse 75px 90px at 50% 50%, rgba(76, 175, 80, 0.3) 0%, transparent 100%),
-              radial-gradient(ellipse 68px 85px at 50% 50%, rgba(76, 175, 80, 0.3) 0%, transparent 100%),
-              radial-gradient(ellipse 70px 70px at 50% 50%, rgba(76, 175, 80, 0.3) 0%, transparent 100%),
-              radial-gradient(ellipse 60px 46px at 50% 50%, rgba(76, 175, 80, 0.3) 0%, transparent 100%),
-              radial-gradient(ellipse 85px 52px at 50% 50%, rgba(76, 175, 80, 0.3) 0%, transparent 100%),
-              radial-gradient(ellipse 83px 87px at 50% 50%, rgba(76, 175, 80, 0.3) 0%, transparent 100%);
-            background-size:
-              800px 640px,
-              1400px 510px,
-              980px 1300px,
-              770px 970px,
-              1020px 610px,
-              1300px 380px,
-              1140px 930px,
-              350px 1090px;
-          }
-
-          @keyframes blobs-1e28bd3d {
-            0% {
-              background-position:
-                271px 478px,
-                62px 291px,
-                67px 861px,
-                553px 413px,
-                36px 392px,
-                1077px 226px,
-                400px 799px,
-                7px 264px;
-            }
-
-            to {
-              background-position:
-                -14975px -2978px,
-                31112px 11187px,
-                -20081px 8981px,
-                11609px -3952px,
-                -12760px 12492px,
-                -9354px 2946px,
-                9553px 21574px,
-                946px 9057px;
+            100% {
+              background-position: 40px 40px;
             }
           }
 
