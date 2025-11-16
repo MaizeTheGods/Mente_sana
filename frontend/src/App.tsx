@@ -311,18 +311,16 @@ const Dashboard: React.FC = () => {
     <div style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%)',
-      padding: '20px',
-      position: 'relative',
-      overflow: 'hidden'
+      padding: window.innerWidth <= 768 ? '10px' : '20px'
     }}>
       <div className="rain-container"></div>
       {/* Header */}
       <header style={{
         background: 'rgba(255, 255, 255, 0.95)',
         backdropFilter: 'blur(10px)',
-        borderRadius: '16px',
-        padding: '24px',
-        marginBottom: '32px',
+        borderRadius: window.innerWidth <= 768 ? '12px' : '16px',
+        padding: window.innerWidth <= 768 ? '16px' : '24px',
+        marginBottom: window.innerWidth <= 768 ? '24px' : '32px',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
         border: '1px solid rgba(255, 255, 255, 0.2)'
       }}>
@@ -331,13 +329,13 @@ const Dashboard: React.FC = () => {
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: '16px'
+          gap: window.innerWidth <= 768 ? '12px' : '16px'
         }}>
           <div>
             <h1 style={{
               color: '#2e7d32',
               margin: '0 0 8px 0',
-              fontSize: '2.5rem',
+              fontSize: window.innerWidth <= 768 ? '2rem' : '2.5rem',
               fontWeight: '700',
               letterSpacing: '-0.025em'
             }}>
@@ -346,7 +344,7 @@ const Dashboard: React.FC = () => {
             <p style={{
               color: '#4caf50',
               margin: '0',
-              fontSize: '1.125rem',
+              fontSize: window.innerWidth <= 768 ? '1rem' : '1.125rem',
               fontWeight: '400'
             }}>
               Tu plataforma de apoyo para la salud mental
@@ -355,12 +353,12 @@ const Dashboard: React.FC = () => {
           <button
             onClick={logout}
             style={{
-              padding: '12px 24px',
+              padding: window.innerWidth <= 768 ? '10px 20px' : '12px 24px',
               background: 'linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)',
               color: 'white',
               border: 'none',
               borderRadius: '12px',
-              fontSize: '14px',
+              fontSize: window.innerWidth <= 768 ? '13px' : '14px',
               fontWeight: '600',
               cursor: 'pointer',
               boxShadow: '0 4px 6px rgba(76, 175, 80, 0.2)',
@@ -381,11 +379,15 @@ const Dashboard: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '32px' }}>
+      <main style={{
+        maxWidth: window.innerWidth <= 768 ? '100%' : '1200px',
+        margin: '0 auto',
+        padding: window.innerWidth <= 768 ? '0 10px' : '0'
+      }}>
+        <div style={{ marginBottom: window.innerWidth <= 768 ? '24px' : '32px' }}>
           <h2 style={{
             color: '#2e7d32',
-            fontSize: '1.875rem',
+            fontSize: window.innerWidth <= 768 ? '1.5rem' : '1.875rem',
             fontWeight: '600',
             margin: '0 0 8px 0',
             textAlign: 'center'
@@ -394,7 +396,7 @@ const Dashboard: React.FC = () => {
           </h2>
           <p style={{
             color: '#4caf50',
-            fontSize: '1.125rem',
+            fontSize: window.innerWidth <= 768 ? '1rem' : '1.125rem',
             textAlign: 'center',
             margin: '0'
           }}>
@@ -407,11 +409,11 @@ const Dashboard: React.FC = () => {
           <div style={{
             background: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(10px)',
-            borderRadius: '16px',
-            padding: '32px',
+            borderRadius: window.innerWidth <= 768 ? '12px' : '16px',
+            padding: window.innerWidth <= 768 ? '20px' : '32px',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
-            marginBottom: '48px'
+            marginBottom: window.innerWidth <= 768 ? '32px' : '48px'
           }}>
             <h2 style={{
               color: '#2e7d32',
@@ -458,7 +460,10 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Chart */}
-            <div style={{ height: '400px', position: 'relative' }}>
+            <div style={{
+              height: window.innerWidth <= 768 ? '300px' : '400px',
+              position: 'relative'
+            }}>
               {chartData && <Line data={chartData} options={chartOptions} />}
             </div>
 
@@ -480,9 +485,9 @@ const Dashboard: React.FC = () => {
         {/* Features Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '24px',
-          marginBottom: '48px'
+          gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: window.innerWidth <= 768 ? '16px' : '24px',
+          marginBottom: window.innerWidth <= 768 ? '32px' : '48px'
         }}>
           {features.map((feature, index) => (
             <div
@@ -491,8 +496,8 @@ const Dashboard: React.FC = () => {
               style={{
                 background: 'rgba(255, 255, 255, 0.95)',
                 backdropFilter: 'blur(10px)',
-                borderRadius: '16px',
-                padding: '32px',
+                borderRadius: window.innerWidth <= 768 ? '12px' : '16px',
+                padding: window.innerWidth <= 768 ? '24px' : '32px',
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
                 cursor: 'pointer',
@@ -509,22 +514,22 @@ const Dashboard: React.FC = () => {
               }}
             >
               <div style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '16px',
+                width: window.innerWidth <= 768 ? '56px' : '64px',
+                height: window.innerWidth <= 768 ? '56px' : '64px',
+                borderRadius: window.innerWidth <= 768 ? '14px' : '16px',
                 background: feature.gradient,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '2rem',
-                marginBottom: '20px',
+                fontSize: window.innerWidth <= 768 ? '1.75rem' : '2rem',
+                marginBottom: window.innerWidth <= 768 ? '16px' : '20px',
                 boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)'
               }}>
                 {feature.icon}
               </div>
               <h3 style={{
                 color: '#2e7d32',
-                fontSize: '1.25rem',
+                fontSize: window.innerWidth <= 768 ? '1.125rem' : '1.25rem',
                 fontWeight: '600',
                 margin: '0 0 12px 0'
               }}>
@@ -532,7 +537,7 @@ const Dashboard: React.FC = () => {
               </h3>
               <p style={{
                 color: '#4caf50',
-                fontSize: '1rem',
+                fontSize: window.innerWidth <= 768 ? '0.9rem' : '1rem',
                 lineHeight: '1.5',
                 margin: '0'
               }}>
