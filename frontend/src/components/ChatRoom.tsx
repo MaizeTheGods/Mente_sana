@@ -7,195 +7,308 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%);
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   padding: 20px;
 `;
 
 const ChatCard = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 20px;
   padding: 0;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
   width: 100%;
-  max-width: 800px;
-  max-height: 90vh;
+  max-width: 900px;
+  height: 85vh;
   overflow: hidden;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   flex-direction: column;
 `;
 
 const Header = styled.div`
-  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 20px;
-  border-radius: 16px 16px 0 0;
+  padding: 24px 28px;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
 `;
 
-const GroupTitle = styled.h2`
-  margin: 0 0 10px 0;
-  font-size: 24px;
-  font-weight: 600;
-`;
-
-const GroupInfo = styled.div`
+const HeaderContent = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 14px;
+  gap: 20px;
+`;
+
+const GroupTitle = styled.h2`
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  flex: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+`;
+
+const GroupDescription = styled.p`
+  margin: 8px 0 0 0;
+  font-size: 16px;
   opacity: 0.9;
+  font-weight: 400;
+  line-height: 1.4;
 `;
 
 const BackButton = styled.button`
   background: rgba(255, 255, 255, 0.2);
   color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 20px;
+  border-radius: 25px;
   font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 
   &:hover {
     background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
   }
 `;
 
 const MessagesContainer = styled.div`
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
-  max-height: 400px;
+  padding: 24px;
+  background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+  min-height: 300px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+
+    &:hover {
+      background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    }
+  }
 `;
 
 const MessageList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 20px;
 `;
 
 const Message = styled.div<{ isOwn: boolean }>`
   display: flex;
   justify-content: ${props => props.isOwn ? 'flex-end' : 'flex-start'};
-  margin-bottom: 8px;
+  margin-bottom: 4px;
+  animation: fadeInUp 0.4s ease-out;
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 `;
 
-const MessageBubble = styled.div<{ isOwn: boolean }>`
-  background: ${props => props.isOwn ? '#4caf50' : '#f1f1f1'};
-  color: ${props => props.isOwn ? 'white' : '#333'};
-  padding: 12px 16px;
-  border-radius: 18px;
-  max-width: 70%;
-  word-wrap: break-word;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+const MessageWrapper = styled.div`
+  max-width: 75%;
+  min-width: 120px;
 `;
 
 const MessageSender = styled.div`
-  font-size: 12px;
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: #666;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #2c3e50;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 `;
 
-const MessageTime = styled.div`
-  font-size: 10px;
+const MessageBubble = styled.div<{ isOwn: boolean }>`
+  background: ${props => props.isOwn
+    ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)'};
+  color: ${props => props.isOwn ? 'white' : '#2c3e50'};
+  padding: 16px 20px;
+  border-radius: ${props => props.isOwn ? '20px 20px 4px 20px' : '20px 20px 20px 4px'};
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: ${props => props.isOwn ? 'none' : '1px solid rgba(0, 0, 0, 0.05)'};
+  word-wrap: break-word;
+  line-height: 1.5;
+  font-size: 15px;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    ${props => props.isOwn
+      ? 'right: -8px; border-left: 8px solid #667eea;'
+      : 'left: -8px; border-right: 8px solid #ffffff;'};
+    bottom: 16px;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+  }
+`;
+
+const MessageTime = styled.div<{ isOwn: boolean }>`
+  font-size: 12px;
   opacity: 0.7;
-  margin-top: 4px;
+  margin-top: 8px;
+  text-align: ${props => props.isOwn ? 'right' : 'left'};
+  color: ${props => props.isOwn ? 'rgba(255, 255, 255, 0.8)' : '#95a5a6'};
 `;
 
 const InputContainer = styled.div`
-  border-top: 1px solid #e9ecef;
-  padding: 20px;
-  background: white;
-  border-radius: 0 0 16px 16px;
+  border-top: 2px solid #e9ecef;
+  padding: 24px 28px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 0 0 20px 20px;
 `;
 
 const MessageForm = styled.form`
   display: flex;
-  gap: 12px;
+  gap: 16px;
   align-items: center;
+  max-width: 100%;
 `;
 
 const MessageInput = styled.input`
   flex: 1;
-  padding: 12px 16px;
-  border: 2px solid #e9ecef;
-  border-radius: 25px;
+  padding: 16px 24px;
+  border: 2px solid #e1e8ed;
+  border-radius: 30px;
   font-size: 16px;
   outline: none;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
   &:focus {
-    border-color: #4caf50;
+    border-color: #667eea;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+    transform: translateY(-1px);
   }
 
   &::placeholder {
-    color: #999;
+    color: #adb5bd;
+    font-weight: 400;
   }
 `;
 
 const SendButton = styled.button`
-  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  padding: 12px 24px;
-  border-radius: 25px;
+  padding: 16px 28px;
+  border-radius: 30px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(76, 175, 80, 0.2);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
+  min-width: 100px;
 
   &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(102, 126, 234, 0.4);
   }
 
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+  }
+
+  &:active {
+    transform: translateY(-1px);
   }
 `;
 
 const LoadingMessage = styled.div`
   text-align: center;
-  padding: 40px;
-  color: #666;
+  padding: 60px 20px;
+  color: #5a6c7d;
+  font-size: 18px;
+  font-weight: 500;
+
+  &::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #667eea;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s ease-in-out infinite;
+    margin-left: 12px;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
 `;
 
 const ErrorMessage = styled.div`
-  background: #fee;
-  color: #c33;
-  padding: 16px;
-  border-radius: 8px;
-  margin: 20px;
-  border: 1px solid #fcc;
+  background: linear-gradient(135deg, #fee 0%, #fdd 100%);
+  color: #c0392b;
+  padding: 20px 24px;
+  border-radius: 12px;
+  margin: 24px;
+  border: 1px solid #f5c6cb;
   text-align: center;
+  box-shadow: 0 4px 12px rgba(192, 57, 43, 0.1);
+  font-weight: 500;
 `;
 
 const EmptyState = styled.div`
   text-align: center;
-  padding: 40px 20px;
-  color: #666;
+  padding: 60px 20px;
+  color: #5a6c7d;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 249, 250, 0.6) 100%);
+  border-radius: 16px;
+  margin: 20px;
+  border: 2px dashed #e9ecef;
 `;
 
 const EmptyIcon = styled.div`
-  font-size: 48px;
-  margin-bottom: 16px;
-  opacity: 0.5;
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.6;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
 `;
 
 const EmptyText = styled.p`
-  font-size: 16px;
-  margin-bottom: 8px;
+  font-size: 20px;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #2c3e50;
 `;
 
 const EmptySubtext = styled.p`
-  font-size: 14px;
-  opacity: 0.7;
+  font-size: 16px;
+  opacity: 0.8;
+  line-height: 1.5;
+  max-width: 400px;
+  margin: 0 auto;
 `;
+
 
 const ChatRoom: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -315,13 +428,15 @@ const ChatRoom: React.FC = () => {
     <Container>
       <ChatCard>
         <Header>
-          <GroupTitle>{group.name}</GroupTitle>
-          <GroupInfo>
-            <span>{group.description}</span>
+          <HeaderContent>
+            <div>
+              <GroupTitle>{group.name}</GroupTitle>
+              <GroupDescription>{group.description}</GroupDescription>
+            </div>
             <BackButton onClick={() => navigate('/chat')}>
               ← Grupos
             </BackButton>
-          </GroupInfo>
+          </HeaderContent>
         </Header>
 
         <MessagesContainer>
@@ -335,13 +450,13 @@ const ChatRoom: React.FC = () => {
             <MessageList>
               {messages.map(message => (
                 <Message key={message._id} isOwn={false}>
-                  <div>
+                  <MessageWrapper>
                     <MessageSender>{message.senderId.firstName} {message.senderId.lastName}</MessageSender>
                     <MessageBubble isOwn={false}>
                       {message.content}
-                      <MessageTime>{formatTime(message.createdAt)}</MessageTime>
                     </MessageBubble>
-                  </div>
+                    <MessageTime isOwn={false}>{formatTime(message.createdAt)}</MessageTime>
+                  </MessageWrapper>
                 </Message>
               ))}
               <div ref={messagesEndRef} />
