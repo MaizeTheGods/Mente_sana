@@ -225,14 +225,97 @@ const MessagesContainer = styled.div`
 `;
 
 const TypingIndicator = styled.div`
-  padding: 8px 24px;
-  color: #666;
-  font-size: 14px;
-  font-style: italic;
-  opacity: 0.7;
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 4px;
+  animation: fadeInUp 0.4s ease-out;
+  padding: 0 24px;
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
   @media (max-width: 768px) {
-    padding: 8px 16px;
+    padding: 0 16px;
+  }
+`;
+
+const TypingBubble = styled.div`
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  color: #2c3e50;
+  padding: 16px 20px;
+  border-radius: 20px 20px 20px 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 200px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    bottom: 16px;
+    border-right: 8px solid #ffffff;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+  }
+
+  @media (max-width: 768px) {
+    padding: 14px 18px;
+    border-radius: 18px 18px 18px 4px;
+
+    &::before {
+      left: -6px;
+      bottom: 14px;
+      border-right: 6px solid #ffffff;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+    }
+  }
+`;
+
+const TypingDots = styled.div`
+  display: flex;
+  gap: 4px;
+  align-items: center;
+`;
+
+const TypingDot = styled.div<{ delay: number }>`
+  width: 6px;
+  height: 6px;
+  background: #4caf50;
+  border-radius: 50%;
+  animation: typingBounce 1.4s ease-in-out infinite both;
+  animation-delay: ${props => props.delay}s;
+
+  @keyframes typingBounce {
+    0%, 80%, 100% {
+      transform: scale(0.8);
+      opacity: 0.5;
+    }
+    40% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+`;
+
+const TypingText = styled.span`
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+
+  @media (max-width: 768px) {
     font-size: 13px;
   }
 `;
@@ -1028,12 +1111,19 @@ const ChatRoom: React.FC = () => {
               {/* Typing indicator */}
               {Object.keys(isTyping).length > 0 && (
                 <TypingIndicator>
-                  {Object.values(isTyping).map((user, index) => (
-                    <span key={index}>
-                      {user.firstName} {user.lastName} está escribiendo...
-                      {index < Object.keys(isTyping).length - 1 && ', '}
-                    </span>
-                  ))}
+                  <TypingBubble>
+                    <TypingDots>
+                      <TypingDot delay={0} />
+                      <TypingDot delay={0.2} />
+                      <TypingDot delay={0.4} />
+                    </TypingDots>
+                    <TypingText>
+                      {Object.values(isTyping).length === 1
+                        ? `${Object.values(isTyping)[0].firstName} está escribiendo...`
+                        : `${Object.values(isTyping).length} personas están escribiendo...`
+                      }
+                    </TypingText>
+                  </TypingBubble>
                 </TypingIndicator>
               )}
             </MessagesContainer>
