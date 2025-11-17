@@ -4,20 +4,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { chatAPI, ChatGroup, ChatMessage } from '../services/api';
 
 const Container = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
-  background: linear-gradient(
-    to right,
-    #2c3e50 0%,
-    #2c3e50 33.33%,
-    #34495e 33.33%,
-    #34495e 66.66%,
-    #2c3e50 66.66%,
-    #2c3e50 100%
-  );
+  background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e8 100%);
   padding: 20px;
+  position: relative;
 
   &::before {
     content: '';
@@ -27,47 +17,46 @@ const Container = styled.div`
     right: 0;
     bottom: 0;
     background: linear-gradient(
-      to right,
-      rgba(52, 73, 94, 0.1) 0%,
-      rgba(52, 73, 94, 0.1) 33.33%,
-      rgba(44, 62, 80, 0.1) 33.33%,
-      rgba(44, 62, 80, 0.1) 66.66%,
-      rgba(52, 73, 94, 0.1) 66.66%,
-      rgba(52, 73, 94, 0.1) 100%
+      135deg,
+      #f1f8e9 25%,
+      #e8f5e8 25%,
+      #e8f5e8 50%,
+      #f1f8e9 50%,
+      #f1f8e9 75%,
+      #e8f5e8 75%,
+      #e8f5e8
     );
+    background-size: 40px 40px;
+    animation: move 4s linear infinite;
+    opacity: 0.3;
     pointer-events: none;
+  }
+
+  @keyframes move {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 40px 40px;
+    }
   }
 `;
 
-const ChatCard = styled.div`
+const DashboardContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+`;
+
+const Header = styled.header`
   background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  padding: 0;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 900px;
-  height: 85vh;
-  overflow: hidden;
   backdrop-filter: blur(10px);
-  display: flex;
-  flex-direction: column;
-`;
-
-const Header = styled.div`
-  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
-  color: white;
-  padding: 24px 28px;
-  border-radius: 16px 16px 0 0;
-  box-shadow: 0 4px 20px rgba(76, 175, 80, 0.3);
-`;
-
-const GroupTitle = styled.h2`
-  margin: 0;
-  font-size: 28px;
-  font-weight: 700;
-  flex: 1;
-  color: white;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 `;
 
 const HeaderContent = styled.div`
@@ -77,33 +66,76 @@ const HeaderContent = styled.div`
   gap: 20px;
 `;
 
+const GroupTitle = styled.h1`
+  color: #2e7d32;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.025em;
+`;
+
 const GroupDescription = styled.p`
+  color: #4caf50;
+  font-size: 1.125rem;
   margin: 8px 0 0 0;
-  font-size: 16px;
-  opacity: 0.9;
   font-weight: 400;
-  line-height: 1.4;
-  color: white;
 `;
 
 const BackButton = styled.button`
-  background: rgba(255, 255, 255, 0.2);
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
   color: white;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  padding: 10px 20px;
-  border-radius: 25px;
+  border: none;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 4px 6px rgba(76, 175, 80, 0.2);
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.5);
     transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);
   }
 `;
+
+const ChatLayout = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 24px;
+  min-height: 600px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+`;
+
+const MessagesSection = styled.div`
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+`;
+
+const GroupInfoSection = styled.div`
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  height: fit-content;
+
+  @media (max-width: 1024px) {
+    order: -1;
+  }
+`;
+
 
 const MessagesContainer = styled.div`
   flex: 1;
@@ -415,9 +447,26 @@ const ChatRoom: React.FC = () => {
   if (isLoading) {
     return (
       <Container>
-        <ChatCard>
-          <LoadingMessage>Cargando chat...</LoadingMessage>
-        </ChatCard>
+        <DashboardContainer>
+          <div style={{
+            textAlign: 'center',
+            padding: '80px 20px',
+            color: '#5a6c7d',
+            fontSize: '18px',
+            fontWeight: '500'
+          }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              border: '3px solid #4caf50',
+              borderRadius: '50%',
+              borderTopColor: 'transparent',
+              animation: 'spin 1s ease-in-out infinite',
+              margin: '0 auto 20px'
+            }}></div>
+            Cargando sala de chat...
+          </div>
+        </DashboardContainer>
       </Container>
     );
   }
@@ -425,14 +474,39 @@ const ChatRoom: React.FC = () => {
   if (error) {
     return (
       <Container>
-        <ChatCard>
-          <ErrorMessage>{error}</ErrorMessage>
-          <div style={{ textAlign: 'center', padding: '20px' }}>
+        <DashboardContainer>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '16px',
+            padding: '40px',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            textAlign: 'center',
+            maxWidth: '500px',
+            margin: '0 auto'
+          }}>
+            <div style={{
+              fontSize: '48px',
+              marginBottom: '16px',
+              opacity: 0.5
+            }}>⚠️</div>
+            <h3 style={{
+              color: '#c0392b',
+              marginBottom: '12px',
+              fontSize: '1.25rem',
+              fontWeight: '600'
+            }}>Error al cargar el chat</h3>
+            <p style={{
+              color: '#5a6c7d',
+              marginBottom: '24px',
+              lineHeight: '1.5'
+            }}>{error}</p>
             <BackButton onClick={() => navigate('/chat')}>
               ← Volver a Grupos
             </BackButton>
           </div>
-        </ChatCard>
+        </DashboardContainer>
       </Container>
     );
   }
@@ -440,21 +514,47 @@ const ChatRoom: React.FC = () => {
   if (!group) {
     return (
       <Container>
-        <ChatCard>
-          <ErrorMessage>Grupo no encontrado</ErrorMessage>
-          <div style={{ textAlign: 'center', padding: '20px' }}>
+        <DashboardContainer>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '16px',
+            padding: '40px',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            textAlign: 'center',
+            maxWidth: '500px',
+            margin: '0 auto'
+          }}>
+            <div style={{
+              fontSize: '48px',
+              marginBottom: '16px',
+              opacity: 0.5
+            }}>🔍</div>
+            <h3 style={{
+              color: '#c0392b',
+              marginBottom: '12px',
+              fontSize: '1.25rem',
+              fontWeight: '600'
+            }}>Grupo no encontrado</h3>
+            <p style={{
+              color: '#5a6c7d',
+              marginBottom: '24px',
+              lineHeight: '1.5'
+            }}>El grupo que buscas no existe o ha sido eliminado.</p>
             <BackButton onClick={() => navigate('/chat')}>
               ← Volver a Grupos
             </BackButton>
           </div>
-        </ChatCard>
+        </DashboardContainer>
       </Container>
     );
   }
 
   return (
     <Container>
-      <ChatCard>
+      <DashboardContainer>
+        {/* Header */}
         <Header>
           <HeaderContent>
             <div>
@@ -467,46 +567,92 @@ const ChatRoom: React.FC = () => {
           </HeaderContent>
         </Header>
 
-        <MessagesContainer>
-          {messages.length === 0 ? (
-            <EmptyState>
-              <EmptyIcon>💬</EmptyIcon>
-              <EmptyText>¡Sé el primero en enviar un mensaje!</EmptyText>
-              <EmptySubtext>Comparte tus pensamientos y conecta con otros miembros del grupo.</EmptySubtext>
-            </EmptyState>
-          ) : (
-            <MessageList>
-              {messages.map(message => (
-                <Message key={message._id} isOwn={false}>
-                  <MessageWrapper>
-                    <MessageSender>{message.senderId.firstName} {message.senderId.lastName}</MessageSender>
-                    <MessageBubble isOwn={false}>
-                      {message.content}
-                    </MessageBubble>
-                    <MessageTime isOwn={false}>{formatTime(message.createdAt)}</MessageTime>
-                  </MessageWrapper>
-                </Message>
-              ))}
-              <div ref={messagesEndRef} />
-            </MessageList>
-          )}
-        </MessagesContainer>
+        {/* Main Chat Layout */}
+        <ChatLayout>
+          {/* Messages Section */}
+          <MessagesSection>
+            <MessagesContainer>
+              {messages.length === 0 ? (
+                <EmptyState>
+                  <EmptyIcon>💬</EmptyIcon>
+                  <EmptyText>¡Sé el primero en enviar un mensaje!</EmptyText>
+                  <EmptySubtext>Comparte tus pensamientos y conecta con otros miembros del grupo.</EmptySubtext>
+                </EmptyState>
+              ) : (
+                <MessageList>
+                  {messages.map(message => (
+                    <Message key={message._id} isOwn={false}>
+                      <MessageWrapper>
+                        <MessageSender>{message.senderId.firstName} {message.senderId.lastName}</MessageSender>
+                        <MessageBubble isOwn={false}>
+                          {message.content}
+                        </MessageBubble>
+                        <MessageTime isOwn={false}>{formatTime(message.createdAt)}</MessageTime>
+                      </MessageWrapper>
+                    </Message>
+                  ))}
+                  <div ref={messagesEndRef} />
+                </MessageList>
+              )}
+            </MessagesContainer>
 
-        <InputContainer>
-          <MessageForm onSubmit={handleSendMessage}>
-            <MessageInput
-              type="text"
-              placeholder="Escribe tu mensaje..."
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              disabled={isSending}
-            />
-            <SendButton type="submit" disabled={!newMessage.trim() || isSending}>
-              {isSending ? 'Enviando...' : 'Enviar'}
-            </SendButton>
-          </MessageForm>
-        </InputContainer>
-      </ChatCard>
+            <InputContainer>
+              <MessageForm onSubmit={handleSendMessage}>
+                <MessageInput
+                  type="text"
+                  placeholder="Escribe tu mensaje..."
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  disabled={isSending}
+                />
+                <SendButton type="submit" disabled={!newMessage.trim() || isSending}>
+                  {isSending ? 'Enviando...' : 'Enviar'}
+                </SendButton>
+              </MessageForm>
+            </InputContainer>
+          </MessagesSection>
+
+          {/* Group Info Sidebar */}
+          <GroupInfoSection>
+            <h3 style={{ color: '#2e7d32', marginBottom: '16px', fontSize: '1.25rem', fontWeight: '600' }}>
+              👥 Información del Grupo
+            </h3>
+
+            <div style={{ marginBottom: '20px' }}>
+              <h4 style={{ color: '#4caf50', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
+                Descripción
+              </h4>
+              <p style={{ color: '#5a6c7d', lineHeight: '1.5', fontSize: '0.9rem' }}>
+                {group.description}
+              </p>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <h4 style={{ color: '#4caf50', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
+                Reglas del Grupo
+              </h4>
+              <ul style={{ color: '#5a6c7d', fontSize: '0.9rem', lineHeight: '1.6', paddingLeft: '20px' }}>
+                <li>Respeta a todos los miembros</li>
+                <li>Mantén la confidencialidad</li>
+                <li>Sé empático y comprensivo</li>
+                <li>Si necesitas ayuda urgente, contacta servicios profesionales</li>
+              </ul>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <h4 style={{ color: '#4caf50', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
+                Consejos Útiles
+              </h4>
+              <div style={{ background: '#f8f9fa', padding: '12px', borderRadius: '8px', border: '1px solid #e9ecef' }}>
+                <p style={{ color: '#5a6c7d', fontSize: '0.85rem', margin: '0', lineHeight: '1.4' }}>
+                  💡 <strong>Recuerda:</strong> Este espacio es para compartir experiencias y apoyarnos mutuamente.
+                  Si sientes que necesitas ayuda profesional, no dudes en buscarla.
+                </p>
+              </div>
+            </div>
+          </GroupInfoSection>
+        </ChatLayout>
+      </DashboardContainer>
     </Container>
   );
 };
