@@ -275,10 +275,10 @@ const TipDetail: React.FC = () => {
             <Category>{tip.category}</Category>
           </MetaInfo>
 
-          <Description>{tip.description}</Description>
+          <Description>{tip.content}</Description>
 
           <WhyTitle>¿Por qué es importante?</WhyTitle>
-          <WhyText>{tip.why}</WhyText>
+          <WhyText>{tip.why || 'Este consejo es importante porque te ayuda a desarrollar hábitos saludables que mejoran tu bienestar emocional.'}</WhyText>
 
           <HowTitle>Cómo practicarlo:</HowTitle>
           <HowList>

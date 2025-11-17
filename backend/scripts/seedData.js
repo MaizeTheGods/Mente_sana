@@ -77,19 +77,19 @@ const tipsData = [
   {
     title: 'Practica la Gratitud Diaria',
     content: 'Cada noche, escribe 3 cosas por las que estás agradecido. Esto ayuda a cambiar el enfoque de lo negativo a lo positivo.',
-    category: 'daily',
+    category: 'daily_habit',
     videoUrl: 'https://www.youtube.com/watch?v=WPPPFqsECz0'
   },
   {
     title: 'Establece Límites Saludables',
     content: 'Aprende a decir "no" cuando sea necesario. Proteger tu energía es fundamental para mantener el equilibrio emocional.',
-    category: 'stress',
+    category: 'coping_strategy',
     videoUrl: 'https://www.youtube.com/watch?v=5t8xAcPK-9E'
   },
   {
     title: 'Crea una Rutina de Sueño',
     content: 'Acuéstate y levántate a la misma hora todos los días. Evita pantallas al menos 1 hora antes de dormir.',
-    category: 'sleep',
+    category: 'lifestyle',
     videoUrl: 'https://www.youtube.com/watch?v=nmFhqKHZrns'
   },
   {
@@ -101,7 +101,7 @@ const tipsData = [
   {
     title: 'Técnica Pomodoro en el Trabajo',
     content: 'Trabaja 25 minutos concentrado y toma un descanso de 5 minutos. Después de 4 ciclos, toma un descanso más largo.',
-    category: 'work',
+    category: 'work_life',
     videoUrl: 'https://www.youtube.com/watch?v=1h8j8F8r5lY'
   }
 ];
@@ -116,11 +116,12 @@ const categoriesData = {
   ],
   tips: [
     { id: 'all', label: 'Todos', icon: '💡' },
-    { id: 'daily', label: 'Diarios', icon: '🌅' },
-    { id: 'stress', label: 'Estrés', icon: '😰' },
-    { id: 'sleep', label: 'Sueño', icon: '😴' },
+    { id: 'daily_habit', label: 'Hábitos Diarios', icon: '🌅' },
+    { id: 'coping_strategy', label: 'Estrategias de Afrontamiento', icon: '🛡️' },
+    { id: 'lifestyle', label: 'Estilo de Vida', icon: '🏠' },
     { id: 'relationships', label: 'Relaciones', icon: '❤️' },
-    { id: 'work', label: 'Trabajo', icon: '💼' }
+    { id: 'work_life', label: 'Vida Laboral', icon: '💼' },
+    { id: 'self_care', label: 'Autocuidado', icon: '🧴' }
   ]
 };
 
