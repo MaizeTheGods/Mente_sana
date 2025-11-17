@@ -147,9 +147,8 @@ const Chat: React.FC = () => {
   const handleJoinGroup = async (groupId: string) => {
     try {
       await chatAPI.joinGroup(groupId);
-      // Refresh groups to update member count
-      await loadGroups();
-      alert('¡Te has unido al grupo exitosamente!');
+      // Navigate to the chat room
+      navigate(`/chat/${groupId}`);
     } catch (error: any) {
       console.error('Failed to join group:', error);
       alert('Error al unirse al grupo. Inténtalo de nuevo.');
