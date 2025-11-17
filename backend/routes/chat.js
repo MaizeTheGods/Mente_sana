@@ -149,7 +149,7 @@ router.get('/groups/:id/messages', authenticateToken, async (req, res) => {
     }
 
     const messages = await ChatMessage.find({ groupId: req.params.id, isActive: true })
-      .populate('sender', 'firstName lastName')
+      .populate('senderId', 'firstName lastName')
       .sort({ createdAt: -1 })
       .limit(parseInt(limit))
       .skip((parseInt(page) - 1) * parseInt(limit))
@@ -200,7 +200,7 @@ router.post('/groups/:id/messages', authenticateToken, messageValidation, async 
 
     const message = new ChatMessage({
       groupId: req.params.id,
-      sender: req.user._id,
+      senderId: req.user._id,
       content: req.body.content,
       messageType: req.body.messageType || 'text'
     });
@@ -208,7 +208,7 @@ router.post('/groups/:id/messages', authenticateToken, messageValidation, async 
     await message.save();
 
     // Populate sender info for response
-    await message.populate('sender', 'firstName lastName');
+    await message.populate('senderId', 'firstName lastName');
 
     res.status(201).json({
       message: 'Message sent successfully',
@@ -232,7 +232,7 @@ router.delete('/groups/:groupId/messages/:messageId', authenticateToken, async (
     }
 
     // Check if user is the sender or an admin
-    if (message.sender.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+    if (message.senderId.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Not authorized to delete this message' });
     }
 
