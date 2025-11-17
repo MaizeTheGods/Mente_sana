@@ -41,7 +41,7 @@ router.get('/groups/:id', authenticateToken, async (req, res) => {
   try {
     const group = await ChatGroup.findById(req.params.id)
       .populate('createdBy', 'firstName lastName')
-      .populate('members', 'firstName lastName')
+      .populate('currentMembers.userId', 'firstName lastName')
       .select('-__v');
 
     if (!group || !group.isActive) {
@@ -71,7 +71,12 @@ router.post('/groups', authenticateToken, chatGroupValidation, async (req, res) 
     const group = new ChatGroup({
       ...req.body,
       createdBy: req.user._id,
-      members: [req.user._id] // Creator is automatically a member
+      currentMembers: [{
+        userId: req.user._id,
+        role: 'facilitator',
+        joinedAt: new Date(),
+        isActive: true
+      }]
     });
 
     await group.save();
@@ -97,11 +102,23 @@ router.post('/groups/:id/join', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Chat group not found' });
     }
 
-    if (group.members.includes(req.user._id)) {
+    // Check if user is already a member
+    const existingMember = group.currentMembers.find(
+      member => member.userId.toString() === req.user._id.toString() && member.isActive
+    );
+
+    if (existingMember) {
       return res.status(400).json({ error: 'Already a member of this group' });
     }
 
-    group.members.push(req.user._id);
+    // Check if group is at capacity
+    const activeMembers = group.currentMembers.filter(member => member.isActive);
+    if (activeMembers.length >= group.maxMembers) {
+      return res.status(400).json({ error: 'Group is at maximum capacity' });
+    }
+
+    // Add member using the model's method
+    group.addMember(req.user._id);
     await group.save();
 
     res.json({ message: 'Successfully joined the group' });
@@ -123,7 +140,11 @@ router.get('/groups/:id/messages', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Chat group not found' });
     }
 
-    if (!group.members.includes(req.user._id)) {
+    const isMember = group.currentMembers.some(
+      member => member.userId.toString() === req.user._id.toString() && member.isActive
+    );
+
+    if (!isMember) {
       return res.status(403).json({ error: 'Not a member of this group' });
     }
 
@@ -169,7 +190,11 @@ router.post('/groups/:id/messages', authenticateToken, messageValidation, async 
       return res.status(404).json({ error: 'Chat group not found' });
     }
 
-    if (!group.members.includes(req.user._id)) {
+    const isMember = group.currentMembers.some(
+      member => member.userId.toString() === req.user._id.toString() && member.isActive
+    );
+
+    if (!isMember) {
       return res.status(403).json({ error: 'Not a member of this group' });
     }
 
