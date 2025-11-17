@@ -1,4 +1,5 @@
 import axios from 'axios';
+import io, { Socket } from 'socket.io-client';
 
 const API_BASE_URL = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api';
 
@@ -362,5 +363,27 @@ export interface ChatMessage {
   createdAt: string;
   updatedAt: string;
 }
+
+// Socket.io functionality
+let socket: Socket | null = null;
+
+export const initializeSocket = (token: string) => {
+  if (socket) return socket;
+
+  socket = io(API_BASE_URL.replace('/api', ''), {
+    auth: { token }
+  });
+
+  return socket;
+};
+
+export const getSocket = () => socket;
+
+export const disconnectSocket = () => {
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
+};
 
 export default api;

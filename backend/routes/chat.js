@@ -145,7 +145,7 @@ router.post('/groups/:id/join', authenticateToken, async (req, res) => {
 // @access  Private
 router.get('/groups/:id/messages', authenticateToken, async (req, res) => {
   try {
-    const { limit = 50, page = 1 } = req.query;
+    const { limit = 30, page = 1 } = req.query;
 
     const group = await ChatGroup.findById(req.params.id);
     if (!group || !group.isActive) {

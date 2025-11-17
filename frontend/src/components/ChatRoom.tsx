@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
-import { chatAPI, ChatGroup, ChatMessage } from '../services/api';
+import { chatAPI, ChatGroup, ChatMessage, initializeSocket, getSocket } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
 const Container = styled.div`
@@ -221,6 +221,19 @@ const MessagesContainer = styled.div`
   @media (max-width: 768px) {
     padding: 16px;
     min-height: 250px;
+  }
+`;
+
+const TypingIndicator = styled.div`
+  padding: 8px 24px;
+  color: #666;
+  font-size: 14px;
+  font-style: italic;
+  opacity: 0.7;
+
+  @media (max-width: 768px) {
+    padding: 8px 16px;
+    font-size: 13px;
   }
 `;
 
@@ -597,23 +610,76 @@ const ChatRoom: React.FC = () => {
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string>('');
   const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
+  const [isTyping, setIsTyping] = useState<{ [userId: string]: { firstName: string; lastName: string } }>({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMoreMessages, setHasMoreMessages] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+  const typingTimer = useRef<NodeJS.Timeout | null>(null);
+  const socket = useRef<any>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
-    if (id) {
+    if (id && user) {
+      initializeSocketConnection();
       loadGroup();
       loadMessages();
     }
-  }, [id]);
+
+    return () => {
+      // Cleanup socket connection
+      if (socket.current) {
+        socket.current.emit('leave-group', id);
+        socket.current.disconnect();
+      }
+    };
+  }, [id, user]);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const initializeSocketConnection = () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    socket.current = initializeSocket(token);
+
+    // Join group room
+    socket.current.emit('join-group', id);
+
+    // Listen for new messages
+    socket.current.on('new-message', (message: ChatMessage) => {
+      setMessages(prev => {
+        // Check if message already exists to avoid duplicates
+        if (prev.some(m => m._id === message._id)) return prev;
+        return [...prev, message];
+      });
+    });
+
+    // Listen for deleted messages
+    socket.current.on('message-deleted', (messageId: string) => {
+      setMessages(prev => prev.filter(m => m._id !== messageId));
+    });
+
+    // Listen for typing indicators
+    socket.current.on('user-typing', (data: { userId: string; firstName: string; lastName: string; isTyping: boolean }) => {
+      setIsTyping(prev => {
+        const newTyping = { ...prev };
+        if (data.isTyping) {
+          newTyping[data.userId] = { firstName: data.firstName, lastName: data.lastName };
+        } else {
+          delete newTyping[data.userId];
+        }
+        return newTyping;
+      });
+    });
+  };
 
   const loadGroup = async () => {
     try {
@@ -625,28 +691,46 @@ const ChatRoom: React.FC = () => {
     }
   };
 
-  const loadMessages = async () => {
+  const loadMessages = async (page = 1, append = false) => {
     try {
-      const response = await chatAPI.getMessages(id!);
-      setMessages(response.messages);
+      const response = await chatAPI.getMessages(id!, { limit: 30, page });
+      if (append) {
+        setMessages(prev => [...response.messages, ...prev]);
+      } else {
+        setMessages(response.messages);
+      }
+      setHasMoreMessages(response.messages.length === 30);
+      setCurrentPage(page);
     } catch (error) {
       console.error('Failed to load messages:', error);
       setError('No se pudieron cargar los mensajes.');
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
     }
+  };
+
+  const loadMoreMessages = async () => {
+    if (!hasMoreMessages || isLoadingMore) return;
+
+    setIsLoadingMore(true);
+    await loadMessages(currentPage + 1, true);
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || isSending) return;
+    if (!newMessage.trim() || isSending || !socket.current) return;
+
+    // Stop typing indicator
+    socket.current.emit('typing-stop', id);
 
     setIsSending(true);
     try {
-      await chatAPI.sendMessage(id!, newMessage.trim());
+      socket.current.emit('send-message', {
+        groupId: id,
+        content: newMessage.trim()
+      });
       setNewMessage('');
-      // Reload messages to show the new one
-      await loadMessages();
     } catch (error) {
       console.error('Failed to send message:', error);
       setError('No se pudo enviar el mensaje. Inténtalo de nuevo.');
@@ -661,13 +745,37 @@ const ChatRoom: React.FC = () => {
     }
 
     try {
-      await chatAPI.deleteMessage(id!, messageId);
-      // Reload messages to reflect the deletion
-      await loadMessages();
+      socket.current.emit('delete-message', {
+        groupId: id,
+        messageId
+      });
       setMenuOpenFor(null); // Close menu after deletion
     } catch (error) {
       console.error('Failed to delete message:', error);
       setError('No se pudo eliminar el mensaje. Inténtalo de nuevo.');
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setNewMessage(e.target.value);
+
+    // Handle typing indicators
+    if (!socket.current) return;
+
+    if (e.target.value.trim() && !isSending) {
+      socket.current.emit('typing-start', id);
+
+      // Clear existing timer
+      if (typingTimer.current) {
+        clearTimeout(typingTimer.current);
+      }
+
+      // Set timer to stop typing indicator after 2 seconds of no input
+      typingTimer.current = setTimeout(() => {
+        socket.current.emit('typing-stop', id);
+      }, 2000);
+    } else {
+      socket.current.emit('typing-stop', id);
     }
   };
 
@@ -853,7 +961,20 @@ const ChatRoom: React.FC = () => {
         <ChatLayout>
           {/* Messages Section */}
           <MessagesSection>
-            <MessagesContainer>
+            <MessagesContainer
+              ref={messagesContainerRef}
+              onScroll={(e) => {
+                const target = e.target as HTMLDivElement;
+                if (target.scrollTop === 0 && hasMoreMessages && !isLoadingMore) {
+                  loadMoreMessages();
+                }
+              }}
+            >
+              {isLoadingMore && (
+                <div style={{ textAlign: 'center', padding: '10px', color: '#666' }}>
+                  Cargando más mensajes...
+                </div>
+              )}
               {messages.length === 0 ? (
                 <EmptyState>
                   <EmptyIcon>💬</EmptyIcon>
@@ -903,6 +1024,18 @@ const ChatRoom: React.FC = () => {
                   <div ref={messagesEndRef} />
                 </MessageList>
               )}
+
+              {/* Typing indicator */}
+              {Object.keys(isTyping).length > 0 && (
+                <TypingIndicator>
+                  {Object.values(isTyping).map((user, index) => (
+                    <span key={index}>
+                      {user.firstName} {user.lastName} está escribiendo...
+                      {index < Object.keys(isTyping).length - 1 && ', '}
+                    </span>
+                  ))}
+                </TypingIndicator>
+              )}
             </MessagesContainer>
 
             <InputContainer>
@@ -910,7 +1043,7 @@ const ChatRoom: React.FC = () => {
                 <MessageInput
                   placeholder="Escribe tu mensaje..."
                   value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
+                  onChange={handleInputChange}
                   disabled={isSending}
                 />
                 <SendButton type="submit" disabled={!newMessage.trim() || isSending}>
