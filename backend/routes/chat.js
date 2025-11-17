@@ -160,14 +160,14 @@ router.get('/groups/:id/messages', authenticateToken, async (req, res) => {
       return res.status(403).json({ error: 'Not a member of this group' });
     }
 
-    const messages = await ChatMessage.find({ groupId: req.params.id, isActive: true })
+    const messages = await ChatMessage.find({ groupId: req.params.id, isDeleted: false })
       .populate('senderId', 'firstName lastName')
       .sort({ createdAt: -1 })
       .limit(parseInt(limit))
       .skip((parseInt(page) - 1) * parseInt(limit))
       .select('-__v');
 
-    const total = await ChatMessage.countDocuments({ groupId: req.params.id, isActive: true });
+    const total = await ChatMessage.countDocuments({ groupId: req.params.id, isDeleted: false });
 
     res.json({
       messages: messages.reverse(), // Return in chronological order
@@ -239,7 +239,7 @@ router.delete('/groups/:groupId/messages/:messageId', authenticateToken, async (
   try {
     const message = await ChatMessage.findById(req.params.messageId);
 
-    if (!message || !message.isActive) {
+    if (!message || message.isDeleted) {
       return res.status(404).json({ error: 'Message not found' });
     }
 
