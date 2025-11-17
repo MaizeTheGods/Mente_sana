@@ -2,9 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { seedDatabase } = require('../scripts/seedData');
 
-// Health check endpoint
-router.get('/', (req, res) => {
-
 // Seed database endpoint (for development/admin use)
 router.post('/seed', async (req, res) => {
   try {
@@ -24,6 +21,9 @@ router.post('/seed', async (req, res) => {
     });
   }
 });
+
+// Health check endpoint
+router.get('/', (req, res) => {
   res.send(`
     <!DOCTYPE html>
     <html lang="es">
