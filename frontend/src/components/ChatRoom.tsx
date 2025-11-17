@@ -402,29 +402,33 @@ const MessageInput = styled.textarea`
 `;
 
 const DeleteButton = styled.button`
-  background: linear-gradient(135deg, #f44336 0%, #e53935 100%);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
+  background: rgba(149, 165, 166, 0.1);
+  color: #95a5a6;
+  border: 1px solid rgba(149, 165, 166, 0.3);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
+  transition: all 0.2s ease;
   position: absolute;
-  top: -10px;
-  right: -10px;
+  top: -8px;
+  right: -8px;
+  backdrop-filter: blur(4px);
 
   &:hover {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border-color: rgba(231, 76, 60, 0.3);
     transform: scale(1.05);
-    box-shadow: 0 6px 12px rgba(244, 67, 54, 0.4);
   }
 
   @media (max-width: 768px) {
-    padding: 6px 12px;
-    font-size: 11px;
-    border-radius: 16px;
+    padding: 3px 6px;
+    font-size: 12px;
+    border-radius: 10px;
+    top: -6px;
+    right: -6px;
   }
 `;
 
@@ -774,7 +778,7 @@ const ChatRoom: React.FC = () => {
                           <MessageTime isOwn={isOwn}>{formatTime(message.createdAt)}</MessageTime>
                           {isOwn && (
                             <DeleteButton onClick={() => handleDeleteMessage(message._id)}>
-                              🗑️ Eliminar
+                              ✕
                             </DeleteButton>
                           )}
                         </MessageWrapper>
