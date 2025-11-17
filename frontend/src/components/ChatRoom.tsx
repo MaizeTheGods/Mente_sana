@@ -8,31 +8,66 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(
+    to right,
+    #2c3e50 0%,
+    #2c3e50 33.33%,
+    #34495e 33.33%,
+    #34495e 66.66%,
+    #2c3e50 66.66%,
+    #2c3e50 100%
+  );
   padding: 20px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      to right,
+      rgba(52, 73, 94, 0.1) 0%,
+      rgba(52, 73, 94, 0.1) 33.33%,
+      rgba(44, 62, 80, 0.1) 33.33%,
+      rgba(44, 62, 80, 0.1) 66.66%,
+      rgba(52, 73, 94, 0.1) 66.66%,
+      rgba(52, 73, 94, 0.1) 100%
+    );
+    pointer-events: none;
+  }
 `;
 
 const ChatCard = styled.div`
-  background: rgba(255, 255, 255, 0.98);
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
   padding: 0;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 900px;
   height: 85vh;
   overflow: hidden;
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
 `;
 
 const Header = styled.div`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
   color: white;
   padding: 24px 28px;
-  border-radius: 20px 20px 0 0;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 4px 20px rgba(76, 175, 80, 0.3);
+`;
+
+const GroupTitle = styled.h2`
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  flex: 1;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const HeaderContent = styled.div`
@@ -42,20 +77,13 @@ const HeaderContent = styled.div`
   gap: 20px;
 `;
 
-const GroupTitle = styled.h2`
-  margin: 0;
-  font-size: 28px;
-  font-weight: 700;
-  flex: 1;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-`;
-
 const GroupDescription = styled.p`
   margin: 8px 0 0 0;
   font-size: 16px;
   opacity: 0.9;
   font-weight: 400;
   line-height: 1.4;
+  color: white;
 `;
 
 const BackButton = styled.button`
@@ -94,11 +122,11 @@ const MessagesContainer = styled.div`
   }
 
   &::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
     border-radius: 10px;
 
     &:hover {
-      background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+      background: linear-gradient(135deg, #388e3c 0%, #4caf50 100%);
     }
   }
 `;
@@ -142,7 +170,7 @@ const MessageSender = styled.div`
 
 const MessageBubble = styled.div<{ isOwn: boolean }>`
   background: ${props => props.isOwn
-    ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    ? 'linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)'
     : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)'};
   color: ${props => props.isOwn ? 'white' : '#2c3e50'};
   padding: 16px 20px;
@@ -158,7 +186,7 @@ const MessageBubble = styled.div<{ isOwn: boolean }>`
     content: '';
     position: absolute;
     ${props => props.isOwn
-      ? 'right: -8px; border-left: 8px solid #667eea;'
+      ? 'right: -8px; border-left: 8px solid #4caf50;'
       : 'left: -8px; border-right: 8px solid #ffffff;'};
     bottom: 16px;
     border-top: 8px solid transparent;
@@ -200,8 +228,8 @@ const MessageInput = styled.input`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
   &:focus {
-    border-color: #667eea;
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+    border-color: #4caf50;
+    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.15);
     transform: translateY(-1px);
   }
 
@@ -212,7 +240,7 @@ const MessageInput = styled.input`
 `;
 
 const SendButton = styled.button`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
   color: white;
   border: none;
   padding: 16px 28px;
@@ -221,19 +249,19 @@ const SendButton = styled.button`
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3);
   min-width: 100px;
 
   &:hover:not(:disabled) {
     transform: translateY(-3px);
-    box-shadow: 0 10px 24px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 10px 24px rgba(76, 175, 80, 0.4);
   }
 
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
   }
 
   &:active {
@@ -253,7 +281,7 @@ const LoadingMessage = styled.div`
     display: inline-block;
     width: 20px;
     height: 20px;
-    border: 2px solid #667eea;
+    border: 2px solid #4caf50;
     border-radius: 50%;
     border-top-color: transparent;
     animation: spin 1s ease-in-out infinite;
