@@ -253,50 +253,102 @@ const chatGroupsData = [
   {
     name: '🌟 Ansiedad y Preocupaciones',
     description: 'Comparte tus experiencias con la ansiedad, aprende técnicas de manejo y encuentra apoyo en personas que entienden lo que vives. Un espacio seguro para hablar abiertamente.',
-    category: 'anxiety',
-    members: []
+    type: 'peer_support',
+    disorderCategory: 'anxiety',
+    createdBy: null, // Will be set to a default admin user
+    currentMembers: [],
+    rules: [
+      { rule: 'Sé respetuoso con las experiencias de los demás', priority: 'high' },
+      { rule: 'Mantén la confidencialidad de lo compartido', priority: 'high' },
+      { rule: 'No des consejos médicos profesionales', priority: 'medium' }
+    ]
   },
   {
     name: '💙 Apoyo en Depresión',
     description: 'Conecta con personas que han pasado por depresión. Comparte tus sentimientos, recibe apoyo emocional y descubre que no estás solo en este camino.',
-    category: 'depression',
-    members: []
+    type: 'peer_support',
+    disorderCategory: 'depression',
+    createdBy: null,
+    currentMembers: [],
+    rules: [
+      { rule: 'Comparte tus sentimientos sin juzgar a otros', priority: 'high' },
+      { rule: 'Recuerda que la recuperación es posible', priority: 'medium' },
+      { rule: 'Ofrece apoyo, no soluciones médicas', priority: 'medium' }
+    ]
   },
   {
     name: '😌 Manejo del Estrés',
     description: 'Aprende a manejar el estrés diario, comparte técnicas que funcionan y encuentra apoyo en momentos difíciles. Un oasis de calma en tu rutina.',
-    category: 'stress',
-    members: []
+    type: 'peer_support',
+    disorderCategory: 'stress',
+    createdBy: null,
+    currentMembers: [],
+    rules: [
+      { rule: 'Comparte técnicas que te han funcionado', priority: 'medium' },
+      { rule: 'Respeta los límites de los demás', priority: 'high' },
+      { rule: 'Mantén un tono positivo y de apoyo', priority: 'medium' }
+    ]
   },
   {
     name: '🌈 Jóvenes en Transición',
     description: 'Para jóvenes adultos (18-35 años) enfrentando cambios de vida, presión laboral, relaciones y crecimiento personal. Comparte tus desafíos y encuentra comprensión.',
-    category: 'general',
-    members: []
+    type: 'general',
+    createdBy: null,
+    currentMembers: [],
+    rules: [
+      { rule: 'Este espacio es para jóvenes adultos (18-35 años)', priority: 'medium' },
+      { rule: 'Sé empático con las experiencias de transición', priority: 'high' },
+      { rule: 'Comparte recursos útiles para jóvenes', priority: 'low' }
+    ]
   },
   {
     name: '💪 Camino a la Recuperación',
     description: 'Para quienes están en proceso de recuperación. Comparte tus victorias, pide consejos y motiva a otros. Cada paso cuenta, ¡estamos orgullosos de ti!',
-    category: 'recovery',
-    members: []
+    type: 'peer_support',
+    disorderCategory: 'general',
+    createdBy: null,
+    currentMembers: [],
+    rules: [
+      { rule: 'Celebra los pequeños logros', priority: 'high' },
+      { rule: 'Ofrece esperanza y motivación', priority: 'medium' },
+      { rule: 'Comparte estrategias de afrontamiento', priority: 'medium' }
+    ]
   },
   {
     name: '👨‍👩‍👧‍👦 Familiares y Cuidadores',
     description: 'Apoyo para familiares y cuidadores. Comparte experiencias, obtén consejos sobre cómo apoyar a tus seres queridos y cuida de tu propio bienestar.',
-    category: 'family',
-    members: []
+    type: 'general',
+    createdBy: null,
+    currentMembers: [],
+    rules: [
+      { rule: 'Respeta la privacidad de tus seres queridos', priority: 'high' },
+      { rule: 'Comparte consejos prácticos de cuidado', priority: 'medium' },
+      { rule: 'Recuerda cuidar también de tu bienestar', priority: 'high' }
+    ]
   },
   {
     name: '🧘 Mindfulness y Meditación',
     description: 'Comparte experiencias con meditación, mindfulness y prácticas de atención plena. Aprende nuevas técnicas y encuentra motivación para mantener tu práctica.',
-    category: 'general',
-    members: []
+    type: 'general',
+    createdBy: null,
+    currentMembers: [],
+    rules: [
+      { rule: 'Comparte técnicas que has probado', priority: 'medium' },
+      { rule: 'Sé paciente con principiantes', priority: 'medium' },
+      { rule: 'Mantén el enfoque en experiencias personales', priority: 'low' }
+    ]
   },
   {
     name: '❤️ Relaciones y Amor Propio',
     description: 'Habla sobre relaciones interpersonales, amor propio y autoestima. Un espacio para procesar emociones y crecer en tus relaciones contigo mismo y con otros.',
-    category: 'general',
-    members: []
+    type: 'general',
+    createdBy: null,
+    currentMembers: [],
+    rules: [
+      { rule: 'Practica la compasión hacia ti mismo', priority: 'high' },
+      { rule: 'Comparte experiencias de crecimiento personal', priority: 'medium' },
+      { rule: 'Mantén un ambiente de apoyo y respeto', priority: 'high' }
+    ]
   }
 ];
 
@@ -475,8 +527,32 @@ async function seedDatabase() {
     const tips = await Tip.insertMany(tipsData);
     console.log(`✅ Inserted ${tips.length} tips`);
 
+    // Create a default admin user for chat groups if it doesn't exist
+    let defaultUser = await mongoose.connection.db.collection('users').findOne({ email: 'admin@mentesana.com' });
+    if (!defaultUser) {
+      defaultUser = {
+        _id: new mongoose.Types.ObjectId(),
+        username: 'admin',
+        email: 'admin@mentesana.com',
+        firstName: 'Admin',
+        lastName: 'Mente Sana',
+        role: 'admin',
+        questionnaireCompleted: true,
+        preferences: { language: 'es', theme: 'light', notifications: true },
+        progressTracking: { streakDays: 0, lastActivity: new Date() }
+      };
+      await mongoose.connection.db.collection('users').insertOne(defaultUser);
+      console.log('✅ Created default admin user for chat groups');
+    }
+
+    // Update chat groups with createdBy
+    const chatGroupsWithCreator = chatGroupsData.map(group => ({
+      ...group,
+      createdBy: defaultUser._id
+    }));
+
     // Insert chat groups
-    const chatGroups = await ChatGroup.insertMany(chatGroupsData);
+    const chatGroups = await ChatGroup.insertMany(chatGroupsWithCreator);
     console.log(`✅ Inserted ${chatGroups.length} chat groups`);
 
     console.log('🎉 Database seeding completed successfully!');
