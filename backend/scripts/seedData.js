@@ -251,34 +251,52 @@ const exercisesData = [
 
 const chatGroupsData = [
   {
-    name: 'Grupo de Apoyo para Ansiedad',
-    description: 'Un espacio seguro para compartir experiencias, estrategias de afrontamiento y apoyo mutuo para personas que viven con ansiedad. Aquí encontrarás comprensión y consejos prácticos de personas que han pasado por situaciones similares.',
-    category: 'anxiety'
+    name: '🌟 Ansiedad y Preocupaciones',
+    description: 'Comparte tus experiencias con la ansiedad, aprende técnicas de manejo y encuentra apoyo en personas que entienden lo que vives. Un espacio seguro para hablar abiertamente.',
+    category: 'anxiety',
+    members: []
   },
   {
-    name: 'Apoyo en Depresión',
-    description: 'Conecta con personas que entienden tus desafíos. Comparte tus victorias, pide consejos y recibe el apoyo que necesitas en tu camino hacia la recuperación. Todos somos bienvenidos.',
-    category: 'depression'
+    name: '💙 Apoyo en Depresión',
+    description: 'Conecta con personas que han pasado por depresión. Comparte tus sentimientos, recibe apoyo emocional y descubre que no estás solo en este camino.',
+    category: 'depression',
+    members: []
   },
   {
-    name: 'Manejo del Estrés Diario',
-    description: 'Aprende técnicas efectivas para manejar el estrés diario, comparte experiencias laborales y encuentra soluciones prácticas. Un espacio para relajarte y desconectar.',
-    category: 'stress'
+    name: '😌 Manejo del Estrés',
+    description: 'Aprende a manejar el estrés diario, comparte técnicas que funcionan y encuentra apoyo en momentos difíciles. Un oasis de calma en tu rutina.',
+    category: 'stress',
+    members: []
   },
   {
-    name: 'Jóvenes Adultos (18-30 años)',
-    description: 'Espacio para jóvenes adultos que enfrentan desafíos de salud mental relacionados con la transición a la adultez, carrera profesional, relaciones y crecimiento personal.',
-    category: 'general'
+    name: '🌈 Jóvenes en Transición',
+    description: 'Para jóvenes adultos (18-35 años) enfrentando cambios de vida, presión laboral, relaciones y crecimiento personal. Comparte tus desafíos y encuentra comprensión.',
+    category: 'general',
+    members: []
   },
   {
-    name: 'Apoyo Familiar y Cuidadores',
-    description: 'Para familiares y seres queridos de personas con problemas de salud mental. Comparte experiencias, obtén apoyo y aprende cómo cuidar de ti mismo mientras cuidas de otros.',
-    category: 'family'
+    name: '💪 Camino a la Recuperación',
+    description: 'Para quienes están en proceso de recuperación. Comparte tus victorias, pide consejos y motiva a otros. Cada paso cuenta, ¡estamos orgullosos de ti!',
+    category: 'recovery',
+    members: []
   },
   {
-    name: 'Camino a la Recuperación',
-    description: 'Para personas en proceso de recuperación. Comparte tus logros, desafíos y motiva a otros en su camino. Celebramos cada paso adelante, por pequeño que sea.',
-    category: 'recovery'
+    name: '👨‍👩‍👧‍👦 Familiares y Cuidadores',
+    description: 'Apoyo para familiares y cuidadores. Comparte experiencias, obtén consejos sobre cómo apoyar a tus seres queridos y cuida de tu propio bienestar.',
+    category: 'family',
+    members: []
+  },
+  {
+    name: '🧘 Mindfulness y Meditación',
+    description: 'Comparte experiencias con meditación, mindfulness y prácticas de atención plena. Aprende nuevas técnicas y encuentra motivación para mantener tu práctica.',
+    category: 'general',
+    members: []
+  },
+  {
+    name: '❤️ Relaciones y Amor Propio',
+    description: 'Habla sobre relaciones interpersonales, amor propio y autoestima. Un espacio para procesar emociones y crecer en tus relaciones contigo mismo y con otros.',
+    category: 'general',
+    members: []
   }
 ];
 
@@ -468,6 +486,7 @@ async function seedDatabase() {
     console.log(`   Chat Groups: ${chatGroups.length}`);
     console.log('\n🎬 All exercises and tips now have video URLs!');
     console.log('👥 Chat groups are ready for community support!');
+    console.log('   🌟 8 amazing support groups created!');
 
   } catch (error) {
     console.error('❌ Error seeding database:', error);
