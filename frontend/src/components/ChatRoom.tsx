@@ -261,11 +261,6 @@ const MessageWrapper = styled.div<{ isOwn: boolean }>`
   max-width: 75%;
   min-width: 120px;
 
-  &:hover ${DeleteButton} {
-    opacity: 1;
-    transform: scale(1);
-  }
-
   @media (max-width: 768px) {
     max-width: 85%;
     min-width: 100px;
@@ -417,14 +412,12 @@ const DeleteButton = styled.button`
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
-  opacity: 0;
-  transform: scale(0.8);
   position: absolute;
   top: -10px;
   right: -10px;
 
   &:hover {
-    transform: scale(1);
+    transform: scale(1.05);
     box-shadow: 0 6px 12px rgba(244, 67, 54, 0.4);
   }
 
