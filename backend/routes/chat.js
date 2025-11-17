@@ -248,7 +248,8 @@ router.delete('/groups/:groupId/messages/:messageId', authenticateToken, async (
       return res.status(403).json({ error: 'Not authorized to delete this message' });
     }
 
-    message.isActive = false;
+    message.isDeleted = true;
+    message.deletedAt = new Date();
     await message.save();
 
     res.json({ message: 'Message deleted successfully' });

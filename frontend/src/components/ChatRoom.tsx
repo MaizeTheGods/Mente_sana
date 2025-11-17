@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import { chatAPI, ChatGroup, ChatMessage } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -255,9 +256,15 @@ const Message = styled.div<{ isOwn: boolean }>`
   }
 `;
 
-const MessageWrapper = styled.div`
+const MessageWrapper = styled.div<{ isOwn: boolean }>`
+  position: relative;
   max-width: 75%;
   min-width: 120px;
+
+  &:hover ${DeleteButton} {
+    opacity: 1;
+    transform: scale(1);
+  }
 
   @media (max-width: 768px) {
     max-width: 85%;
@@ -399,6 +406,35 @@ const MessageInput = styled.textarea`
   }
 `;
 
+const DeleteButton = styled.button`
+  background: linear-gradient(135deg, #f44336 0%, #e53935 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
+  opacity: 0;
+  transform: scale(0.8);
+  position: absolute;
+  top: -10px;
+  right: -10px;
+
+  &:hover {
+    transform: scale(1);
+    box-shadow: 0 6px 12px rgba(244, 67, 54, 0.4);
+  }
+
+  @media (max-width: 768px) {
+    padding: 6px 12px;
+    font-size: 11px;
+    border-radius: 16px;
+  }
+`;
+
 const SendButton = styled.button`
   background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
   color: white;
@@ -508,6 +544,7 @@ const EmptySubtext = styled.p`
 const ChatRoom: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [group, setGroup] = useState<ChatGroup | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -568,6 +605,21 @@ const ChatRoom: React.FC = () => {
       setError('No se pudo enviar el mensaje. Inténtalo de nuevo.');
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar este mensaje?')) {
+      return;
+    }
+
+    try {
+      await chatAPI.deleteMessage(id!, messageId);
+      // Reload messages to reflect the deletion
+      await loadMessages();
+    } catch (error) {
+      console.error('Failed to delete message:', error);
+      setError('No se pudo eliminar el mensaje. Inténtalo de nuevo.');
     }
   };
 
@@ -715,17 +767,27 @@ const ChatRoom: React.FC = () => {
                 </EmptyState>
               ) : (
                 <MessageList>
-                  {messages.map(message => (
-                    <Message key={message._id} isOwn={false}>
-                      <MessageWrapper>
-                        <MessageSender>{message.senderId.firstName} {message.senderId.lastName}</MessageSender>
-                        <MessageBubble isOwn={false}>
-                          {message.content}
-                        </MessageBubble>
-                        <MessageTime isOwn={false}>{formatTime(message.createdAt)}</MessageTime>
-                      </MessageWrapper>
-                    </Message>
-                  ))}
+                  {messages.map(message => {
+                    const isOwn = user?._id === message.senderId._id;
+                    return (
+                      <Message key={message._id} isOwn={isOwn}>
+                        <MessageWrapper isOwn={isOwn}>
+                          {!isOwn && (
+                            <MessageSender>{message.senderId.firstName} {message.senderId.lastName}</MessageSender>
+                          )}
+                          <MessageBubble isOwn={isOwn}>
+                            {message.content}
+                          </MessageBubble>
+                          <MessageTime isOwn={isOwn}>{formatTime(message.createdAt)}</MessageTime>
+                          {isOwn && (
+                            <DeleteButton onClick={() => handleDeleteMessage(message._id)}>
+                              🗑️ Eliminar
+                            </DeleteButton>
+                          )}
+                        </MessageWrapper>
+                      </Message>
+                    );
+                  })}
                   <div ref={messagesEndRef} />
                 </MessageList>
               )}
