@@ -234,11 +234,84 @@ const MessageList = styled.div`
   }
 `;
 
+const MessageMenuButton = styled.button`
+  background: rgba(149, 165, 166, 0.1);
+  color: #95a5a6;
+  border: 1px solid rgba(149, 165, 166, 0.3);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transform: scale(0.8);
+
+  &:hover {
+    background: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+    border-color: rgba(76, 175, 80, 0.3);
+    transform: scale(1);
+  }
+
+  @media (max-width: 768px) {
+    padding: 3px 6px;
+    font-size: 12px;
+    border-radius: 10px;
+    top: -6px;
+    right: -6px;
+  }
+`;
+
+const MessageMenu = styled.div<{ isOpen: boolean }>`
+  position: absolute;
+  top: -40px;
+  right: -8px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 4px 0;
+  min-width: 100px;
+  opacity: ${props => props.isOpen ? 1 : 0};
+  transform: ${props => props.isOpen ? 'scale(1)' : 'scale(0.8)'};
+  pointer-events: ${props => props.isOpen ? 'auto' : 'none'};
+  transition: all 0.2s ease;
+  z-index: 10;
+`;
+
+const MenuItem = styled.button`
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  color: #2c3e50;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+  }
+
+  &:first-child {
+    color: #e74c3c;
+  }
+`;
+
 const Message = styled.div<{ isOwn: boolean }>`
   display: flex;
   justify-content: ${props => props.isOwn ? 'flex-end' : 'flex-start'};
   margin-bottom: 4px;
   animation: fadeInUp 0.4s ease-out;
+  position: relative;
 
   @keyframes fadeInUp {
     from {
@@ -249,6 +322,12 @@ const Message = styled.div<{ isOwn: boolean }>`
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  /* Show menu button on hover for desktop */
+  &:hover ${MessageMenuButton} {
+    opacity: 1;
+    transform: scale(1);
   }
 
   @media (max-width: 768px) {
@@ -401,37 +480,6 @@ const MessageInput = styled.textarea`
   }
 `;
 
-const DeleteButton = styled.button`
-  background: rgba(149, 165, 166, 0.1);
-  color: #95a5a6;
-  border: 1px solid rgba(149, 165, 166, 0.3);
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  backdrop-filter: blur(4px);
-
-  &:hover {
-    background: rgba(231, 76, 60, 0.1);
-    color: #e74c3c;
-    border-color: rgba(231, 76, 60, 0.3);
-    transform: scale(1.05);
-  }
-
-  @media (max-width: 768px) {
-    padding: 3px 6px;
-    font-size: 12px;
-    border-radius: 10px;
-    top: -6px;
-    right: -6px;
-  }
-`;
-
 const SendButton = styled.button`
   background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
   color: white;
@@ -548,7 +596,9 @@ const ChatRoom: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string>('');
+  const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -614,11 +664,59 @@ const ChatRoom: React.FC = () => {
       await chatAPI.deleteMessage(id!, messageId);
       // Reload messages to reflect the deletion
       await loadMessages();
+      setMenuOpenFor(null); // Close menu after deletion
     } catch (error) {
       console.error('Failed to delete message:', error);
       setError('No se pudo eliminar el mensaje. Inténtalo de nuevo.');
     }
   };
+
+  const toggleMenu = (messageId: string) => {
+    setMenuOpenFor(menuOpenFor === messageId ? null : messageId);
+  };
+
+  const handleMouseEnter = (messageId: string) => {
+    // Only show menu button on hover for desktop
+    if (window.innerWidth > 768) {
+      // Could add hover state here if needed
+    }
+  };
+
+  const handleMouseLeave = () => {
+    // Close menu when mouse leaves (for desktop)
+    if (window.innerWidth > 768) {
+      setMenuOpenFor(null);
+    }
+  };
+
+  const handleTouchStart = (messageId: string) => {
+    // Start long press timer for mobile
+    if (window.innerWidth <= 768) {
+      longPressTimer.current = setTimeout(() => {
+        setMenuOpenFor(messageId);
+      }, 500); // 500ms long press
+    }
+  };
+
+  const handleTouchEnd = () => {
+    // Clear long press timer
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setMenuOpenFor(null);
+    };
+
+    if (menuOpenFor) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [menuOpenFor]);
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -767,7 +865,14 @@ const ChatRoom: React.FC = () => {
                   {messages.map(message => {
                     const isOwn = user?._id === message.senderId._id;
                     return (
-                      <Message key={message._id} isOwn={isOwn}>
+                      <Message
+                        key={message._id}
+                        isOwn={isOwn}
+                        onMouseEnter={() => handleMouseEnter(message._id)}
+                        onMouseLeave={handleMouseLeave}
+                        onTouchStart={() => handleTouchStart(message._id)}
+                        onTouchEnd={handleTouchEnd}
+                      >
                         <MessageWrapper isOwn={isOwn}>
                           {!isOwn && (
                             <MessageSender>{message.senderId.firstName} {message.senderId.lastName}</MessageSender>
@@ -777,9 +882,19 @@ const ChatRoom: React.FC = () => {
                           </MessageBubble>
                           <MessageTime isOwn={isOwn}>{formatTime(message.createdAt)}</MessageTime>
                           {isOwn && (
-                            <DeleteButton onClick={() => handleDeleteMessage(message._id)}>
-                              ✕
-                            </DeleteButton>
+                            <>
+                              <MessageMenuButton onClick={(e) => {
+                                e.stopPropagation();
+                                toggleMenu(message._id);
+                              }}>
+                                ⋯
+                              </MessageMenuButton>
+                              <MessageMenu isOpen={menuOpenFor === message._id}>
+                                <MenuItem onClick={() => handleDeleteMessage(message._id)}>
+                                  🗑️ Eliminar
+                                </MenuItem>
+                              </MessageMenu>
+                            </>
                           )}
                         </MessageWrapper>
                       </Message>
