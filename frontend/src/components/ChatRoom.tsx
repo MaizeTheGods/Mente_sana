@@ -363,7 +363,7 @@ const MessageForm = styled.form`
   }
 `;
 
-const MessageInput = styled.input`
+const MessageInput = styled.textarea`
   flex: 1;
   padding: 16px 24px;
   border: 2px solid #e1e8ed;
@@ -373,6 +373,10 @@ const MessageInput = styled.input`
   transition: all 0.3s ease;
   background: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  resize: vertical;
+  min-height: 20px;
+  max-height: 120px;
+  line-height: 1.4;
 
   &:focus {
     border-color: #4caf50;
@@ -386,10 +390,11 @@ const MessageInput = styled.input`
   }
 
   @media (max-width: 768px) {
-    padding: 14px 20px;
+    padding: 16px 20px;
     font-size: 16px;
     border-radius: 25px;
     min-height: 48px;
+    max-height: 100px;
     resize: none;
   }
 `;
@@ -729,7 +734,6 @@ const ChatRoom: React.FC = () => {
             <InputContainer>
               <MessageForm onSubmit={handleSendMessage}>
                 <MessageInput
-                  type="text"
                   placeholder="Escribe tu mensaje..."
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
