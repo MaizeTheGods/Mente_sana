@@ -975,8 +975,8 @@ const ChatRoom: React.FC = () => {
               marginBottom: '24px',
               lineHeight: '1.5'
             }}>{error}</p>
-            <BackButton onClick={() => navigate('/chat')}>
-              ← Volver a Grupos
+            <BackButton onClick={() => navigate('/dashboard')}>
+              ← Dashboard
             </BackButton>
           </div>
         </DashboardContainer>
@@ -1015,8 +1015,8 @@ const ChatRoom: React.FC = () => {
               marginBottom: '24px',
               lineHeight: '1.5'
             }}>El grupo que buscas no existe o ha sido eliminado.</p>
-            <BackButton onClick={() => navigate('/chat')}>
-              ← Volver a Grupos
+            <BackButton onClick={() => navigate('/dashboard')}>
+              ← Dashboard
             </BackButton>
           </div>
         </DashboardContainer>
