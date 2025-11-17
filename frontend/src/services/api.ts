@@ -349,18 +349,18 @@ export interface ChatGroup {
 }
 
 export interface ChatMessage {
- _id: string;
- groupId: string;
- sender: {
-   _id: string;
-   firstName: string;
-   lastName: string;
- };
- content: string;
- messageType: 'text' | 'image' | 'file';
- isActive: boolean;
- createdAt: string;
- updatedAt: string;
+  _id: string;
+  groupId: string;
+  senderId: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+  };
+  content: string;
+  messageType: 'text' | 'image' | 'file';
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default api;

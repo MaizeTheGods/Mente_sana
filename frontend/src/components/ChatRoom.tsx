@@ -336,7 +336,7 @@ const ChatRoom: React.FC = () => {
               {messages.map(message => (
                 <Message key={message._id} isOwn={false}>
                   <div>
-                    <MessageSender>{message.sender.firstName} {message.sender.lastName}</MessageSender>
+                    <MessageSender>{message.senderId.firstName} {message.senderId.lastName}</MessageSender>
                     <MessageBubble isOwn={false}>
                       {message.content}
                       <MessageTime>{formatTime(message.createdAt)}</MessageTime>
