@@ -1,8 +1,29 @@
 const express = require('express');
 const router = express.Router();
+const { seedDatabase } = require('../scripts/seedData');
 
 // Health check endpoint
 router.get('/', (req, res) => {
+
+// Seed database endpoint (for development/admin use)
+router.post('/seed', async (req, res) => {
+  try {
+    console.log('🌱 Seeding database via API endpoint...');
+    await seedDatabase();
+    res.json({
+      success: true,
+      message: 'Database seeded successfully',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Seeding error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to seed database',
+      error: error.message
+    });
+  }
+});
   res.send(`
     <!DOCTYPE html>
     <html lang="es">
@@ -155,6 +176,11 @@ router.get('/', (req, res) => {
                 <div class="endpoint">
                     <span class="method get">GET</span>
                     <strong>/api/maps</strong> - Servicios de salud cercanos
+                </div>
+
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <strong>/seed</strong> - Poblar base de datos con datos de ejemplo
                 </div>
             </div>
 
