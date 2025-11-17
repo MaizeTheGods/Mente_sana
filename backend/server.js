@@ -94,7 +94,7 @@ app.use((req, res) => {
 });
 
 // Socket.io middleware for authentication
-io.use((socket, next) => {
+io.use(async (socket, next) => {
   const token = socket.handshake.auth.token;
   if (!token) {
     return next(new Error('Authentication error'));
@@ -103,7 +103,20 @@ io.use((socket, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     socket.userId = decoded._id;
-    socket.user = decoded;
+
+    // Get full user data from database
+    const User = require('./models/User');
+    const user = await User.findById(decoded._id).select('firstName lastName');
+    if (!user) {
+      return next(new Error('User not found'));
+    }
+
+    socket.user = {
+      _id: decoded._id,
+      firstName: user.firstName,
+      lastName: user.lastName
+    };
+
     next();
   } catch (error) {
     next(new Error('Authentication error'));
