@@ -27,7 +27,19 @@ router.get('/groups', authenticateToken, async (req, res) => {
       .sort({ createdAt: -1 })
       .select('-__v');
 
-    res.json({ groups });
+    // Add membership status for each group
+    const groupsWithMembership = groups.map(group => {
+      const isMember = group.currentMembers.some(
+        member => member.userId.toString() === req.user._id.toString() && member.isActive
+      );
+
+      return {
+        ...group.toObject(),
+        isMember
+      };
+    });
+
+    res.json({ groups: groupsWithMembership });
   } catch (error) {
     console.error('Get chat groups error:', error);
     res.status(500).json({ error: 'Failed to fetch chat groups' });

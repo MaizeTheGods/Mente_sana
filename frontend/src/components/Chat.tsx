@@ -144,9 +144,12 @@ const Chat: React.FC = () => {
     }
   };
 
-  const handleJoinGroup = async (groupId: string) => {
+  const handleJoinGroup = async (groupId: string, isMember: boolean) => {
     try {
-      await chatAPI.joinGroup(groupId);
+      if (!isMember) {
+        // Only try to join if not already a member
+        await chatAPI.joinGroup(groupId);
+      }
       // Navigate to the chat room
       navigate(`/chat/${groupId}`);
     } catch (error: any) {
@@ -224,13 +227,13 @@ const Chat: React.FC = () => {
             {groups.map(group => (
               <GroupCard
                 key={group._id}
-                onClick={() => handleJoinGroup(group._id)}
+                onClick={() => handleJoinGroup(group._id, group.isMember || false)}
               >
                 <GroupIcon>{getCategoryIcon(group.category)}</GroupIcon>
                 <GroupTitle>{group.name}</GroupTitle>
                 <GroupDescription>{group.description}</GroupDescription>
                 <GroupStats>
-                  <span>👥 {group.members?.length || 0} miembros</span>
+                  <span>👥 {group.isMember ? 'Miembro' : 'Unirse'}</span>
                   <span>📱 {getCategoryLabel(group.category)}</span>
                 </GroupStats>
               </GroupCard>

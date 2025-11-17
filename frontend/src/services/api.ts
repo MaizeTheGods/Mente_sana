@@ -336,15 +336,16 @@ export const chatAPI = {
 
 // Chat Types
 export interface ChatGroup {
- _id: string;
- name: string;
- description: string;
- category: 'anxiety' | 'depression' | 'stress' | 'general' | 'recovery' | 'family';
- members: string[];
- createdBy: string;
- isActive: boolean;
- createdAt: string;
- updatedAt: string;
+  _id: string;
+  name: string;
+  description: string;
+  category: 'anxiety' | 'depression' | 'stress' | 'general' | 'recovery' | 'family';
+  members: string[];
+  isMember?: boolean;
+  createdBy: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ChatMessage {
