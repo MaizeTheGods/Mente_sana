@@ -4,75 +4,150 @@ import { useNavigate } from 'react-router-dom';
 import { chatAPI, ChatGroup } from '../services/api';
 
 const Container = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%);
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="70" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="60" cy="30" r="1.5" fill="rgba(255,255,255,0.08)"/></svg>');
+    opacity: 0.5;
+  }
 `;
 
 const Card = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 24px;
   padding: 40px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
   width: 100%;
-  max-width: 1000px;
+  max-width: 1200px;
   max-height: 90vh;
   overflow-y: auto;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  margin: 0 auto;
 `;
 
 const Title = styled.h2`
   text-align: center;
-  color: #2e7d32;
-  margin-bottom: 30px;
-  font-size: 28px;
-  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 40px;
+  font-size: 32px;
+  font-weight: 700;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 2px;
+  }
 `;
 
 const GroupsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-  margin-bottom: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
 `;
 
-const GroupCard = styled.div`
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e9ecef;
-  transition: all 0.3s ease;
+const GroupCard = styled.div<{ isMember: boolean }>`
+  background: linear-gradient(135deg,
+    ${props => props.isMember ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 255, 255, 0.9)'} 0%,
+    ${props => props.isMember ? 'rgba(129, 199, 132, 0.05)' : 'rgba(248, 249, 250, 0.8)'} 100%);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  border: 2px solid ${props => props.isMember ? 'rgba(76, 175, 80, 0.3)' : 'rgba(255, 255, 255, 0.5)'};
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s;
+  }
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border-color: ${props => props.isMember ? '#4caf50' : '#667eea'};
+
+    &::before {
+      left: 100%;
+    }
   }
+
+  ${props => props.isMember && `
+    &::after {
+      content: '✓';
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: #4caf50;
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+    }
+  `}
 `;
 
 const GroupIcon = styled.div`
-  font-size: 3rem;
-  margin-bottom: 16px;
+  font-size: 4rem;
+  margin-bottom: 20px;
   text-align: center;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  transition: transform 0.3s ease;
+
+  ${GroupCard}:hover & {
+    transform: scale(1.1);
+  }
 `;
 
 const GroupTitle = styled.h3`
-  color: #2e7d32;
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 12px;
+  color: #2c3e50;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 16px;
   text-align: center;
+  line-height: 1.3;
 `;
 
 const GroupDescription = styled.p`
-  color: #666;
-  font-size: 0.95rem;
+  color: #5a6c7d;
+  font-size: 1rem;
   line-height: 1.6;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  text-align: center;
 `;
 
 const GroupStats = styled.div`
@@ -80,46 +155,87 @@ const GroupStats = styled.div`
   justify-content: space-between;
   align-items: center;
   font-size: 0.9rem;
-  color: #4caf50;
+  font-weight: 600;
+`;
+
+const MemberBadge = styled.span<{ isMember: boolean }>`
+  background: ${props => props.isMember
+    ? 'linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)'
+    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'};
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+`;
+
+const CategoryBadge = styled.span`
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 `;
 
 const BackButton = styled.button`
-  padding: 12px 24px;
-  background: #6c757d;
+  padding: 14px 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: 25px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 20px;
+  margin-top: 30px;
+  box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3);
 
   &:hover {
-    background: #5a6268;
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 20px rgba(102, 126, 234, 0.4);
   }
 `;
 
 const InfoSection = styled.div`
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  border-left: 4px solid #4caf50;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.8) 100%);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px);
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 2px 0 0 2px;
+  }
 `;
 
 const InfoTitle = styled.h3`
-  color: #2e7d32;
-  margin-bottom: 10px;
-  font-size: 18px;
-  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 12px;
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 `;
 
 const InfoText = styled.p`
-  color: #666;
-  line-height: 1.6;
+  color: #5a6c7d;
+  line-height: 1.7;
   margin: 0;
+  font-size: 15px;
 `;
 
 const Chat: React.FC = () => {
@@ -188,7 +304,7 @@ const Chat: React.FC = () => {
         <Title>Grupos de Apoyo</Title>
 
         <InfoSection>
-          <InfoTitle>¿Cómo funcionan los grupos?</InfoTitle>
+          <InfoTitle>🤝 ¿Cómo funcionan los grupos?</InfoTitle>
           <InfoText>
             Nuestros grupos de apoyo son espacios seguros y moderados donde puedes conectar con personas que comparten experiencias similares.
             Todos los participantes respetan la confidencialidad y se apoyan mutuamente en su camino hacia el bienestar mental.
@@ -227,14 +343,17 @@ const Chat: React.FC = () => {
             {groups.map(group => (
               <GroupCard
                 key={group._id}
+                isMember={group.isMember || false}
                 onClick={() => handleJoinGroup(group._id, group.isMember || false)}
               >
                 <GroupIcon>{getCategoryIcon(group.category)}</GroupIcon>
                 <GroupTitle>{group.name}</GroupTitle>
                 <GroupDescription>{group.description}</GroupDescription>
                 <GroupStats>
-                  <span>👥 {group.isMember ? 'Miembro' : 'Unirse'}</span>
-                  <span>📱 {getCategoryLabel(group.category)}</span>
+                  <MemberBadge isMember={group.isMember || false}>
+                    {group.isMember ? '✓ Miembro' : '👥 Unirse'}
+                  </MemberBadge>
+                  <CategoryBadge>{getCategoryLabel(group.category)}</CategoryBadge>
                 </GroupStats>
               </GroupCard>
             ))}
