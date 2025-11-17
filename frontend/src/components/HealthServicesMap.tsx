@@ -246,8 +246,6 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState<string>('');
   const [manualLocation, setManualLocation] = useState<string>('');
-  const [debugLogs, setDebugLogs] = useState<string[]>([]);
-  const [showDebug, setShowDebug] = useState(false);
 
 
   // Function to geocode manual location input
@@ -926,79 +924,11 @@ Solución: Intenta nuevamente o usa la búsqueda manual de ubicación abajo.`;
         </MapCard>
       </Container>
 
-      {/* Debug Panel */}
-      <div style={{
-        position: 'fixed',
-        bottom: '10px',
-        right: '10px',
-        zIndex: 10000,
-        maxWidth: window.innerWidth <= 768 ? '90vw' : '400px'
-      }}>
-        <button
-          onClick={() => setShowDebug(!showDebug)}
-          style={{
-            padding: '8px 12px',
-            background: '#ff6b6b',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '12px',
-            cursor: 'pointer',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-          }}
-        >
-          {showDebug ? 'Ocultar Debug' : '🐛 Debug'}
-        </button>
-
-        {showDebug && (
-          <div style={{
-            marginTop: '8px',
-            background: 'rgba(0,0,0,0.9)',
-            color: '#00ff00',
-            borderRadius: '8px',
-            padding: '12px',
-            fontSize: '11px',
-            fontFamily: 'monospace',
-            maxHeight: '300px',
-            overflowY: 'auto',
-            border: '1px solid #333'
-          }}>
-            <div style={{ marginBottom: '8px', fontWeight: 'bold' }}>Debug Logs:</div>
-            {debugLogs.length === 0 ? (
-              <div style={{ color: '#888' }}>No hay logs aún...</div>
-            ) : (
-              debugLogs.map((log, index) => (
-                <div key={index} style={{
-                  marginBottom: '4px',
-                  padding: '2px 0',
-                  borderBottom: index < debugLogs.length - 1 ? '1px solid #333' : 'none'
-                }}>
-                  {log}
-                </div>
-              ))
-            )}
-            <button
-              onClick={() => setDebugLogs([])}
-              style={{
-                marginTop: '8px',
-                padding: '4px 8px',
-                background: '#666',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                fontSize: '10px',
-                cursor: 'pointer'
-              }}
-            >
-              Limpiar Logs
-            </button>
-          </div>
-        )}
-      </div>
     </>
   );
 };
 
 export default HealthServicesMap;
+
 
 
