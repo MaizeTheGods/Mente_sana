@@ -40,6 +40,10 @@ const Container = styled.div`
       background-position: 40px 40px;
     }
   }
+
+  @media (max-width: 768px) {
+    padding: 10px;
+  }
 `;
 
 const DashboardContainer = styled.div`
@@ -47,6 +51,10 @@ const DashboardContainer = styled.div`
   margin: 0 auto;
   position: relative;
   z-index: 2;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+  }
 `;
 
 const Header = styled.header`
@@ -57,6 +65,12 @@ const Header = styled.header`
   margin-bottom: 32px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
+
+  @media (max-width: 768px) {
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+  }
 `;
 
 const HeaderContent = styled.div`
@@ -64,6 +78,11 @@ const HeaderContent = styled.div`
   justify-content: space-between;
   align-items: center;
   gap: 20px;
+
+  @media (max-width: 768px) {
+    gap: 12px;
+    align-items: flex-start;
+  }
 `;
 
 const GroupTitle = styled.h1`
@@ -72,6 +91,11 @@ const GroupTitle = styled.h1`
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.025em;
+
+  @media (max-width: 768px) {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
 `;
 
 const GroupDescription = styled.p`
@@ -79,6 +103,12 @@ const GroupDescription = styled.p`
   font-size: 1.125rem;
   margin: 8px 0 0 0;
   font-weight: 400;
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    margin: 4px 0 0 0;
+    line-height: 1.3;
+  }
 `;
 
 const BackButton = styled.button`
@@ -92,10 +122,18 @@ const BackButton = styled.button`
   cursor: pointer;
   box-shadow: 0 4px 6px rgba(76, 175, 80, 0.2);
   transition: all 0.3s ease;
+  white-space: nowrap;
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);
+  }
+
+  @media (max-width: 768px) {
+    padding: 10px 16px;
+    font-size: 13px;
+    border-radius: 10px;
+    align-self: flex-start;
   }
 `;
 
@@ -109,6 +147,11 @@ const ChatLayout = styled.div`
     grid-template-columns: 1fr;
     gap: 16px;
   }
+
+  @media (max-width: 768px) {
+    gap: 12px;
+    min-height: calc(100vh - 200px);
+  }
 `;
 
 const MessagesSection = styled.div`
@@ -120,6 +163,11 @@ const MessagesSection = styled.div`
   display: flex;
   flex-direction: column;
   overflow: hidden;
+
+  @media (max-width: 768px) {
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
 `;
 
 const GroupInfoSection = styled.div`
@@ -133,6 +181,13 @@ const GroupInfoSection = styled.div`
 
   @media (max-width: 1024px) {
     order: -1;
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    margin-bottom: 8px;
   }
 `;
 
@@ -161,12 +216,21 @@ const MessagesContainer = styled.div`
       background: linear-gradient(135deg, #388e3c 0%, #4caf50 100%);
     }
   }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    min-height: 250px;
+  }
 `;
 
 const MessageList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
+
+  @media (max-width: 768px) {
+    gap: 16px;
+  }
 `;
 
 const Message = styled.div<{ isOwn: boolean }>`
@@ -185,11 +249,20 @@ const Message = styled.div<{ isOwn: boolean }>`
       transform: translateY(0);
     }
   }
+
+  @media (max-width: 768px) {
+    margin-bottom: 2px;
+  }
 `;
 
 const MessageWrapper = styled.div`
   max-width: 75%;
   min-width: 120px;
+
+  @media (max-width: 768px) {
+    max-width: 85%;
+    min-width: 100px;
+  }
 `;
 
 const MessageSender = styled.div`
@@ -198,6 +271,11 @@ const MessageSender = styled.div`
   margin-bottom: 6px;
   color: #2c3e50;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
 `;
 
 const MessageBubble = styled.div<{ isOwn: boolean }>`
@@ -213,6 +291,12 @@ const MessageBubble = styled.div<{ isOwn: boolean }>`
   line-height: 1.5;
   font-size: 15px;
   position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.02);
+  }
 
   &::before {
     content: '';
@@ -224,6 +308,22 @@ const MessageBubble = styled.div<{ isOwn: boolean }>`
     border-top: 8px solid transparent;
     border-bottom: 8px solid transparent;
   }
+
+  @media (max-width: 768px) {
+    padding: 14px 18px;
+    font-size: 16px;
+    line-height: 1.4;
+    border-radius: ${props => props.isOwn ? '18px 18px 4px 18px' : '18px 18px 18px 4px'};
+
+    &::before {
+      ${props => props.isOwn
+        ? 'right: -6px; border-left: 6px solid #4caf50;'
+        : 'left: -6px; border-right: 6px solid #ffffff;'};
+      bottom: 14px;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+    }
+  }
 `;
 
 const MessageTime = styled.div<{ isOwn: boolean }>`
@@ -232,6 +332,11 @@ const MessageTime = styled.div<{ isOwn: boolean }>`
   margin-top: 8px;
   text-align: ${props => props.isOwn ? 'right' : 'left'};
   color: ${props => props.isOwn ? 'rgba(255, 255, 255, 0.8)' : '#95a5a6'};
+
+  @media (max-width: 768px) {
+    font-size: 11px;
+    margin-top: 6px;
+  }
 `;
 
 const InputContainer = styled.div`
@@ -239,6 +344,11 @@ const InputContainer = styled.div`
   padding: 24px 28px;
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   border-radius: 0 0 20px 20px;
+
+  @media (max-width: 768px) {
+    padding: 16px 20px;
+    border-radius: 0 0 12px 12px;
+  }
 `;
 
 const MessageForm = styled.form`
@@ -246,6 +356,11 @@ const MessageForm = styled.form`
   gap: 16px;
   align-items: center;
   max-width: 100%;
+
+  @media (max-width: 768px) {
+    gap: 12px;
+    align-items: flex-end;
+  }
 `;
 
 const MessageInput = styled.input`
@@ -268,6 +383,14 @@ const MessageInput = styled.input`
   &::placeholder {
     color: #adb5bd;
     font-weight: 400;
+  }
+
+  @media (max-width: 768px) {
+    padding: 14px 20px;
+    font-size: 16px;
+    border-radius: 25px;
+    min-height: 48px;
+    resize: none;
   }
 `;
 
@@ -298,6 +421,13 @@ const SendButton = styled.button`
 
   &:active {
     transform: translateY(-1px);
+  }
+
+  @media (max-width: 768px) {
+    padding: 14px 24px;
+    font-size: 15px;
+    min-width: 80px;
+    border-radius: 25px;
   }
 `;
 
