@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Exercise = require('../models/Exercise');
 const Tip = require('../models/Tip');
+const ChatGroup = require('../models/ChatGroup');
 
 const exercisesData = [
   {
@@ -248,6 +249,39 @@ const exercisesData = [
   }
 ];
 
+const chatGroupsData = [
+  {
+    name: 'Grupo de Apoyo para Ansiedad',
+    description: 'Un espacio seguro para compartir experiencias, estrategias de afrontamiento y apoyo mutuo para personas que viven con ansiedad. Aquí encontrarás comprensión y consejos prácticos de personas que han pasado por situaciones similares.',
+    category: 'anxiety'
+  },
+  {
+    name: 'Apoyo en Depresión',
+    description: 'Conecta con personas que entienden tus desafíos. Comparte tus victorias, pide consejos y recibe el apoyo que necesitas en tu camino hacia la recuperación. Todos somos bienvenidos.',
+    category: 'depression'
+  },
+  {
+    name: 'Manejo del Estrés Diario',
+    description: 'Aprende técnicas efectivas para manejar el estrés diario, comparte experiencias laborales y encuentra soluciones prácticas. Un espacio para relajarte y desconectar.',
+    category: 'stress'
+  },
+  {
+    name: 'Jóvenes Adultos (18-30 años)',
+    description: 'Espacio para jóvenes adultos que enfrentan desafíos de salud mental relacionados con la transición a la adultez, carrera profesional, relaciones y crecimiento personal.',
+    category: 'general'
+  },
+  {
+    name: 'Apoyo Familiar y Cuidadores',
+    description: 'Para familiares y seres queridos de personas con problemas de salud mental. Comparte experiencias, obtén apoyo y aprende cómo cuidar de ti mismo mientras cuidas de otros.',
+    category: 'family'
+  },
+  {
+    name: 'Camino a la Recuperación',
+    description: 'Para personas en proceso de recuperación. Comparte tus logros, desafíos y motiva a otros en su camino. Celebramos cada paso adelante, por pequeño que sea.',
+    category: 'recovery'
+  }
+];
+
 const tipsData = [
   {
     title: 'Practica la Gratitud Diaria',
@@ -412,6 +446,7 @@ async function seedDatabase() {
     // Clear existing data
     await Exercise.deleteMany({});
     await Tip.deleteMany({});
+    await ChatGroup.deleteMany({});
     console.log('🗑️  Cleared existing data');
 
     // Insert exercises
@@ -422,11 +457,17 @@ async function seedDatabase() {
     const tips = await Tip.insertMany(tipsData);
     console.log(`✅ Inserted ${tips.length} tips`);
 
+    // Insert chat groups
+    const chatGroups = await ChatGroup.insertMany(chatGroupsData);
+    console.log(`✅ Inserted ${chatGroups.length} chat groups`);
+
     console.log('🎉 Database seeding completed successfully!');
     console.log('\n📊 Summary:');
     console.log(`   Exercises: ${exercises.length}`);
     console.log(`   Tips: ${tips.length}`);
+    console.log(`   Chat Groups: ${chatGroups.length}`);
     console.log('\n🎬 All exercises and tips now have video URLs!');
+    console.log('👥 Chat groups are ready for community support!');
 
   } catch (error) {
     console.error('❌ Error seeding database:', error);
@@ -449,4 +490,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { seedDatabase, exercisesData, tipsData, categoriesData };
+module.exports = { seedDatabase, exercisesData, tipsData, chatGroupsData, categoriesData };

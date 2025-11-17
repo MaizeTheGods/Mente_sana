@@ -298,4 +298,68 @@ export const tipsAPI = {
  },
 };
 
+// Chat API
+export const chatAPI = {
+ getGroups: async (): Promise<{ groups: ChatGroup[] }> => {
+   const response = await api.get('/chat/groups');
+   return response.data;
+ },
+
+ getGroup: async (id: string): Promise<{ group: ChatGroup }> => {
+   const response = await api.get(`/chat/groups/${id}`);
+   return response.data;
+ },
+
+ joinGroup: async (id: string): Promise<{ message: string }> => {
+   const response = await api.post(`/chat/groups/${id}/join`);
+   return response.data;
+ },
+
+ getMessages: async (groupId: string, params?: {
+   limit?: number;
+   page?: number;
+ }): Promise<{ messages: ChatMessage[]; pagination: any }> => {
+   const response = await api.get(`/chat/groups/${groupId}/messages`, { params });
+   return response.data;
+ },
+
+ sendMessage: async (groupId: string, content: string): Promise<{ message: string; messageData: ChatMessage }> => {
+   const response = await api.post(`/chat/groups/${groupId}/messages`, { content });
+   return response.data;
+ },
+
+ deleteMessage: async (groupId: string, messageId: string): Promise<{ message: string }> => {
+   const response = await api.delete(`/chat/groups/${groupId}/messages/${messageId}`);
+   return response.data;
+ },
+};
+
+// Chat Types
+export interface ChatGroup {
+ _id: string;
+ name: string;
+ description: string;
+ category: 'anxiety' | 'depression' | 'stress' | 'general' | 'recovery' | 'family';
+ members: string[];
+ createdBy: string;
+ isActive: boolean;
+ createdAt: string;
+ updatedAt: string;
+}
+
+export interface ChatMessage {
+ _id: string;
+ groupId: string;
+ sender: {
+   _id: string;
+   firstName: string;
+   lastName: string;
+ };
+ content: string;
+ messageType: 'text' | 'image' | 'file';
+ isActive: boolean;
+ createdAt: string;
+ updatedAt: string;
+}
+
 export default api;

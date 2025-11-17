@@ -8,6 +8,7 @@ import Results from './components/Results';
 import HealthServicesMap from './components/HealthServicesMap';
 import Exercises from './components/Exercises';
 import Tips from './components/Tips';
+import Chat from './components/Chat';
 import ExerciseDetail from './components/ExerciseDetail';
 import TipDetail from './components/TipDetail';
 import styled, { createGlobalStyle } from 'styled-components';
@@ -143,6 +144,11 @@ const App: React.FC = () => {
               <Route path="/tips" element={
                 <ProtectedRoute>
                   <Tips />
+                </ProtectedRoute>
+              } />
+              <Route path="/chat" element={
+                <ProtectedRoute>
+                  <Chat />
                 </ProtectedRoute>
               } />
               <Route path="/exercise/:id" element={

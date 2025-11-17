@@ -54,8 +54,8 @@ app.use('/api/admin', require('./routes/admin'));
 app.use('/api/questionnaire', require('./routes/questionnaire'));
 app.use('/api/exercises', require('./routes/exercises'));
 app.use('/api/tips', require('./routes/tips'));
+app.use('/api/chat', require('./routes/chat'));
 // TODO: Implement remaining routes
-// app.use('/api/chat', require('./routes/chat'));
 // app.use('/api/maps', require('./routes/maps'));
 // app.use('/api/feedback', require('./routes/feedback'));
 // app.use('/api/analytics', require('./routes/analytics'));
