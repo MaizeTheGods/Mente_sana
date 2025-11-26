@@ -101,17 +101,23 @@ app.use((req, res) => {
 // Socket.io middleware for authentication
 io.use(async (socket, next) => {
   const token = socket.handshake.auth.token;
+  console.log('Socket auth token:', token ? 'present' : 'missing');
   if (!token) {
     return next(new Error('Authentication error'));
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Decoded user ID:', decoded._id);
     socket.userId = decoded._id;
 
     // Get full user data from database
     const User = require('./models/User');
     const user = await User.findById(decoded._id);
+    console.log('User found in DB:', !!user);
+    if (user) {
+      console.log('User data:', { firstName: user.firstName, lastName: user.lastName });
+    }
     if (!user) {
       return next(new Error('User not found'));
     }
@@ -124,6 +130,7 @@ io.use(async (socket, next) => {
 
     next();
   } catch (error) {
+    console.log('JWT verify error:', error.message);
     next(new Error('Authentication error'));
   }
 });
