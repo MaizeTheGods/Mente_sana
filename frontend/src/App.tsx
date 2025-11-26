@@ -13,6 +13,7 @@ import ChatRoom from './components/ChatRoom';
 import ExerciseDetail from './components/ExerciseDetail';
 import TipDetail from './components/TipDetail';
 import styled, { createGlobalStyle } from 'styled-components';
+import { GlassCard } from './components/SharedStyles';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -183,6 +184,33 @@ const App: React.FC = () => {
   );
 };
 
+const DashboardHeader = styled(GlassCard)`
+  margin-bottom: 32px;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+  max-width: 100%;
+`;
+
+const FeatureCard = styled(GlassCard)`
+  cursor: pointer;
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+`;
+
 // Professional Dashboard component
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -214,8 +242,6 @@ const Dashboard: React.FC = () => {
     loadResults();
   }, [user, hasCompletedQuestionnaire]);
 
-  // Don't auto-redirect to questionnaire - users can access it from dashboard
-
   // Prepare chart data
   const chartData = React.useMemo(() => {
     if (!results.length) return null;
@@ -237,12 +263,12 @@ const Dashboard: React.FC = () => {
       labels,
       datasets: [{
         label: selectedDisorder === 'depression' ? 'Depresión' :
-               selectedDisorder === 'anxiety' ? 'Ansiedad' : 'Estrés',
+          selectedDisorder === 'anxiety' ? 'Ansiedad' : 'Estrés',
         data,
         borderColor: selectedDisorder === 'depression' ? '#dc3545' :
-                     selectedDisorder === 'anxiety' ? '#ffc107' : '#6f42c1',
+          selectedDisorder === 'anxiety' ? '#ffc107' : '#6f42c1',
         backgroundColor: selectedDisorder === 'depression' ? 'rgba(220, 53, 69, 0.1)' :
-                        selectedDisorder === 'anxiety' ? 'rgba(255, 193, 7, 0.1)' : 'rgba(111, 66, 193, 0.1)',
+          selectedDisorder === 'anxiety' ? 'rgba(255, 193, 7, 0.1)' : 'rgba(111, 66, 193, 0.1)',
         tension: 0.4,
         fill: true
       }]
@@ -258,7 +284,7 @@ const Dashboard: React.FC = () => {
       title: {
         display: true,
         text: `Progreso en ${selectedDisorder === 'depression' ? 'Depresión' :
-              selectedDisorder === 'anxiety' ? 'Ansiedad' : 'Estrés'}`,
+          selectedDisorder === 'anxiety' ? 'Ansiedad' : 'Estrés'}`,
         font: {
           size: 16,
           weight: 'bold' as const
@@ -320,291 +346,213 @@ const Dashboard: React.FC = () => {
   ];
 
   return (
-    <div className="container" style={{
-      minHeight: '100vh',
-      padding: window.innerWidth <= 768 ? '10px' : '20px'
+    <div style={{
+      width: '100%',
+      maxWidth: '1200px',
+      margin: '0 auto',
+      padding: window.innerWidth <= 768 ? '0' : '0'
     }}>
-      <div style={{ position: 'relative', zIndex: 2 }}>
       {/* Header */}
-      <header style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(10px)',
-        borderRadius: window.innerWidth <= 768 ? '12px' : '16px',
-        padding: window.innerWidth <= 768 ? '16px' : '24px',
-        marginBottom: window.innerWidth <= 768 ? '24px' : '32px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-        border: '1px solid rgba(255, 255, 255, 0.2)'
-      }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: window.innerWidth <= 768 ? '12px' : '16px'
-        }}>
-          <div>
-            <h1 style={{
-              color: '#2e7d32',
-              margin: '0 0 8px 0',
-              fontSize: window.innerWidth <= 768 ? '2rem' : '2.5rem',
-              fontWeight: '700',
-              letterSpacing: '-0.025em'
-            }}>
-              ¡Bienvenido, {user?.firstName}!
-            </h1>
-            <p style={{
-              color: '#4caf50',
-              margin: '0',
-              fontSize: window.innerWidth <= 768 ? '1rem' : '1.125rem',
-              fontWeight: '400'
-            }}>
-              Tu plataforma de apoyo para la salud mental
-            </p>
-          </div>
-          <button
-            onClick={logout}
-            style={{
-              padding: window.innerWidth <= 768 ? '10px 20px' : '12px 24px',
-              background: 'linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: window.innerWidth <= 768 ? '13px' : '14px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              boxShadow: '0 4px 6px rgba(76, 175, 80, 0.2)',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 6px 12px rgba(76, 175, 80, 0.3)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 6px rgba(76, 175, 80, 0.2)';
-            }}
-          >
-            Cerrar Sesión
-          </button>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main style={{
-        maxWidth: window.innerWidth <= 768 ? '100%' : '1200px',
-        margin: '0 auto',
-        padding: window.innerWidth <= 768 ? '0 10px' : '0'
-      }}>
-        <div style={{ marginBottom: window.innerWidth <= 768 ? '24px' : '32px' }}>
-          <h2 style={{
+      <DashboardHeader>
+        <div>
+          <h1 style={{
             color: '#2e7d32',
-            fontSize: window.innerWidth <= 768 ? '1.5rem' : '1.875rem',
-            fontWeight: '600',
             margin: '0 0 8px 0',
-            textAlign: 'center'
+            fontSize: window.innerWidth <= 768 ? '1.8rem' : '2.5rem',
+            fontWeight: '700',
+            letterSpacing: '-0.025em'
           }}>
-            ¿Qué te gustaría hacer hoy?
-          </h2>
+            ¡Bienvenido, {user?.firstName}!
+          </h1>
           <p style={{
             color: '#4caf50',
+            margin: '0',
             fontSize: window.innerWidth <= 768 ? '1rem' : '1.125rem',
-            textAlign: 'center',
-            margin: '0'
+            fontWeight: '400'
           }}>
-            Explora las herramientas disponibles para cuidar tu bienestar emocional
+            Tu plataforma de apoyo para la salud mental
           </p>
         </div>
+        <button
+          onClick={logout}
+          style={{
+            padding: window.innerWidth <= 768 ? '10px 20px' : '12px 24px',
+            background: 'linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '12px',
+            fontSize: window.innerWidth <= 768 ? '13px' : '14px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            boxShadow: '0 4px 6px rgba(76, 175, 80, 0.2)',
+            transition: 'all 0.3s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 6px 12px rgba(76, 175, 80, 0.3)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 4px 6px rgba(76, 175, 80, 0.2)';
+          }}
+        >
+          Cerrar Sesión
+        </button>
+      </DashboardHeader>
 
-        {/* Progress Chart Section */}
-        {results.length > 1 && (
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: window.innerWidth <= 768 ? '12px' : '16px',
-            padding: window.innerWidth <= 768 ? '20px' : '32px',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            marginBottom: window.innerWidth <= 768 ? '32px' : '48px'
-          }}>
-            <h2 style={{
-              color: '#2e7d32',
-              fontSize: '1.875rem',
-              fontWeight: '600',
-              margin: '0 0 24px 0',
-              textAlign: 'center'
-            }}>
-              📈 Mi Progreso en Salud Mental
-            </h2>
-
-            {/* Disorder Selector */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '16px',
-              marginBottom: '32px',
-              flexWrap: 'wrap'
-            }}>
-              {[
-                { key: 'depression', label: 'Depresión', color: '#dc3545' },
-                { key: 'anxiety', label: 'Ansiedad', color: '#ffc107' },
-                { key: 'stress', label: 'Estrés', color: '#6f42c1' }
-              ].map((disorder) => (
-                <button
-                  key={disorder.key}
-                  onClick={() => setSelectedDisorder(disorder.key as any)}
-                  style={{
-                    padding: '12px 24px',
-                    border: `2px solid ${selectedDisorder === disorder.key ? disorder.color : '#e9ecef'}`,
-                    borderRadius: '25px',
-                    background: selectedDisorder === disorder.key ? disorder.color : 'white',
-                    color: selectedDisorder === disorder.key ? 'white' : '#666',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    boxShadow: selectedDisorder === disorder.key ? `0 4px 12px ${disorder.color}40` : 'none'
-                  }}
-                >
-                  {disorder.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Chart */}
-            <div style={{
-              height: window.innerWidth <= 768 ? '300px' : '400px',
-              position: 'relative'
-            }}>
-              {chartData && <Line data={chartData} options={chartOptions} />}
-            </div>
-
-            <div style={{
-              marginTop: '24px',
-              padding: '16px',
-              background: '#f8f9fa',
-              borderRadius: '8px',
-              textAlign: 'center',
-              color: '#6b7280',
-              fontSize: '14px'
-            }}>
-              <strong>💡 Tip:</strong> Realiza el cuestionario periódicamente para ver tu progreso.
-              Una disminución en las puntuaciones indica mejora en tu bienestar mental.
-            </div>
-          </div>
-        )}
-
-        {/* Features Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: window.innerWidth <= 768 ? '16px' : '24px',
-          marginBottom: window.innerWidth <= 768 ? '32px' : '48px'
+      <div style={{ marginBottom: window.innerWidth <= 768 ? '24px' : '32px' }}>
+        <h2 style={{
+          color: '#2e7d32',
+          fontSize: window.innerWidth <= 768 ? '1.5rem' : '1.875rem',
+          fontWeight: '600',
+          margin: '0 0 8px 0',
+          textAlign: 'center'
         }}>
-          {features.map((feature, index) => (
-            <div
-              key={feature.id}
-              onClick={feature.action}
-              style={{
-                background: 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(10px)',
-                borderRadius: window.innerWidth <= 768 ? '12px' : '16px',
-                padding: window.innerWidth <= 768 ? '24px' : '32px',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)';
-                e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.15)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
-              }}
-            >
-              <div style={{
-                width: window.innerWidth <= 768 ? '56px' : '64px',
-                height: window.innerWidth <= 768 ? '56px' : '64px',
-                borderRadius: window.innerWidth <= 768 ? '14px' : '16px',
-                background: feature.gradient,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: window.innerWidth <= 768 ? '1.75rem' : '2rem',
-                marginBottom: window.innerWidth <= 768 ? '16px' : '20px',
-                boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)'
-              }}>
-                {feature.icon}
-              </div>
-              <h3 style={{
-                color: '#2e7d32',
-                fontSize: window.innerWidth <= 768 ? '1.125rem' : '1.25rem',
-                fontWeight: '600',
-                margin: '0 0 12px 0'
-              }}>
-                {feature.title}
-              </h3>
-              <p style={{
-                color: '#4caf50',
-                fontSize: window.innerWidth <= 768 ? '0.9rem' : '1rem',
-                lineHeight: '1.5',
-                margin: '0'
-              }}>
-                {feature.description}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {/* Footer */}
-        <footer style={{
-          textAlign: 'center',
-          padding: '32px 0',
+          ¿Qué te gustaría hacer hoy?
+        </h2>
+        <p style={{
           color: '#4caf50',
-          fontSize: '0.875rem'
+          fontSize: window.innerWidth <= 768 ? '1rem' : '1.125rem',
+          textAlign: 'center',
+          margin: '0'
         }}>
-          <p style={{ margin: '0' }}>
-            Desarrollado con ❤️ para ayudar a las personas en su camino hacia el bienestar mental
-          </p>
-        </footer>
-      </main>
-
+          Explora las herramientas disponibles para cuidar tu bienestar emocional
+        </p>
       </div>
+
+      {/* Progress Chart Section */}
+      {results.length > 1 && (
+        <GlassCard style={{ marginBottom: window.innerWidth <= 768 ? '32px' : '48px', width: '100%', maxWidth: '100%' }}>
+          <h2 style={{
+            color: '#2e7d32',
+            fontSize: '1.875rem',
+            fontWeight: '600',
+            margin: '0 0 24px 0',
+            textAlign: 'center'
+          }}>
+            📈 Mi Progreso en Salud Mental
+          </h2>
+
+          {/* Disorder Selector */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '16px',
+            marginBottom: '32px',
+            flexWrap: 'wrap'
+          }}>
+            {[
+              { key: 'depression', label: 'Depresión', color: '#dc3545' },
+              { key: 'anxiety', label: 'Ansiedad', color: '#ffc107' },
+              { key: 'stress', label: 'Estrés', color: '#6f42c1' }
+            ].map((disorder) => (
+              <button
+                key={disorder.key}
+                onClick={() => setSelectedDisorder(disorder.key as any)}
+                style={{
+                  padding: '12px 24px',
+                  border: `2px solid ${selectedDisorder === disorder.key ? disorder.color : '#e9ecef'}`,
+                  borderRadius: '25px',
+                  background: selectedDisorder === disorder.key ? disorder.color : 'white',
+                  color: selectedDisorder === disorder.key ? 'white' : '#666',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: selectedDisorder === disorder.key ? `0 4px 12px ${disorder.color}40` : 'none'
+                }}
+              >
+                {disorder.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Chart */}
+          <div style={{
+            height: window.innerWidth <= 768 ? '300px' : '400px',
+            position: 'relative'
+          }}>
+            {chartData && <Line data={chartData} options={chartOptions} />}
+          </div>
+
+          <div style={{
+            marginTop: '24px',
+            padding: '16px',
+            background: '#f8f9fa',
+            borderRadius: '8px',
+            textAlign: 'center',
+            color: '#6b7280',
+            fontSize: '14px'
+          }}>
+            <strong>💡 Tip:</strong> Realiza el cuestionario periódicamente para ver tu progreso.
+            Una disminución en las puntuaciones indica mejora en tu bienestar mental.
+          </div>
+        </GlassCard>
+      )}
+
+      {/* Features Grid */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: window.innerWidth <= 768 ? '16px' : '24px',
+        marginBottom: window.innerWidth <= 768 ? '32px' : '48px'
+      }}>
+        {features.map((feature, index) => (
+          <FeatureCard
+            key={feature.id}
+            onClick={feature.action}
+            style={{
+              animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`
+            }}
+          >
+            <div style={{
+              width: window.innerWidth <= 768 ? '56px' : '64px',
+              height: window.innerWidth <= 768 ? '56px' : '64px',
+              borderRadius: window.innerWidth <= 768 ? '14px' : '16px',
+              background: feature.gradient,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: window.innerWidth <= 768 ? '1.75rem' : '2rem',
+              marginBottom: window.innerWidth <= 768 ? '16px' : '20px',
+              boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)'
+            }}>
+              {feature.icon}
+            </div>
+            <h3 style={{
+              color: '#2e7d32',
+              fontSize: window.innerWidth <= 768 ? '1.125rem' : '1.25rem',
+              fontWeight: '600',
+              margin: '0 0 12px 0'
+            }}>
+              {feature.title}
+            </h3>
+            <p style={{
+              color: '#4caf50',
+              fontSize: window.innerWidth <= 768 ? '0.9rem' : '1rem',
+              lineHeight: '1.5',
+              margin: '0'
+            }}>
+              {feature.description}
+            </p>
+          </FeatureCard>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <footer style={{
+        textAlign: 'center',
+        padding: '32px 0',
+        color: '#4caf50',
+        fontSize: '0.875rem'
+      }}>
+        <p style={{ margin: '0' }}>
+          Desarrollado con ❤️ para ayudar a las personas en su camino hacia el bienestar mental
+        </p>
+      </footer>
 
       <style>
         {`
-          /* From Uiverse.io by jeremyssocial - adapted to site colors */
-          .container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: #f1f8e9; /* Fallback */
-            background: linear-gradient(
-              135deg,
-              #f1f8e9 25%,
-              #e8f5e8 25%,
-              #e8f5e8 50%,
-              #f1f8e9 50%,
-              #f1f8e9 75%,
-              #e8f5e8 75%,
-              #e8f5e8
-            );
-            background-size: 40px 40px;
-            animation: move 4s linear infinite;
-          }
-
-          @keyframes move {
-            0% {
-              background-position: 0 0;
-            }
-            100% {
-              background-position: 40px 40px;
-            }
-          }
-
-
           @keyframes fadeInUp {
             from {
               opacity: 0;

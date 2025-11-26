@@ -2,35 +2,11 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { chatAPI, ChatGroup } from '../services/api';
-
-const Container = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%);
-  padding: 20px;
-`;
-
-const Card = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  padding: 40px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 1000px;
-  max-height: 90vh;
-  overflow-y: auto;
-  backdrop-filter: blur(10px);
-`;
-
-const Title = styled.h2`
-  text-align: center;
-  color: #2e7d32;
-  margin-bottom: 30px;
-  font-size: 28px;
-  font-weight: 600;
-`;
+import {
+  PageContainer,
+  GlassCard,
+  PageTitle
+} from './SharedStyles';
 
 const GroupsGrid = styled.div`
   display: grid;
@@ -183,9 +159,9 @@ const Chat: React.FC = () => {
   };
 
   return (
-    <Container>
-      <Card>
-        <Title>Grupos de Apoyo</Title>
+    <PageContainer>
+      <GlassCard style={{ maxWidth: '1000px', maxHeight: '90vh', overflowY: 'auto' }}>
+        <PageTitle>Grupos de Apoyo</PageTitle>
 
         <InfoSection>
           <InfoTitle>¿Cómo funcionan los grupos?</InfoTitle>
@@ -198,16 +174,16 @@ const Chat: React.FC = () => {
         <InfoSection>
           <InfoTitle>💡 Consejos importantes</InfoTitle>
           <InfoText>
-            • Sé respetuoso y empático con los demás<br/>
-            • Mantén la confidencialidad de lo compartido<br/>
-            • Si necesitas ayuda profesional urgente, contacta a servicios de emergencia<br/>
+            • Sé respetuoso y empático con los demás<br />
+            • Mantén la confidencialidad de lo compartido<br />
+            • Si necesitas ayuda profesional urgente, contacta a servicios de emergencia<br />
             • Los grupos complementan, no reemplazan, la atención profesional
           </InfoText>
         </InfoSection>
 
         {isLoading ? (
           <div style={{ textAlign: 'center', padding: '40px' }}>
-            <Title>Cargando grupos...</Title>
+            <PageTitle>Cargando grupos...</PageTitle>
           </div>
         ) : error ? (
           <InfoSection style={{ borderLeftColor: '#e74c3c', background: '#fdf2f2' }}>
@@ -246,8 +222,8 @@ const Chat: React.FC = () => {
             ← Regresar al Dashboard
           </BackButton>
         </div>
-      </Card>
-    </Container>
+      </GlassCard>
+    </PageContainer>
   );
 };
 

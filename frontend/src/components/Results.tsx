@@ -1,5 +1,10 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  PageContainer,
+  GlassCard,
+  PageTitle
+} from './SharedStyles';
 
 const Results: React.FC = () => {
   const location = useLocation();
@@ -36,33 +41,11 @@ const Results: React.FC = () => {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%)',
-      padding: '20px'
-    }}>
-      <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        borderRadius: '16px',
-        padding: '40px',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
-        width: '100%',
-        maxWidth: '900px',
-        backdropFilter: 'blur(10px)'
-      }}>
+    <PageContainer>
+      <GlassCard style={{ maxWidth: '900px' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <h1 style={{
-            color: '#2e7d32',
-            marginBottom: '10px',
-            fontSize: '32px',
-            fontWeight: '600'
-          }}>
-            Tus Resultados
-          </h1>
+          <PageTitle>Tus Resultados</PageTitle>
           <p style={{
             color: '#666',
             fontSize: '18px'
@@ -329,26 +312,26 @@ const Results: React.FC = () => {
                 cursor: 'pointer',
                 transition: 'all 0.3s ease'
               }}
-              onClick={() => {
-                // Handle navigation based on recommendation type
-                if (rec.type === 'exercise') {
-                  navigate('/exercises');
-                } else if (rec.type === 'tip') {
-                  navigate('/tips');
-                } else if (rec.type === 'group_chat') {
-                  navigate('/chat');
-                } else if (rec.type === 'professional_help') {
-                  navigate('/maps');
-                }
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.15)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
+                onClick={() => {
+                  // Handle navigation based on recommendation type
+                  if (rec.type === 'exercise') {
+                    navigate('/exercises');
+                  } else if (rec.type === 'tip') {
+                    navigate('/tips');
+                  } else if (rec.type === 'group_chat') {
+                    navigate('/chat');
+                  } else if (rec.type === 'professional_help') {
+                    navigate('/maps');
+                  }
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
                 <div style={{
                   fontWeight: 'bold',
@@ -517,8 +500,8 @@ const Results: React.FC = () => {
             Si experimentas síntomas graves o persistentes, te recomendamos buscar ayuda de un profesional de la salud mental calificado.
           </p>
         </div>
-      </div>
-    </div>
+      </GlassCard>
+    </PageContainer>
   );
 };
 

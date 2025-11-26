@@ -2,41 +2,19 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-
-const Container = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%);
-  padding: 20px;
-`;
-
-const FormCard = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  padding: 40px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow-y: auto;
-  backdrop-filter: blur(10px);
-`;
-
-const Title = styled.h2`
-  text-align: center;
-  color: #2e7d32;
-  margin-bottom: 30px;
-  font-size: 28px;
-  font-weight: 600;
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-`;
+import {
+  PageContainer,
+  GlassCard,
+  PageTitle,
+  StyledForm,
+  FormGroup,
+  StyledLabel,
+  StyledInput,
+  StyledSelect,
+  StyledButton,
+  ErrorMessage,
+  LinkText
+} from './SharedStyles';
 
 const FormRow = styled.div`
   display: grid;
@@ -45,93 +23,6 @@ const FormRow = styled.div`
 
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
-  }
-`;
-
-const FormGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const Label = styled.label`
-  font-weight: 500;
-  color: #2e7d32;
-  margin-bottom: 8px;
-`;
-
-const Input = styled.input`
-  padding: 12px 16px;
-  border: 2px solid #c8e6c9;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: border-color 0.3s ease;
-
-  &:focus {
-    outline: none;
-    border-color: #4caf50;
-  }
-`;
-
-const Select = styled.select`
-  padding: 12px 16px;
-  border: 2px solid #c8e6c9;
-  border-radius: 8px;
-  font-size: 16px;
-  background: white;
-  transition: border-color 0.3s ease;
-
-  &:focus {
-    outline: none;
-    border-color: #4caf50;
-  }
-`;
-
-const Button = styled.button`
-  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
-  color: white;
-  border: none;
-  padding: 14px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 10px;
-  box-shadow: 0 4px 6px rgba(76, 175, 80, 0.2);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);
-  }
-
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
-  }
-`;
-
-const ErrorMessage = styled.div`
-  color: #e74c3c;
-  font-size: 14px;
-  text-align: center;
-  margin-top: 10px;
-`;
-
-const LinkText = styled.p`
-  text-align: center;
-  margin-top: 20px;
-  color: #4caf50;
-
-  a {
-    color: #2e7d32;
-    text-decoration: none;
-    font-weight: 500;
-
-    &:hover {
-      text-decoration: underline;
-    }
   }
 `;
 
@@ -163,18 +54,10 @@ const Register: React.FC = () => {
     setError('');
     setIsLoading(true);
 
-    console.log('Submitting registration form:', formData);
-    console.log('Full formData:', JSON.stringify(formData, null, 2));
-
     try {
-      console.log('Calling register function...');
       await register(formData);
-      console.log('Registration successful, navigating to dashboard...');
       navigate('/dashboard');
     } catch (err: any) {
-      console.error('Registration error:', err);
-      console.error('Error response:', err.response);
-      console.error('Error data:', JSON.stringify(err.response?.data, null, 2));
       setError(err.response?.data?.error || 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
@@ -182,13 +65,13 @@ const Register: React.FC = () => {
   };
 
   return (
-    <Container>
-      <FormCard>
-        <Title>Crear Cuenta</Title>
-        <Form onSubmit={handleSubmit}>
+    <PageContainer>
+      <GlassCard style={{ maxWidth: '600px' }}>
+        <PageTitle>Crear Cuenta</PageTitle>
+        <StyledForm onSubmit={handleSubmit}>
           <FormGroup>
-            <Label htmlFor="username">Nombre de Usuario</Label>
-            <Input
+            <StyledLabel htmlFor="username">Nombre de Usuario</StyledLabel>
+            <StyledInput
               type="text"
               id="username"
               name="username"
@@ -200,8 +83,8 @@ const Register: React.FC = () => {
           </FormGroup>
 
           <FormGroup>
-            <Label htmlFor="email">Correo Electrónico</Label>
-            <Input
+            <StyledLabel htmlFor="email">Correo Electrónico</StyledLabel>
+            <StyledInput
               type="email"
               id="email"
               name="email"
@@ -213,8 +96,8 @@ const Register: React.FC = () => {
           </FormGroup>
 
           <FormGroup>
-            <Label htmlFor="password">Contraseña</Label>
-            <Input
+            <StyledLabel htmlFor="password">Contraseña</StyledLabel>
+            <StyledInput
               type="password"
               id="password"
               name="password"
@@ -227,8 +110,8 @@ const Register: React.FC = () => {
 
           <FormRow>
             <FormGroup>
-              <Label htmlFor="firstName">Nombre</Label>
-              <Input
+              <StyledLabel htmlFor="firstName">Nombre</StyledLabel>
+              <StyledInput
                 type="text"
                 id="firstName"
                 name="firstName"
@@ -240,8 +123,8 @@ const Register: React.FC = () => {
             </FormGroup>
 
             <FormGroup>
-              <Label htmlFor="lastName">Apellido</Label>
-              <Input
+              <StyledLabel htmlFor="lastName">Apellido</StyledLabel>
+              <StyledInput
                 type="text"
                 id="lastName"
                 name="lastName"
@@ -255,8 +138,8 @@ const Register: React.FC = () => {
 
           <FormRow>
             <FormGroup>
-              <Label htmlFor="dateOfBirth">Fecha de Nacimiento</Label>
-              <Input
+              <StyledLabel htmlFor="dateOfBirth">Fecha de Nacimiento</StyledLabel>
+              <StyledInput
                 type="date"
                 id="dateOfBirth"
                 name="dateOfBirth"
@@ -267,8 +150,8 @@ const Register: React.FC = () => {
             </FormGroup>
 
             <FormGroup>
-              <Label htmlFor="gender">Género</Label>
-              <Select
+              <StyledLabel htmlFor="gender">Género</StyledLabel>
+              <StyledSelect
                 id="gender"
                 name="gender"
                 value={formData.gender}
@@ -280,22 +163,22 @@ const Register: React.FC = () => {
                 <option value="male">Masculino</option>
                 <option value="other">Otro</option>
                 <option value="prefer_not_to_say">Prefiero no decir</option>
-              </Select>
+              </StyledSelect>
             </FormGroup>
           </FormRow>
 
-          <Button type="submit" disabled={isLoading}>
+          <StyledButton type="submit" disabled={isLoading}>
             {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
-          </Button>
-        </Form>
+          </StyledButton>
+        </StyledForm>
 
         {error && <ErrorMessage>{error}</ErrorMessage>}
 
         <LinkText>
           ¿Ya tienes cuenta? <Link to="/login">Inicia sesión aquí</Link>
         </LinkText>
-      </FormCard>
-    </Container>
+      </GlassCard>
+    </PageContainer>
   );
 };
 
