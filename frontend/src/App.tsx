@@ -348,7 +348,7 @@ const Dashboard: React.FC = () => {
   return (
     <div style={{
       width: '100%',
-      maxWidth: '1200px',
+      maxWidth: '100%',
       margin: '0 auto',
       padding: window.innerWidth <= 768 ? '0' : '0'
     }}>
