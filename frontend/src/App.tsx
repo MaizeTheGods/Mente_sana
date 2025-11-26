@@ -77,7 +77,7 @@ const AppContainer = styled.div`
 
 const MainContent = styled.div`
   min-height: calc(100vh - 80px);
-  padding: 20px;
+  padding: 0;
 `;
 
 // Protected Route component

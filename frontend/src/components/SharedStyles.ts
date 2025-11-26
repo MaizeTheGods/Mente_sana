@@ -18,7 +18,7 @@ export const PageContainer = styled.div`
   min-height: 100vh;
   width: 100%;
   background: linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%);
-  padding: 20px;
+  padding: 0;
   position: relative;
   overflow-x: hidden;
 `;
