@@ -218,7 +218,7 @@ const Chat: React.FC = () => {
         )}
 
         <div style={{ textAlign: 'center' }}>
-          <BackButton onClick={() => window.history.back()}>
+          <BackButton onClick={() => navigate('/dashboard')}>
             ← Regresar al Dashboard
           </BackButton>
         </div>

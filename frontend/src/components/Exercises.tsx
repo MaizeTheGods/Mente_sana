@@ -185,7 +185,7 @@ const Exercises: React.FC = () => {
         </ExerciseGrid>
 
         <div style={{ textAlign: 'center' }}>
-          <BackButton onClick={() => window.history.back()}>
+          <BackButton onClick={() => navigate('/dashboard')}>
             ← Regresar al Dashboard
           </BackButton>
         </div>
