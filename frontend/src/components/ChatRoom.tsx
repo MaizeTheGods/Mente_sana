@@ -733,11 +733,25 @@ const ChatRoom: React.FC = () => {
 
     socket.current = initializeSocket(token);
 
+    // Add connection event listeners for debugging
+    socket.current.on('connect', () => {
+      console.log('Socket connected successfully');
+    });
+
+    socket.current.on('connect_error', (error: any) => {
+      console.error('Socket connection error:', error);
+    });
+
+    socket.current.on('disconnect', (reason: string) => {
+      console.log('Socket disconnected:', reason);
+    });
+
     // Join group room
     socket.current.emit('join-group', id);
 
     // Listen for new messages
     socket.current.on('new-message', (message: ChatMessage) => {
+      console.log('Received new message:', message);
       setMessages(prev => {
         // Check if message already exists to avoid duplicates
         if (prev.some(m => m._id === message._id)) return prev;
@@ -747,11 +761,13 @@ const ChatRoom: React.FC = () => {
 
     // Listen for deleted messages
     socket.current.on('message-deleted', (messageId: string) => {
+      console.log('Message deleted:', messageId);
       setMessages(prev => prev.filter(m => m._id !== messageId));
     });
 
     // Listen for typing indicators
     socket.current.on('user-typing', (data: { userId: string; firstName: string; lastName: string; isTyping: boolean }) => {
+      console.log('Typing indicator:', data);
       setIsTyping(prev => {
         const newTyping = { ...prev };
         if (data.isTyping) {
