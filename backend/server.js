@@ -106,7 +106,7 @@ io.use(async (socket, next) => {
 
     // Get full user data from database
     const User = require('./models/User');
-    const user = await User.findById(decoded._id).select('firstName lastName');
+    const user = await User.findById(decoded._id);
     if (!user) {
       return next(new Error('User not found'));
     }
