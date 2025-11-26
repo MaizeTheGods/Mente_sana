@@ -7,42 +7,9 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  width: 100vw;
-  background: linear-gradient(
-    to right,
-    #2c3e50 0%,
-    #2c3e50 33.33%,
-    #34495e 33.33%,
-    #34495e 66.66%,
-    #2c3e50 66.66%,
-    #2c3e50 100%
-  );
+  height: 100vh;
+  background: linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%);
   padding: 20px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-      to right,
-      rgba(52, 73, 94, 0.1) 0%,
-      rgba(52, 73, 94, 0.1) 33.33%,
-      rgba(44, 62, 80, 0.1) 33.33%,
-      rgba(44, 62, 80, 0.1) 66.66%,
-      rgba(52, 73, 94, 0.1) 66.66%,
-      rgba(52, 73, 94, 0.1) 100%
-    );
-    pointer-events: none;
-  }
 `;
 
 const FormCard = styled.div`
@@ -53,14 +20,33 @@ const FormCard = styled.div`
   width: 100%;
   max-width: 400px;
   backdrop-filter: blur(10px);
+  animation: fadeIn 0.5s ease-out;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 `;
 
 const Title = styled.h2`
   text-align: center;
   color: #2e7d32;
+  margin-bottom: 10px;
+  font-size: 32px;
+  font-weight: 700;
+`;
+
+const Subtitle = styled.p`
+  text-align: center;
+  color: #4caf50;
   margin-bottom: 30px;
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 16px;
 `;
 
 const Form = styled.form`
@@ -78,18 +64,26 @@ const Label = styled.label`
   font-weight: 500;
   color: #2e7d32;
   margin-bottom: 8px;
+  font-size: 14px;
 `;
 
 const Input = styled.input`
   padding: 12px 16px;
   border: 2px solid #c8e6c9;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 16px;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
+  background: #f1f8e9;
 
   &:focus {
     outline: none;
     border-color: #4caf50;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.1);
+  }
+
+  &::placeholder {
+    color: #a5d6a7;
   }
 `;
 
@@ -104,6 +98,7 @@ const Button = styled.button`
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 6px rgba(76, 175, 80, 0.2);
+  margin-top: 10px;
 
   &:hover {
     transform: translateY(-2px);
@@ -123,22 +118,36 @@ const ErrorMessage = styled.div`
   font-size: 14px;
   text-align: center;
   margin-top: 10px;
+  padding: 10px;
+  background: #fce4ec;
+  border-radius: 8px;
+  border: 1px solid #f8bbd0;
 `;
 
 const LinkText = styled.p`
   text-align: center;
-  margin-top: 20px;
-  color: #4caf50;
+  margin-top: 24px;
+  color: #666;
+  font-size: 14px;
 
   a {
     color: #2e7d32;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
+    margin-left: 5px;
+    transition: color 0.2s;
 
     &:hover {
+      color: #1b5e20;
       text-decoration: underline;
     }
   }
+`;
+
+const IconWrapper = styled.div`
+  text-align: center;
+  font-size: 48px;
+  margin-bottom: 16px;
 `;
 
 const Login: React.FC = () => {
@@ -159,7 +168,7 @@ const Login: React.FC = () => {
       await login(email, password);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Login failed. Please try again.');
+      setError(err.response?.data?.error || 'Error al iniciar sesión. Por favor verifica tus credenciales.');
     } finally {
       setIsLoading(false);
     }
@@ -168,7 +177,10 @@ const Login: React.FC = () => {
   return (
     <Container>
       <FormCard>
-        <Title>Iniciar Sesión</Title>
+        <IconWrapper>🌿</IconWrapper>
+        <Title>Bienvenido</Title>
+        <Subtitle>Ingresa a tu espacio de paz mental</Subtitle>
+        
         <Form onSubmit={handleSubmit}>
           <FormGroup>
             <Label htmlFor="email">Correo Electrónico</Label>
@@ -190,7 +202,7 @@ const Login: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="Tu contraseña"
+              placeholder="••••••••"
               autoComplete="current-password"
             />
           </FormGroup>
@@ -203,7 +215,7 @@ const Login: React.FC = () => {
         {error && <ErrorMessage>{error}</ErrorMessage>}
 
         <LinkText>
-          ¿No tienes cuenta? <Link to="/register">Regístrate aquí</Link>
+          ¿Aún no tienes cuenta? <Link to="/register">Regístrate aquí</Link>
         </LinkText>
       </FormCard>
     </Container>
