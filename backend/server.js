@@ -6,7 +6,12 @@ const rateLimit = require('express-rate-limit');
 const http = require('http');
 const socketIo = require('socket.io');
 const jwt = require('jsonwebtoken');
+const { execSync } = require('child_process');
 require('dotenv').config();
+
+// Log current commit hash
+const commitHash = execSync('git rev-parse HEAD').toString().trim();
+console.log('Current commit:', commitHash);
 
 const app = express();
 const server = http.createServer(app);
