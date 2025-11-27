@@ -824,7 +824,24 @@ const ChatRoom: React.FC = () => {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || isSending || !socket.current) return;
+    console.log('Attempting to send message. Conditions:', {
+      hasContent: !!newMessage.trim(),
+      notSending: !isSending,
+      hasSocket: !!socket.current
+    });
+
+    if (!newMessage.trim()) {
+      console.log('Not sending: message is empty');
+      return;
+    }
+    if (isSending) {
+      console.log('Not sending: already sending a message');
+      return;
+    }
+    if (!socket.current) {
+      console.log('Not sending: socket not connected');
+      return;
+    }
 
     console.log('Sending message:', newMessage.trim());
     // Stop typing indicator
@@ -837,6 +854,7 @@ const ChatRoom: React.FC = () => {
         content: newMessage.trim()
       });
       setNewMessage('');
+      console.log('Message emit successful');
     } catch (error) {
       console.error('Failed to send message:', error);
       setError('No se pudo enviar el mensaje. Inténtalo de nuevo.');
@@ -863,12 +881,18 @@ const ChatRoom: React.FC = () => {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setNewMessage(e.target.value);
+    const value = e.target.value;
+    console.log('Input changed to:', value);
+    setNewMessage(value);
 
     // Handle typing indicators
-    if (!socket.current) return;
+    if (!socket.current) {
+      console.log('No socket for typing indicators');
+      return;
+    }
 
-    if (e.target.value.trim() && !isSending) {
+    if (value.trim() && !isSending) {
+      console.log('Starting typing indicator');
       socket.current.emit('typing-start', id);
 
       // Clear existing timer
@@ -878,9 +902,11 @@ const ChatRoom: React.FC = () => {
 
       // Set timer to stop typing indicator after 2 seconds of no input
       typingTimer.current = setTimeout(() => {
+        console.log('Auto-stopping typing indicator');
         socket.current.emit('typing-stop', id);
       }, 2000);
     } else {
+      console.log('Stopping typing indicator');
       socket.current.emit('typing-stop', id);
     }
   };
