@@ -212,9 +212,10 @@ const AdminPanel: React.FC = () => {
       };
       console.log('AdminPanel: Request headers:', headers);
 
+      const backendUrl = 'https://mente-sana-backend.onrender.com';
       const [statsResponse, usersResponse] = await Promise.all([
-        fetch('/api/admin/stats', { headers }),
-        fetch('/api/admin/users', { headers })
+        fetch(`${backendUrl}/api/admin/stats`, { headers }),
+        fetch(`${backendUrl}/api/admin/users`, { headers })
       ]);
 
       console.log('AdminPanel: Stats response status:', statsResponse.status);
@@ -251,7 +252,7 @@ const AdminPanel: React.FC = () => {
 
   const updateUserRole = async (userId: string, newRole: string) => {
     try {
-      const response = await fetch(`/api/admin/users/${userId}/role`, {
+      const response = await fetch(`https://mente-sana-backend.onrender.com/api/admin/users/${userId}/role`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -274,7 +275,7 @@ const AdminPanel: React.FC = () => {
 
   const toggleUserStatus = async (userId: string, currentStatus: boolean) => {
     try {
-      const response = await fetch(`/api/admin/users/${userId}/status`, {
+      const response = await fetch(`https://mente-sana-backend.onrender.com/api/admin/users/${userId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -301,7 +302,7 @@ const AdminPanel: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`/api/admin/users/${userId}`, {
+      const response = await fetch(`https://mente-sana-backend.onrender.com/api/admin/users/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
