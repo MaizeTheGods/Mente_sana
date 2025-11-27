@@ -360,6 +360,10 @@ const Dashboard: React.FC = () => {
     plugins: {
       legend: {
         position: 'top' as const,
+        labels: {
+          usePointStyle: true,
+          padding: 20
+        }
       },
       title: {
         display: true,
@@ -369,13 +373,30 @@ const Dashboard: React.FC = () => {
           weight: 'bold' as const
         }
       },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: 'white',
+        bodyColor: 'white'
+      }
     },
     scales: {
       y: {
         beginAtZero: true,
-        max: 21,
+        max: 63, // DASS-21 maximum score
         ticks: {
-          stepSize: 3
+          stepSize: 7
+        },
+        grid: {
+          color: 'rgba(0, 0, 0, 0.1)'
+        }
+      },
+      x: {
+        grid: {
+          display: false
+        },
+        ticks: {
+          maxRotation: 45,
+          minRotation: 45
         }
       }
     }
@@ -621,15 +642,40 @@ const Dashboard: React.FC = () => {
                         weight: 'bold'
                       }
                     },
+                    tooltip: {
+                      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                      titleColor: 'white',
+                      bodyColor: 'white',
+                      callbacks: {
+                        label: function(context: any) {
+                          return `Puntuación: ${context.parsed.y}`;
+                        }
+                      }
+                    }
                   },
                   scales: {
                     y: {
                       beginAtZero: true,
-                      max: 21,
+                      max: 63, // DASS-21 maximum score
                       ticks: {
-                        stepSize: 3
+                        stepSize: 7,
+                        callback: function(value) {
+                          return value;
+                        }
+                      },
+                      grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                      }
+                    },
+                    x: {
+                      grid: {
+                        display: false
                       }
                     }
+                  },
+                  animation: {
+                    duration: 1000,
+                    easing: 'easeOutCubic' as const
                   }
                 }}
               />
