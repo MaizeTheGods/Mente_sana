@@ -3,12 +3,15 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { chatAPI, ChatGroup } from '../services/api';
 import {
-  PageContainer,
-  GlassCard,
+  PageHeader,
   PageTitle,
+  PageSubtitle,
+  Card,
   CubeLoader,
   CubeSquare,
-  LoadingText
+  LoadingText,
+  Badge,
+  Button
 } from './SharedStyles';
 
 const GroupsGrid = styled.div`
@@ -18,121 +21,83 @@ const GroupsGrid = styled.div`
   margin-bottom: 30px;
 `;
 
-const GroupCard = styled.div`
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e9ecef;
-  transition: all 0.3s ease;
+const GroupCard = styled(Card)`
   cursor: pointer;
-
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid #e2e8f0;
+  
   &:hover {
+    border-color: #2e7d32;
     transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   }
-`;
-
-const GroupIcon = styled.div`
-  font-size: 3rem;
-  margin-bottom: 16px;
-  text-align: center;
 `;
 
 const GroupTitle = styled.h3`
-  color: #2e7d32;
-  font-size: 1.25rem;
+  color: #1e293b;
+  font-size: 18px;
   font-weight: 600;
-  margin-bottom: 12px;
-  text-align: center;
+  margin-bottom: 8px;
 `;
 
 const GroupDescription = styled.p`
-  color: #666;
-  font-size: 0.95rem;
-  line-height: 1.6;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
   margin-bottom: 16px;
-`;
-
-const GroupStats = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
-  color: #4caf50;
-`;
-
-const BackButton = styled.button`
-  padding: 12px 24px;
-  background: #6c757d;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 20px;
-
-  &:hover {
-    background: #5a6268;
-    transform: translateY(-2px);
-  }
+  flex: 1;
 `;
 
 const InfoSection = styled.div`
-  background: #f8f9fa;
+  background: #f0fdf4;
   border-radius: 12px;
   padding: 20px;
-  margin-bottom: 20px;
-  border-left: 4px solid #4caf50;
+  margin-bottom: 30px;
+  border-left: 4px solid #2e7d32;
 `;
 
 const InfoTitle = styled.h3`
-  color: #2e7d32;
+  color: #1e293b;
   margin-bottom: 10px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
 `;
 
 const InfoText = styled.p`
-  color: #666;
+  color: #475569;
   line-height: 1.6;
   margin: 0;
+  font-size: 14px;
 `;
 
 const Chat: React.FC = () => {
   const navigate = useNavigate();
   const [groups, setGroups] = useState<ChatGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingData, setIsLoadingData] = useState(false);
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
+    const loadGroups = async () => {
+      try {
+        const response = await chatAPI.getGroups();
+        setGroups(response.groups);
+      } catch (error) {
+        console.error('Failed to load chat groups:', error);
+        setError('No se pudieron cargar los grupos de chat. Inténtalo de nuevo más tarde.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
     loadGroups();
   }, []);
-
-  const loadGroups = async () => {
-    setIsLoadingData(true);
-    try {
-      const response = await chatAPI.getGroups();
-      setGroups(response.groups);
-    } catch (error) {
-      console.error('Failed to load chat groups:', error);
-      setError('No se pudieron cargar los grupos de chat. Inténtalo de nuevo más tarde.');
-    } finally {
-      setIsLoading(false);
-      setIsLoadingData(false);
-    }
-  };
 
   const handleJoinGroup = async (groupId: string, isMember: boolean) => {
     try {
       if (!isMember) {
-        // Only try to join if not already a member
         await chatAPI.joinGroup(groupId);
       }
-      // Navigate to the chat room
       navigate(`/chat/${groupId}`);
     } catch (error: any) {
       console.error('Failed to join group:', error);
@@ -141,7 +106,7 @@ const Chat: React.FC = () => {
   };
 
   const getCategoryIcon = (category: string) => {
-    const icons = {
+    const icons: Record<string, string> = {
       anxiety: '😰',
       depression: '😢',
       stress: '😤',
@@ -149,11 +114,11 @@ const Chat: React.FC = () => {
       recovery: '🌱',
       family: '👨‍👩‍👧‍👦'
     };
-    return icons[category as keyof typeof icons] || '👥';
+    return icons[category] || '👥';
   };
 
   const getCategoryLabel = (category: string) => {
-    const labels = {
+    const labels: Record<string, string> = {
       anxiety: 'Ansiedad',
       depression: 'Depresión',
       stress: 'Estrés',
@@ -161,85 +126,80 @@ const Chat: React.FC = () => {
       recovery: 'Recuperación',
       family: 'Familiares'
     };
-    return labels[category as keyof typeof labels] || category;
+    return labels[category] || category;
   };
 
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px' }}>
+        <CubeLoader>
+          <CubeSquare delay={0} />
+          <CubeSquare delay={1} />
+          <CubeSquare delay={2} />
+          <CubeSquare delay={3} />
+          <CubeSquare delay={4} />
+          <CubeSquare delay={5} />
+          <CubeSquare delay={6} />
+          <CubeSquare delay={7} />
+        </CubeLoader>
+        <LoadingText>Cargando grupos...</LoadingText>
+      </div>
+    );
+  }
+
   return (
-    <PageContainer>
-      <GlassCard style={{ maxWidth: '1000px', maxHeight: '90vh', overflowY: 'auto' }}>
-        <PageTitle>Grupos de Apoyo</PageTitle>
-
-        <InfoSection>
-          <InfoTitle>¿Cómo funcionan los grupos?</InfoTitle>
-          <InfoText>
-            Nuestros grupos de apoyo son espacios seguros y moderados donde puedes conectar con personas que comparten experiencias similares.
-            Todos los participantes respetan la confidencialidad y se apoyan mutuamente en su camino hacia el bienestar mental.
-          </InfoText>
-        </InfoSection>
-
-        <InfoSection>
-          <InfoTitle>💡 Consejos importantes</InfoTitle>
-          <InfoText>
-            • Sé respetuoso y empático con los demás<br />
-            • Mantén la confidencialidad de lo compartido<br />
-            • Si necesitas ayuda profesional urgente, contacta a servicios de emergencia<br />
-            • Los grupos complementan, no reemplazan, la atención profesional
-          </InfoText>
-        </InfoSection>
-
-        {(isLoading || isLoadingData) ? (
-          <div style={{ textAlign: 'center', padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
-            <CubeLoader>
-              <CubeSquare delay={0} />
-              <CubeSquare delay={1} />
-              <CubeSquare delay={2} />
-              <CubeSquare delay={3} />
-              <CubeSquare delay={4} />
-              <CubeSquare delay={5} />
-              <CubeSquare delay={6} />
-              <CubeSquare delay={7} />
-            </CubeLoader>
-            <LoadingText>Cargando grupos...</LoadingText>
-          </div>
-        ) : error ? (
-          <InfoSection style={{ borderLeftColor: '#e74c3c', background: '#fdf2f2' }}>
-            <InfoTitle style={{ color: '#e74c3c' }}>Error</InfoTitle>
-            <InfoText style={{ color: '#c0392b' }}>{error}</InfoText>
-          </InfoSection>
-        ) : groups.length === 0 ? (
-          <InfoSection>
-            <InfoTitle>No hay grupos disponibles</InfoTitle>
-            <InfoText>
-              Actualmente no hay grupos de chat activos. Los grupos estarán disponibles próximamente.
-              Mientras tanto, puedes explorar nuestros ejercicios y consejos.
-            </InfoText>
-          </InfoSection>
-        ) : (
-          <GroupsGrid>
-            {groups.map(group => (
-              <GroupCard
-                key={group._id}
-                onClick={() => handleJoinGroup(group._id, group.isMember || false)}
-              >
-                <GroupIcon>{getCategoryIcon(group.category)}</GroupIcon>
-                <GroupTitle>{group.name}</GroupTitle>
-                <GroupDescription>{group.description}</GroupDescription>
-                <GroupStats>
-                  <span>👥 {group.isMember ? 'Miembro' : 'Unirse'}</span>
-                  <span>📱 {getCategoryLabel(group.category)}</span>
-                </GroupStats>
-              </GroupCard>
-            ))}
-          </GroupsGrid>
-        )}
-
-        <div style={{ textAlign: 'center' }}>
-          <BackButton onClick={() => navigate('/dashboard')}>
-            ← Regresar al Dashboard
-          </BackButton>
+    <div>
+      <PageHeader>
+        <div>
+          <PageTitle>Grupos de Apoyo</PageTitle>
+          <PageSubtitle>Conecta con personas que comparten tus experiencias</PageSubtitle>
         </div>
-      </GlassCard>
-    </PageContainer>
+      </PageHeader>
+
+      <InfoSection>
+        <InfoTitle>👋 Bienvenido a la comunidad</InfoTitle>
+        <InfoText>
+          Nuestros grupos de apoyo son espacios seguros y moderados. Recuerda ser respetuoso, empático y mantener la confidencialidad de lo que se comparte aquí.
+        </InfoText>
+      </InfoSection>
+
+      {error ? (
+        <InfoSection style={{ background: '#fef2f2', borderColor: '#dc2626' }}>
+          <InfoTitle style={{ color: '#dc2626' }}>Error</InfoTitle>
+          <InfoText>{error}</InfoText>
+        </InfoSection>
+      ) : groups.length === 0 ? (
+        <Card style={{ textAlign: 'center', padding: '40px' }}>
+          <p>No hay grupos disponibles en este momento.</p>
+        </Card>
+      ) : (
+        <GroupsGrid>
+          {groups.map(group => (
+            <GroupCard
+              key={group._id}
+              onClick={() => handleJoinGroup(group._id, group.isMember || false)}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                <Badge bg="#f0fdf4" color="#16a34a">
+                  {getCategoryLabel(group.category)}
+                </Badge>
+                <span style={{ fontSize: '24px' }}>{getCategoryIcon(group.category)}</span>
+              </div>
+              <GroupTitle>{group.name}</GroupTitle>
+              <GroupDescription>{group.description}</GroupDescription>
+              <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid #f1f5f9' }}>
+                <Button
+                  variant={group.isMember ? "secondary" : "primary"}
+                  style={{ width: '100%', fontSize: '13px' }}
+                >
+                  {group.isMember ? 'Entrar al Chat' : 'Unirse al Grupo'}
+                </Button>
+              </div>
+            </GroupCard>
+          ))}
+        </GroupsGrid>
+      )}
+    </div>
   );
 };
 

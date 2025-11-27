@@ -1,15 +1,80 @@
 import React, { useState, useEffect } from 'react';
 import { questionnaireAPI, QuestionnaireQuestion } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import {
-  PageContainer,
-  GlassCard,
+  PageHeader,
   PageTitle,
-  StyledButton,
+  Card,
+  Button,
   CubeLoader,
   CubeSquare,
   LoadingText
 } from './SharedStyles';
+
+const ProgressBarContainer = styled.div`
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  margin-bottom: 24px;
+  overflow: hidden;
+`;
+
+const ProgressBarFill = styled.div<{ progress: number }>`
+  height: 100%;
+  background: linear-gradient(90deg, #2e7d32, #4caf50);
+  width: ${props => props.progress}%;
+  transition: width 0.3s ease;
+`;
+
+const InstructionsCard = styled.div`
+  background: #f0fdf4;
+  padding: 24px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+  border-left: 4px solid #2e7d32;
+`;
+
+const ScaleList = styled.div`
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  border: 1px solid #e2e8f0;
+`;
+
+const QuestionCard = styled(Card)`
+  padding: 32px;
+  margin-bottom: 32px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+`;
+
+const OptionLabel = styled.label<{ selected: boolean }>`
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  border: 2px solid ${props => props.selected ? '#2e7d32' : '#e2e8f0'};
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: ${props => props.selected ? '#f0fdf4' : 'white'};
+  position: relative;
+
+  &:hover {
+    border-color: ${props => props.selected ? '#2e7d32' : '#cbd5e1'};
+    transform: translateY(-2px);
+  }
+`;
+
+const OptionValue = styled.span<{ selected: boolean }>`
+  font-weight: 700;
+  margin-right: 12px;
+  font-size: 18px;
+  color: ${props => props.selected ? '#2e7d32' : '#64748b'};
+  min-width: 24px;
+`;
 
 const Questionnaire: React.FC = () => {
   const [questions, setQuestions] = useState<string[]>([]);
@@ -45,6 +110,13 @@ const Questionnaire: React.FC = () => {
       ...prev,
       [questionIndex.toString()]: value
     }));
+
+    // Auto-advance after a short delay for better UX
+    if (currentQuestionIndex < questions.length - 1) {
+      setTimeout(() => {
+        setCurrentQuestionIndex(prev => prev + 1);
+      }, 300);
+    }
   };
 
   const handleNext = () => {
@@ -86,171 +158,122 @@ const Questionnaire: React.FC = () => {
 
   if (isLoading || isLoadingData) {
     return (
-      <PageContainer>
-        <GlassCard style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '60px 20px' }}>
-          <CubeLoader>
-            <CubeSquare delay={0} />
-            <CubeSquare delay={1} />
-            <CubeSquare delay={2} />
-            <CubeSquare delay={3} />
-            <CubeSquare delay={4} />
-            <CubeSquare delay={5} />
-            <CubeSquare delay={6} />
-            <CubeSquare delay={7} />
-          </CubeLoader>
-          <LoadingText>Cargando cuestionario...</LoadingText>
-        </GlassCard>
-      </PageContainer>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px' }}>
+        <CubeLoader>
+          <CubeSquare delay={0} />
+          <CubeSquare delay={1} />
+          <CubeSquare delay={2} />
+          <CubeSquare delay={3} />
+          <CubeSquare delay={4} />
+          <CubeSquare delay={5} />
+          <CubeSquare delay={6} />
+          <CubeSquare delay={7} />
+        </CubeLoader>
+        <LoadingText>Cargando cuestionario...</LoadingText>
+      </div>
     );
   }
 
   return (
-    <PageContainer>
-      <GlassCard style={{ maxWidth: '800px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <PageHeader>
+        <div style={{ textAlign: 'center', width: '100%' }}>
           <PageTitle>Evaluación de Salud Mental</PageTitle>
-          <div style={{
-            width: '100%',
-            height: '8px',
-            background: '#e9ecef',
-            borderRadius: '4px',
-            marginBottom: '20px',
-            overflow: 'hidden'
-          }}>
-            <div style={{
-              height: '100%',
-              background: 'linear-gradient(90deg, #4caf50, #66bb6a)',
-              width: `${progress}%`,
-              transition: 'width 0.3s ease'
-            }} />
-          </div>
-          <p style={{ color: '#666' }}>Pregunta {currentQuestionIndex + 1} de {questions.length}</p>
-        </div>
-
-        <div style={{
-          background: '#f1f8e9',
-          padding: '20px',
-          borderRadius: '8px',
-          marginBottom: '30px',
-          borderLeft: '4px solid #4caf50'
-        }}>
-          <h3 style={{ color: '#2e7d32', marginBottom: '10px', fontSize: '18px' }}>Instrucciones</h3>
-          <p style={{ color: '#666', lineHeight: '1.6', margin: 0 }}>
-            Lee cada declaración y selecciona el número que indica cuánto se aplicó a ti durante la semana pasada.
-            No hay respuestas correctas o incorrectas. No pases demasiado tiempo en cada declaración.
+          <p style={{ color: '#64748b', marginTop: '8px' }}>
+            Pregunta {currentQuestionIndex + 1} de {questions.length}
           </p>
         </div>
+      </PageHeader>
+
+      <ProgressBarContainer>
+        <ProgressBarFill progress={progress} />
+      </ProgressBarContainer>
+
+      <InstructionsCard>
+        <h3 style={{ color: '#1e293b', marginBottom: '12px', fontSize: '18px', fontWeight: '600' }}>Instrucciones</h3>
+        <p style={{ color: '#475569', lineHeight: '1.6', margin: 0 }}>
+          Lee cada declaración y selecciona el número que indica cuánto se aplicó a ti durante la semana pasada.
+          No hay respuestas correctas o incorrectas. No pases demasiado tiempo en cada declaración.
+        </p>
+      </InstructionsCard>
+
+      <ScaleList>
+        <h4 style={{ color: '#1e293b', marginBottom: '12px', fontSize: '14px', fontWeight: '600' }}>Escala de respuesta:</h4>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+          {Object.entries(scale).map(([value, text]) => (
+            <div key={value} style={{ fontSize: '13px', color: '#64748b' }}>
+              <strong style={{ color: '#2e7d32' }}>{value}:</strong> {text}
+            </div>
+          ))}
+        </div>
+      </ScaleList>
+
+      <QuestionCard>
+        <div style={{ fontWeight: '600', color: '#2e7d32', marginBottom: '16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          Pregunta {currentQuestionIndex + 1}
+        </div>
+        <h2 style={{ color: '#1e293b', marginBottom: '32px', lineHeight: '1.4', fontSize: '24px', fontWeight: '600' }}>
+          {questions[currentQuestionIndex]}
+        </h2>
 
         <div style={{
-          background: '#e8f5e8',
-          padding: '15px',
-          borderRadius: '8px',
-          marginBottom: '20px'
+          display: 'grid',
+          gridTemplateColumns: 'repeat(1, 1fr)',
+          gap: '12px'
         }}>
-          <h4 style={{ color: '#2e7d32', marginBottom: '10px', margin: '0 0 10px 0' }}>Escala de respuesta:</h4>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {Object.entries(scale).map(([value, text]) => (
-              <li key={value} style={{ marginBottom: '5px', color: '#555', fontSize: '14px' }}>
-                <strong>{value}:</strong> {text}
-              </li>
-            ))}
-          </ul>
+          {[0, 1, 2, 3].map((value) => (
+            <OptionLabel key={value} selected={currentResponse === value}>
+              <input
+                type="radio"
+                name={`question-${currentQuestionIndex}`}
+                value={value}
+                checked={currentResponse === value}
+                onChange={() => handleResponseChange(currentQuestionIndex, value)}
+                style={{ display: 'none' }}
+              />
+              <OptionValue selected={currentResponse === value}>
+                {value}
+              </OptionValue>
+              <span style={{ flex: 1, fontSize: '16px', color: currentResponse === value ? '#1e293b' : '#475569' }}>
+                {scale[value]}
+              </span>
+              {currentResponse === value && (
+                <span style={{ color: '#2e7d32', fontSize: '20px' }}>✓</span>
+              )}
+            </OptionLabel>
+          ))}
         </div>
+      </QuestionCard>
 
-        <div style={{
-          background: '#ffffff',
-          borderRadius: '12px',
-          padding: '24px',
-          marginBottom: '30px',
-          border: '1px solid #e9ecef',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)'
-        }}>
-          <div style={{ fontWeight: 'bold', color: '#4caf50', marginBottom: '10px', fontSize: '18px' }}>
-            Pregunta {currentQuestionIndex + 1}
-          </div>
-          <p style={{ color: '#333', marginBottom: '20px', lineHeight: '1.6', fontSize: '18px', fontWeight: '500' }}>
-            {questions[currentQuestionIndex]}
-          </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '32px' }}>
+        <Button
+          variant="outline"
+          onClick={handlePrevious}
+          disabled={currentQuestionIndex === 0}
+          style={{ visibility: currentQuestionIndex === 0 ? 'hidden' : 'visible' }}
+        >
+          ← Anterior
+        </Button>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '12px'
-          }}>
-            {[0, 1, 2, 3].map((value) => (
-              <label key={value} style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '16px',
-                border: `2px solid ${currentResponse === value ? '#4caf50' : '#e9ecef'}`,
-                borderRadius: '12px',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                background: currentResponse === value ? '#4caf50' : 'white',
-                color: currentResponse === value ? 'white' : 'inherit',
-                position: 'relative'
-              }}>
-                <input
-                  type="radio"
-                  name={`question-${currentQuestionIndex}`}
-                  value={value}
-                  checked={currentResponse === value}
-                  onChange={() => handleResponseChange(currentQuestionIndex, value)}
-                  style={{ display: 'none' }}
-                />
-                <span style={{ fontWeight: 'bold', marginRight: '10px', fontSize: '18px', color: currentResponse === value ? 'white' : '#4caf50' }}>
-                  {value}
-                </span>
-                <span style={{ flex: 1, fontSize: '14px' }}>
-                  {scale[value]}
-                </span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px' }}>
-          <StyledButton
-            onClick={handlePrevious}
-            disabled={currentQuestionIndex === 0}
-            style={{
-              background: currentQuestionIndex === 0 ? '#e0e0e0' : '#9e9e9e',
-              width: 'auto',
-              padding: '12px 30px',
-              marginTop: 0
-            }}
+        {currentQuestionIndex === questions.length - 1 ? (
+          <Button
+            variant="primary"
+            onClick={handleSubmit}
+            disabled={isSubmitting || currentResponse === undefined}
           >
-            Anterior
-          </StyledButton>
-
-          {currentQuestionIndex === questions.length - 1 ? (
-            <StyledButton
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              style={{
-                width: 'auto',
-                padding: '12px 30px',
-                marginTop: 0
-              }}
-            >
-              {isSubmitting ? 'Enviando...' : 'Enviar Cuestionario'}
-            </StyledButton>
-          ) : (
-            <StyledButton
-              onClick={handleNext}
-              disabled={currentResponse === undefined}
-              style={{
-                width: 'auto',
-                padding: '12px 30px',
-                marginTop: 0
-              }}
-            >
-              Siguiente
-            </StyledButton>
-          )}
-        </div>
-      </GlassCard>
-    </PageContainer>
+            {isSubmitting ? 'Enviando...' : 'Finalizar y Ver Resultados'}
+          </Button>
+        ) : (
+          <Button
+            variant="primary"
+            onClick={handleNext}
+            disabled={currentResponse === undefined}
+          >
+            Siguiente →
+          </Button>
+        )}
+      </div>
+    </div>
   );
 };
 

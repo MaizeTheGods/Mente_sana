@@ -13,8 +13,9 @@ import ChatRoom from './components/ChatRoom';
 import ExerciseDetail from './components/ExerciseDetail';
 import TipDetail from './components/TipDetail';
 import AdminPanel from './components/AdminPanel';
+import SidebarLayout from './components/SidebarLayout';
 import styled, { createGlobalStyle } from 'styled-components';
-import { GlassCard, CubeLoader, CubeSquare, LoadingText } from './components/SharedStyles';
+import { Card, CubeLoader, CubeSquare, LoadingText, PageHeader, PageTitle, PageSubtitle } from './components/SharedStyles';
 import { Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -48,39 +49,15 @@ const GlobalStyle = createGlobalStyle`
   }
 
   body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #ffffff;
-    color: #2e7d32;
+    font-family: 'Inter', sans-serif;
+    background: #f0f2f5;
+    color: #1e293b;
     line-height: 1.6;
   }
 
   button {
     font-family: inherit;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
-
-  button:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    transform: translateY(-1px);
-  }
-
-  input, select, textarea {
-    font-family: inherit;
-    border: 1px solid #c8e6c9;
-    border-radius: 4px;
-    padding: 8px;
-  }
-`;
-
-const AppContainer = styled.div`
-  min-height: 100vh;
-  background: linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%);
-`;
-
-const MainContent = styled.div`
-  min-height: calc(100vh - 80px);
-  padding: 0;
 `;
 
 // Protected Route component
@@ -94,7 +71,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%)'
+        background: '#f0f2f5'
       }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
           <CubeLoader>
@@ -113,7 +90,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     );
   }
 
-  return user ? <>{children}</> : <Navigate to="/login" />;
+  return user ? <SidebarLayout>{children}</SidebarLayout> : <Navigate to="/login" />;
 };
 
 // Public Route component (redirects to dashboard if already logged in)
@@ -127,7 +104,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%)'
+        background: '#f0f2f5'
       }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
           <CubeLoader>
@@ -149,144 +126,126 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return user ? <Navigate to="/dashboard" /> : <>{children}</>;
 };
 
+const AppRoutes: React.FC = () => {
+  const { user } = useAuth();
+
+  return (
+    <Router>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        } />
+        <Route path="/register" element={
+          <PublicRoute>
+            <Register />
+          </PublicRoute>
+        } />
+
+        {/* Protected routes */}
+        <Route path="/questionnaire" element={
+          <ProtectedRoute>
+            <Questionnaire />
+          </ProtectedRoute>
+        } />
+        <Route path="/results" element={
+          <ProtectedRoute>
+            <Results />
+          </ProtectedRoute>
+        } />
+        <Route path="/maps" element={
+          <ProtectedRoute>
+            <HealthServicesMap />
+          </ProtectedRoute>
+        } />
+        <Route path="/exercises" element={
+          <ProtectedRoute>
+            <Exercises />
+          </ProtectedRoute>
+        } />
+        <Route path="/tips" element={
+          <ProtectedRoute>
+            <Tips />
+          </ProtectedRoute>
+        } />
+        <Route path="/chat" element={
+          <ProtectedRoute>
+            <Chat />
+          </ProtectedRoute>
+        } />
+        <Route path="/chat/:id" element={
+          <ProtectedRoute>
+            <ChatRoom />
+          </ProtectedRoute>
+        } />
+        <Route path="/exercise/:id" element={
+          <ProtectedRoute>
+            <ExerciseDetail />
+          </ProtectedRoute>
+        } />
+        <Route path="/tip/:id" element={
+          <ProtectedRoute>
+            <TipDetail />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/admin" element={
+          user ? <AdminPanel /> : <Navigate to="/login" />
+        } />
+
+        {/* Default redirect */}
+        <Route path="/" element={<Navigate to="/dashboard" />} />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+      </Routes>
+    </Router>
+  );
+};
+
 const App: React.FC = () => {
   return (
     <AuthProvider>
       <GlobalStyle />
-      <AppContainer>
-        <Router>
-          <MainContent>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/login" element={
-                <PublicRoute>
-                  <Login />
-                </PublicRoute>
-              } />
-              <Route path="/register" element={
-                <PublicRoute>
-                  <Register />
-                </PublicRoute>
-              } />
-
-              {/* Protected routes */}
-              <Route path="/questionnaire" element={
-                <ProtectedRoute>
-                  <Questionnaire />
-                </ProtectedRoute>
-              } />
-              <Route path="/results" element={
-                <ProtectedRoute>
-                  <Results />
-                </ProtectedRoute>
-              } />
-              <Route path="/maps" element={
-                <ProtectedRoute>
-                  <HealthServicesMap />
-                </ProtectedRoute>
-              } />
-              <Route path="/exercises" element={
-                <ProtectedRoute>
-                  <Exercises />
-                </ProtectedRoute>
-              } />
-              <Route path="/tips" element={
-                <ProtectedRoute>
-                  <Tips />
-                </ProtectedRoute>
-              } />
-              <Route path="/chat" element={
-                <ProtectedRoute>
-                  <Chat />
-                </ProtectedRoute>
-              } />
-              <Route path="/chat/:id" element={
-                <ProtectedRoute>
-                  <ChatRoom />
-                </ProtectedRoute>
-              } />
-              <Route path="/exercise/:id" element={
-                <ProtectedRoute>
-                  <ExerciseDetail />
-                </ProtectedRoute>
-              } />
-              <Route path="/tip/:id" element={
-                <ProtectedRoute>
-                  <TipDetail />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin" element={
-                <ProtectedRoute>
-                  <AdminPanel />
-                </ProtectedRoute>
-              } />
-
-              {/* Default redirect */}
-              <Route path="/" element={<Navigate to="/dashboard" />} />
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
-            </Routes>
-          </MainContent>
-        </Router>
-      </AppContainer>
+      <AppRoutes />
     </AuthProvider>
   );
 };
 
-const DashboardHeader = styled(GlassCard)`
-  margin-bottom: 32px;
-  padding: 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-  width: 100%;
-  max-width: 100%;
-`;
-
-const FeatureCard = styled(GlassCard)`
+const FeatureCard = styled(Card)`
   cursor: pointer;
-  transition: all 0.3s ease;
   height: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   text-align: left;
+  border: 1px solid #e2e8f0;
   
   &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-color: #2e7d32;
   }
 `;
 
 // Professional Dashboard component
 const Dashboard: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [results, setResults] = React.useState<any[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
-  // Check if user has completed questionnaire (questionnaireCompleted is true)
   const hasCompletedQuestionnaire = user?.questionnaireCompleted === true;
 
-  // Load historical results
   React.useEffect(() => {
     const loadResults = async () => {
-      console.log('Dashboard: Loading results...');
-      console.log('Dashboard: user exists:', !!user);
-      console.log('Dashboard: hasCompletedQuestionnaire:', hasCompletedQuestionnaire);
-      console.log('Dashboard: user.questionnaireCompleted:', user?.questionnaireCompleted);
-
       if (user && hasCompletedQuestionnaire) {
         try {
-          console.log('Dashboard: Calling questionnaireAPI.getResults()...');
           const response = await questionnaireAPI.getResults();
-          console.log('Dashboard: API response:', response);
-          console.log('Dashboard: Setting results:', response.results);
           setResults(response.results);
         } catch (error) {
           console.error('Failed to load results:', error);
@@ -294,7 +253,6 @@ const Dashboard: React.FC = () => {
           setIsLoading(false);
         }
       } else {
-        console.log('Dashboard: Not loading results - conditions not met');
         setIsLoading(false);
       }
     };
@@ -302,21 +260,12 @@ const Dashboard: React.FC = () => {
     loadResults();
   }, [user, hasCompletedQuestionnaire]);
 
-  // Prepare chart data for progress line chart
   const progressChartData = React.useMemo(() => {
-    console.log('Dashboard: Preparing progress chart data...');
-    console.log('Dashboard: results.length:', results.length);
-
-    if (!results.length) {
-      console.log('Dashboard: No results, returning null');
-      return null;
-    }
+    if (!results.length) return null;
 
     const sortedResults = results.sort((a, b) =>
       new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     );
-
-    console.log('Dashboard: sortedResults:', sortedResults);
 
     const labels = sortedResults.map(result =>
       new Date(result.createdAt).toLocaleDateString('es-ES', {
@@ -325,9 +274,7 @@ const Dashboard: React.FC = () => {
       })
     );
 
-    console.log('Dashboard: labels:', labels);
-
-    const chartData = {
+    return {
       labels,
       datasets: [
         {
@@ -356,29 +303,17 @@ const Dashboard: React.FC = () => {
         }
       ]
     };
-
-    console.log('Dashboard: progressChartData:', chartData);
-    return chartData;
   }, [results]);
 
   const progressChartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top' as const,
-        labels: {
-          usePointStyle: true,
-          padding: 20
-        }
+        labels: { usePointStyle: true, padding: 20 }
       },
-      title: {
-        display: true,
-        text: 'Progreso en Salud Mental',
-        font: {
-          size: 14,
-          weight: 'bold' as const
-        }
-      },
+      title: { display: false },
       tooltip: {
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
         titleColor: 'white',
@@ -389,21 +324,11 @@ const Dashboard: React.FC = () => {
       y: {
         beginAtZero: true,
         max: 30,
-        ticks: {
-          stepSize: 5
-        },
-        grid: {
-          color: 'rgba(0, 0, 0, 0.1)'
-        }
+        ticks: { stepSize: 5 },
+        grid: { color: 'rgba(0, 0, 0, 0.05)' }
       },
       x: {
-        grid: {
-          display: false
-        },
-        ticks: {
-          maxRotation: 45,
-          minRotation: 45
-        }
+        grid: { display: false }
       }
     }
   };
@@ -414,7 +339,8 @@ const Dashboard: React.FC = () => {
       title: 'Realizar Cuestionario',
       description: 'Evalúa tu estado de salud mental con el DASS-21',
       icon: '📝',
-      gradient: 'linear-gradient(135deg, #81c784 0%, #a5d6a7 100%)',
+      bg: '#e8f5e9',
+      color: '#2e7d32',
       action: () => navigate('/questionnaire')
     },
     {
@@ -422,7 +348,8 @@ const Dashboard: React.FC = () => {
       title: 'Ejercicios y Consejos',
       description: 'Accede a técnicas de relajación y consejos prácticos',
       icon: '🧘',
-      gradient: 'linear-gradient(135deg, #a5d6a7 0%, #c8e6c9 100%)',
+      bg: '#e0f2fe',
+      color: '#0284c7',
       action: () => navigate('/exercises')
     },
     {
@@ -430,7 +357,8 @@ const Dashboard: React.FC = () => {
       title: 'Consejos Prácticos',
       description: 'Descubre consejos diarios para mejorar tu bienestar mental',
       icon: '💡',
-      gradient: 'linear-gradient(135deg, #c8e6c9 0%, #e8f5e8 100%)',
+      bg: '#fef3c7',
+      color: '#d97706',
       action: () => navigate('/tips')
     },
     {
@@ -438,7 +366,8 @@ const Dashboard: React.FC = () => {
       title: 'Grupos de Apoyo',
       description: 'Conecta con personas que comparten experiencias similares',
       icon: '👥',
-      gradient: 'linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%)',
+      bg: '#f3e8ff',
+      color: '#9333ea',
       action: () => navigate('/chat')
     },
     {
@@ -446,135 +375,54 @@ const Dashboard: React.FC = () => {
       title: 'Ayuda Profesional',
       description: 'Encuentra especialistas y centros de salud mental cercanos',
       icon: '🗺️',
-      gradient: 'linear-gradient(135deg, #66bb6a 0%, #81c784 100%)',
+      bg: '#fee2e2',
+      color: '#dc2626',
       action: () => navigate('/maps')
-    },
-    ...(user?.role === 'admin' || user?.role === 'owner' ? [{
-      id: 'admin',
-      title: 'Panel de Administración',
-      description: 'Gestiona usuarios, contenido y configuraciones del sistema',
-      icon: '⚙️',
-      gradient: 'linear-gradient(135deg, #ff9800 0%, #ffb74d 100%)',
-      action: () => navigate('/admin')
-    }] : [])
+    }
   ];
 
   return (
-    <div style={{
-      width: '100%',
-      maxWidth: '100%',
-      margin: '0 auto',
-      padding: window.innerWidth <= 768 ? '0' : '0'
-    }}>
-      {/* Header */}
-      <DashboardHeader>
+    <div>
+      <PageHeader>
         <div>
-          <h1 style={{
-            color: '#2e7d32',
-            margin: '0 0 8px 0',
-            fontSize: window.innerWidth <= 768 ? '1.8rem' : '2.5rem',
-            fontWeight: '700',
-            letterSpacing: '-0.025em'
-          }}>
-            ¡Bienvenido, {user?.firstName}!
-          </h1>
-          <p style={{
-            color: '#4caf50',
-            margin: '0',
-            fontSize: window.innerWidth <= 768 ? '1rem' : '1.125rem',
-            fontWeight: '400'
-          }}>
-            Tu plataforma de apoyo para la salud mental
-          </p>
+          <PageTitle>¡Hola, {user?.firstName}!</PageTitle>
+          <PageSubtitle>Bienvenido a tu espacio de bienestar</PageSubtitle>
         </div>
-        <button
-          onClick={logout}
-          style={{
-            padding: window.innerWidth <= 768 ? '10px 20px' : '12px 24px',
-            background: 'linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '12px',
-            fontSize: window.innerWidth <= 768 ? '13px' : '14px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            boxShadow: '0 4px 6px rgba(76, 175, 80, 0.2)',
-            transition: 'all 0.3s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 6px 12px rgba(76, 175, 80, 0.3)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 4px 6px rgba(76, 175, 80, 0.2)';
-          }}
-        >
-          Cerrar Sesión
-        </button>
-      </DashboardHeader>
+      </PageHeader>
 
-      <div style={{ marginBottom: window.innerWidth <= 768 ? '24px' : '32px' }}>
-        <h2 style={{
-          color: '#2e7d32',
-          fontSize: window.innerWidth <= 768 ? '1.5rem' : '1.875rem',
-          fontWeight: '600',
-          margin: '0 0 8px 0',
-          textAlign: 'center'
-        }}>
-          ¿Qué te gustaría hacer hoy?
-        </h2>
-        <p style={{
-          color: '#4caf50',
-          fontSize: window.innerWidth <= 768 ? '1rem' : '1.125rem',
-          textAlign: 'center',
-          margin: '0'
-        }}>
-          Explora las herramientas disponibles para cuidar tu bienestar emocional
-        </p>
-      </div>
-
-
-      {/* Features Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: window.innerWidth <= 768 ? '16px' : '24px',
-        marginBottom: window.innerWidth <= 768 ? '32px' : '48px'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: '20px',
+        marginBottom: '40px'
       }}>
-        {features.map((feature, index) => (
-          <FeatureCard
-            key={feature.id}
-            onClick={feature.action}
-            style={{
-              animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`
-            }}
-          >
+        {features.map((feature) => (
+          <FeatureCard key={feature.id} onClick={feature.action}>
             <div style={{
-              width: window.innerWidth <= 768 ? '56px' : '64px',
-              height: window.innerWidth <= 768 ? '56px' : '64px',
-              borderRadius: window.innerWidth <= 768 ? '14px' : '16px',
-              background: feature.gradient,
+              width: '50px',
+              height: '50px',
+              borderRadius: '12px',
+              background: feature.bg,
+              color: feature.color,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: window.innerWidth <= 768 ? '1.75rem' : '2rem',
-              marginBottom: window.innerWidth <= 768 ? '16px' : '20px',
-              boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)'
+              fontSize: '24px',
+              marginBottom: '16px'
             }}>
               {feature.icon}
             </div>
             <h3 style={{
-              color: '#2e7d32',
-              fontSize: window.innerWidth <= 768 ? '1.125rem' : '1.25rem',
+              color: '#1e293b',
+              fontSize: '18px',
               fontWeight: '600',
-              margin: '0 0 12px 0'
+              marginBottom: '8px'
             }}>
               {feature.title}
             </h3>
             <p style={{
-              color: '#4caf50',
-              fontSize: window.innerWidth <= 768 ? '0.9rem' : '1rem',
+              color: '#64748b',
+              fontSize: '14px',
               lineHeight: '1.5',
               margin: '0'
             }}>
@@ -584,38 +432,17 @@ const Dashboard: React.FC = () => {
         ))}
       </div>
 
-      {/* Latest Results Charts */}
-      {(() => {
-        console.log('Dashboard: Checking charts condition...');
-        console.log('Dashboard: hasCompletedQuestionnaire:', hasCompletedQuestionnaire);
-        console.log('Dashboard: results.length:', results.length);
-        console.log('Dashboard: results:', results);
-        const shouldShow = hasCompletedQuestionnaire && results.length > 0;
-        console.log('Dashboard: Should show charts:', shouldShow);
-        return shouldShow;
-      })() && (
+      {hasCompletedQuestionnaire && results.length > 0 && (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr',
-          gap: window.innerWidth <= 768 ? '24px' : '32px',
-          marginBottom: window.innerWidth <= 768 ? '32px' : '48px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+          gap: '20px'
         }}>
-          {/* Latest Results Column Chart */}
-          <GlassCard style={{ width: '100%' }}>
-            <h3 style={{
-              color: '#2e7d32',
-              fontSize: '1.5rem',
-              fontWeight: '600',
-              margin: '0 0 24px 0',
-              textAlign: 'center'
-            }}>
-              📊 Mis Últimos Resultados
+          <Card>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', marginBottom: '20px' }}>
+              Últimos Resultados
             </h3>
-
-            <div style={{
-              height: window.innerWidth <= 768 ? '300px' : '350px',
-              position: 'relative'
-            }}>
+            <div style={{ height: '300px' }}>
               <Bar
                 data={{
                   labels: ['Depresión', 'Ansiedad', 'Estrés'],
@@ -626,148 +453,33 @@ const Dashboard: React.FC = () => {
                       results[results.length - 1]?.scores?.anxiety || 0,
                       results[results.length - 1]?.scores?.stress || 0
                     ],
-                    backgroundColor: [
-                      'rgba(220, 53, 69, 0.8)',
-                      'rgba(255, 193, 7, 0.8)',
-                      'rgba(111, 66, 193, 0.8)'
-                    ],
-                    borderColor: [
-                      '#dc3545',
-                      '#ffc107',
-                      '#6f42c1'
-                    ],
-                    borderWidth: 2,
-                    borderRadius: 8,
-                    borderSkipped: false,
+                    backgroundColor: ['#ef4444', '#f59e0b', '#8b5cf6'],
+                    borderRadius: 6,
                   }]
                 }}
                 options={{
                   responsive: true,
                   maintainAspectRatio: false,
-                  plugins: {
-                    legend: {
-                      display: false,
-                    },
-                    title: {
-                      display: true,
-                      text: 'Último Cuestionario Completado',
-                      font: {
-                        size: 14,
-                        weight: 'bold'
-                      }
-                    },
-                    tooltip: {
-                      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                      titleColor: 'white',
-                      bodyColor: 'white',
-                      callbacks: {
-                        label: function(context: any) {
-                          return `Puntuación: ${context.parsed.y}`;
-                        }
-                      }
-                    }
-                  },
+                  plugins: { legend: { display: false } },
                   scales: {
-                    y: {
-                      beginAtZero: true,
-                      max: 30,
-                      ticks: {
-                        stepSize: 4,
-                        callback: function(value) {
-                          return value;
-                        }
-                      },
-                      grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
-                      }
-                    },
-                    x: {
-                      grid: {
-                        display: false
-                      }
-                    }
-                  },
-                  animation: {
-                    duration: 1000,
-                    easing: 'easeOutCubic' as const
+                    y: { beginAtZero: true, max: 30, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false } }
                   }
                 }}
               />
             </div>
+          </Card>
 
-            <div style={{
-              marginTop: '16px',
-              padding: '12px',
-              background: '#f8f9fa',
-              borderRadius: '8px',
-              textAlign: 'center',
-              color: '#6b7280',
-              fontSize: '13px'
-            }}>
-              <strong>Última evaluación:</strong> {results[results.length - 1] ? new Date(results[results.length - 1].createdAt).toLocaleDateString('es-ES') : 'N/A'}
-            </div>
-          </GlassCard>
-
-          {/* Progress Line Chart */}
-          <GlassCard style={{ width: '100%' }}>
-            <h3 style={{
-              color: '#2e7d32',
-              fontSize: '1.5rem',
-              fontWeight: '600',
-              margin: '0 0 24px 0',
-              textAlign: 'center'
-            }}>
-              📈 Mi Progreso en el Tiempo
+          <Card>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', marginBottom: '20px' }}>
+              Tu Progreso
             </h3>
-
-            <div style={{
-              height: window.innerWidth <= 768 ? '300px' : '350px',
-              position: 'relative'
-            }}>
+            <div style={{ height: '300px' }}>
               {progressChartData && <Line data={progressChartData} options={progressChartOptions} />}
             </div>
-
-            <div style={{
-              marginTop: '16px',
-              padding: '12px',
-              background: '#f8f9fa',
-              borderRadius: '8px',
-              textAlign: 'center',
-              color: '#6b7280',
-              fontSize: '13px'
-            }}>
-              <strong>💡 Tip:</strong> Una disminución en las puntuaciones indica mejora en tu bienestar mental.
-            </div>
-          </GlassCard>
+          </Card>
         </div>
       )}
-
-      {/* Footer */}
-      <footer style={{
-        textAlign: 'center',
-        padding: '32px 0',
-        color: '#4caf50',
-        fontSize: '0.875rem'
-      }}>
-        <p style={{ margin: '0' }}>
-          Desarrollado con ❤️ para ayudar a las personas en su camino hacia el bienestar mental
-        </p>
-      </footer>
-
-      <style>
-        {`
-          @keyframes fadeInUp {
-            from {
-              opacity: 0;
-              transform: translateY(30px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-        `}
-      </style>
     </div>
   );
 };

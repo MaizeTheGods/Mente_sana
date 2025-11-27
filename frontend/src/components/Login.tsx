@@ -1,20 +1,74 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import styled from 'styled-components';
 import {
-  PageContainer,
-  GlassCard,
-  PageTitle,
-  PageSubtitle,
-  StyledForm,
-  FormGroup,
-  StyledLabel,
+  Card,
+  Button,
   StyledInput,
-  StyledButton,
   ErrorMessage,
-  LinkText,
-  IconWrapper
+  LinkText
 } from './SharedStyles';
+
+const CenteredContainer = styled.div`
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0fdf4;
+  padding: 20px;
+`;
+
+const LoginCard = styled(Card)`
+  width: 100%;
+  max-width: 450px;
+  padding: 40px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+`;
+
+const LogoImage = styled.img`
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  margin-bottom: 24px;
+  object-fit: cover;
+  border: 4px solid #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const Title = styled.h1`
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+`;
+
+const Subtitle = styled.p`
+  color: #64748b;
+  margin-bottom: 32px;
+  font-size: 16px;
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: left;
+`;
+
+const FormGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const Label = styled.label`
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+`;
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -41,17 +95,15 @@ const Login: React.FC = () => {
   };
 
   return (
-    <PageContainer>
-      <GlassCard>
-        <IconWrapper>
-          <img src="/logo.png" alt="Mente Sana Logo" style={{ width: '150px', height: '150px', borderRadius: '50%' }} />
-        </IconWrapper>
-        <PageTitle>Bienvenido</PageTitle>
-        <PageSubtitle>Ingresa a tu espacio de paz mental</PageSubtitle>
+    <CenteredContainer>
+      <LoginCard>
+        <LogoImage src="/logo.png" alt="Mente Sana Logo" />
+        <Title>Bienvenido</Title>
+        <Subtitle>Ingresa a tu espacio de paz mental</Subtitle>
 
-        <StyledForm onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit}>
           <FormGroup>
-            <StyledLabel htmlFor="email">Correo Electrónico</StyledLabel>
+            <Label htmlFor="email">Correo Electrónico</Label>
             <StyledInput
               type="email"
               id="email"
@@ -63,7 +115,7 @@ const Login: React.FC = () => {
           </FormGroup>
 
           <FormGroup>
-            <StyledLabel htmlFor="password">Contraseña</StyledLabel>
+            <Label htmlFor="password">Contraseña</Label>
             <StyledInput
               type="password"
               id="password"
@@ -75,18 +127,18 @@ const Login: React.FC = () => {
             />
           </FormGroup>
 
-          <StyledButton type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading} variant="primary" style={{ marginTop: '10px' }}>
             {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-          </StyledButton>
-        </StyledForm>
+          </Button>
+        </Form>
 
-        {error && <ErrorMessage>{error}</ErrorMessage>}
+        {error && <ErrorMessage style={{ marginTop: '20px' }}>{error}</ErrorMessage>}
 
-        <LinkText>
-          ¿Aún no tienes cuenta? <Link to="/register">Regístrate aquí</Link>
+        <LinkText style={{ marginTop: '24px' }}>
+          ¿Aún no tienes cuenta? <Link to="/register" style={{ color: '#2e7d32', fontWeight: '600' }}>Regístrate aquí</Link>
         </LinkText>
-      </GlassCard>
-    </PageContainer>
+      </LoginCard>
+    </CenteredContainer>
   );
 };
 

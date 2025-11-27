@@ -3,12 +3,15 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { tipsAPI, Tip, Category } from '../services/api';
 import {
-  PageContainer,
-  GlassCard,
+  PageHeader,
   PageTitle,
+  PageSubtitle,
+  Card,
   CubeLoader,
   CubeSquare,
-  LoadingText
+  LoadingText,
+  Badge,
+  Button
 } from './SharedStyles';
 
 const TipsGrid = styled.div`
@@ -18,68 +21,59 @@ const TipsGrid = styled.div`
   margin-bottom: 30px;
 `;
 
-const TipCard = styled.div`
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e9ecef;
-  transition: all 0.3s ease;
+const TipCard = styled(Card)`
   cursor: pointer;
-
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid #e2e8f0;
+  
   &:hover {
+    border-color: #2e7d32;
     transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   }
 `;
 
-const TipIcon = styled.div`
-  font-size: 3rem;
-  margin-bottom: 16px;
-  text-align: center;
-`;
-
 const TipTitle = styled.h3`
-  color: #2e7d32;
-  font-size: 1.25rem;
+  color: #1e293b;
+  font-size: 18px;
   font-weight: 600;
-  margin-bottom: 12px;
-  text-align: center;
+  margin-bottom: 8px;
 `;
 
-const TipDescription = styled.p`
-  color: #666;
-  font-size: 0.95rem;
-  line-height: 1.6;
+const TipContent = styled.p`
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
   margin-bottom: 16px;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 `;
 
-const TipCategory = styled.div`
-  display: inline-block;
-  background: #4caf50;
-  color: white;
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  text-align: center;
+const CategoryFilter = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
 `;
 
-const BackButton = styled.button`
-  padding: 12px 24px;
-  background: #6c757d;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
+const FilterButton = styled.button<{ active: boolean }>`
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid ${props => props.active ? '#2e7d32' : '#e2e8f0'};
+  background: ${props => props.active ? '#e8f5e9' : 'white'};
+  color: ${props => props.active ? '#2e7d32' : '#64748b'};
   font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 20px;
+  transition: all 0.2s;
 
   &:hover {
-    background: #5a6268;
-    transform: translateY(-2px);
+    background: ${props => props.active ? '#e8f5e9' : '#f8fafc'};
   }
 `;
 
@@ -88,56 +82,41 @@ const Tips: React.FC = () => {
   const [tips, setTips] = useState<Tip[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingData, setIsLoadingData] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadTips();
-    loadCategories();
+    const loadData = async () => {
+      try {
+        const [tipsRes, catsRes] = await Promise.all([
+          tipsAPI.getTips(),
+          tipsAPI.getCategories()
+        ]);
+        setTips(tipsRes.tips);
+        setCategories(catsRes.categories);
+      } catch (error) {
+        console.error('Failed to load data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
   }, []);
 
-  const loadTips = async () => {
-    setIsLoadingData(true);
-    try {
-      const response = await tipsAPI.getTips();
-      setTips(response.tips);
-    } catch (error) {
-      console.error('Failed to load tips:', error);
-    } finally {
-      setIsLoading(false);
-      setIsLoadingData(false);
-    }
-  };
-
-  const loadCategories = async () => {
-    setIsLoadingData(true);
-    try {
-      const response = await tipsAPI.getCategories();
-      setCategories(response.categories);
-    } catch (error) {
-      console.error('Failed to load categories:', error);
-    } finally {
-      setIsLoadingData(false);
-    }
-  };
-
-  if (isLoading || isLoadingData) {
+  if (isLoading) {
     return (
-      <PageContainer>
-        <GlassCard style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '60px 20px' }}>
-          <CubeLoader>
-            <CubeSquare delay={0} />
-            <CubeSquare delay={1} />
-            <CubeSquare delay={2} />
-            <CubeSquare delay={3} />
-            <CubeSquare delay={4} />
-            <CubeSquare delay={5} />
-            <CubeSquare delay={6} />
-            <CubeSquare delay={7} />
-          </CubeLoader>
-          <LoadingText>Cargando consejos...</LoadingText>
-        </GlassCard>
-      </PageContainer>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px' }}>
+        <CubeLoader>
+          <CubeSquare delay={0} />
+          <CubeSquare delay={1} />
+          <CubeSquare delay={2} />
+          <CubeSquare delay={3} />
+          <CubeSquare delay={4} />
+          <CubeSquare delay={5} />
+          <CubeSquare delay={6} />
+          <CubeSquare delay={7} />
+        </CubeLoader>
+        <LoadingText>Cargando consejos...</LoadingText>
+      </div>
     );
   }
 
@@ -146,74 +125,52 @@ const Tips: React.FC = () => {
     : tips.filter(tip => tip.category === selectedCategory);
 
   return (
-    <PageContainer>
-      <GlassCard style={{ maxWidth: '1000px', maxHeight: '90vh', overflowY: 'auto' }}>
-        <PageTitle>Consejos para tu Bienestar</PageTitle>
-
-        {/* Category Filter */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '12px',
-          marginBottom: '30px',
-          flexWrap: 'wrap'
-        }}>
-          {categories.map(category => (
-            <button
-              key={category.id}
-              onClick={() => setSelectedCategory(category.id)}
-              style={{
-                padding: '10px 20px',
-                border: `2px solid ${selectedCategory === category.id ? '#4caf50' : '#e9ecef'}`,
-                borderRadius: '25px',
-                background: selectedCategory === category.id ? '#4caf50' : 'white',
-                color: selectedCategory === category.id ? 'white' : '#666',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}
-            >
-              <span>{category.icon}</span>
-              {category.label}
-            </button>
-          ))}
+    <div>
+      <PageHeader>
+        <div>
+          <PageTitle>Consejos para tu Bienestar</PageTitle>
+          <PageSubtitle>Descubre herramientas prácticas para mejorar tu día a día</PageSubtitle>
         </div>
+      </PageHeader>
 
-        {/* Tips Grid */}
-        <TipsGrid>
-          {filteredTips.map(tip => (
-            <TipCard
-              key={tip._id}
-              onClick={() => navigate(`/tip/${tip._id}`)}
-            >
-              <TipIcon>💡</TipIcon>
-              <TipTitle>{tip.title}</TipTitle>
-              <TipDescription>{tip.content}</TipDescription>
-              <div style={{ textAlign: 'center' }}>
-                <TipCategory>
-                  {categories.find(cat => cat.id === tip.category)?.label || tip.category}
-                </TipCategory>
-                {tip.media?.videoUrl && (
-                  <div style={{ marginTop: '8px' }}>
-                    <span style={{ color: '#4caf50', fontSize: '0.8rem' }}>🎥 Video disponible</span>
-                  </div>
-                )}
-              </div>
-            </TipCard>
-          ))}
-        </TipsGrid>
+      <CategoryFilter>
+        <FilterButton
+          active={selectedCategory === 'all'}
+          onClick={() => setSelectedCategory('all')}
+        >
+          Todos
+        </FilterButton>
+        {categories.map(cat => (
+          <FilterButton
+            key={cat.id}
+            active={selectedCategory === cat.id}
+            onClick={() => setSelectedCategory(cat.id)}
+          >
+            {cat.icon} {cat.label}
+          </FilterButton>
+        ))}
+      </CategoryFilter>
 
-        <div style={{ textAlign: 'center' }}>
-          <BackButton onClick={() => window.history.back()}>
-            ← Regresar al Dashboard
-          </BackButton>
-        </div>
-      </GlassCard>
-    </PageContainer>
+      <TipsGrid>
+        {filteredTips.map(tip => (
+          <TipCard key={tip._id} onClick={() => navigate(`/tip/${tip._id}`)}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+              <Badge bg="#e0f2fe" color="#0284c7">
+                {categories.find(c => c.id === tip.category)?.label || tip.category}
+              </Badge>
+              {tip.media?.videoUrl && <span>🎥</span>}
+            </div>
+            <TipTitle>{tip.title}</TipTitle>
+            <TipContent>{tip.content}</TipContent>
+            <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid #f1f5f9' }}>
+              <Button variant="outline" style={{ width: '100%', fontSize: '13px' }}>
+                Leer más
+              </Button>
+            </div>
+          </TipCard>
+        ))}
+      </TipsGrid>
+    </div>
   );
 };
 

@@ -3,18 +3,48 @@ import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  PageContainer,
-  GlassCard,
-  PageTitle,
-  StyledForm,
-  FormGroup,
-  StyledLabel,
+  Card,
+  Button,
   StyledInput,
   StyledSelect,
-  StyledButton,
   ErrorMessage,
   LinkText
 } from './SharedStyles';
+
+const CenteredContainer = styled.div`
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0fdf4;
+  padding: 20px;
+`;
+
+const RegisterCard = styled(Card)`
+  width: 100%;
+  max-width: 600px;
+  padding: 40px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+`;
+
+const Header = styled.div`
+  text-align: center;
+  margin-bottom: 32px;
+`;
+
+const Title = styled.h1`
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
 
 const FormRow = styled.div`
   display: grid;
@@ -24,6 +54,18 @@ const FormRow = styled.div`
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
   }
+`;
+
+const FormGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const Label = styled.label`
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
 `;
 
 const Register: React.FC = () => {
@@ -65,12 +107,16 @@ const Register: React.FC = () => {
   };
 
   return (
-    <PageContainer>
-      <GlassCard style={{ maxWidth: '600px' }}>
-        <PageTitle>Crear Cuenta</PageTitle>
-        <StyledForm onSubmit={handleSubmit}>
+    <CenteredContainer>
+      <RegisterCard>
+        <Header>
+          <Title>Crear Cuenta</Title>
+          <p style={{ color: '#64748b' }}>Únete a nuestra comunidad de bienestar</p>
+        </Header>
+
+        <Form onSubmit={handleSubmit}>
           <FormGroup>
-            <StyledLabel htmlFor="username">Nombre de Usuario</StyledLabel>
+            <Label htmlFor="username">Nombre de Usuario</Label>
             <StyledInput
               type="text"
               id="username"
@@ -83,7 +129,7 @@ const Register: React.FC = () => {
           </FormGroup>
 
           <FormGroup>
-            <StyledLabel htmlFor="email">Correo Electrónico</StyledLabel>
+            <Label htmlFor="email">Correo Electrónico</Label>
             <StyledInput
               type="email"
               id="email"
@@ -96,7 +142,7 @@ const Register: React.FC = () => {
           </FormGroup>
 
           <FormGroup>
-            <StyledLabel htmlFor="password">Contraseña</StyledLabel>
+            <Label htmlFor="password">Contraseña</Label>
             <StyledInput
               type="password"
               id="password"
@@ -110,7 +156,7 @@ const Register: React.FC = () => {
 
           <FormRow>
             <FormGroup>
-              <StyledLabel htmlFor="firstName">Nombre</StyledLabel>
+              <Label htmlFor="firstName">Nombre</Label>
               <StyledInput
                 type="text"
                 id="firstName"
@@ -123,7 +169,7 @@ const Register: React.FC = () => {
             </FormGroup>
 
             <FormGroup>
-              <StyledLabel htmlFor="lastName">Apellido</StyledLabel>
+              <Label htmlFor="lastName">Apellido</Label>
               <StyledInput
                 type="text"
                 id="lastName"
@@ -138,7 +184,7 @@ const Register: React.FC = () => {
 
           <FormRow>
             <FormGroup>
-              <StyledLabel htmlFor="dateOfBirth">Fecha de Nacimiento</StyledLabel>
+              <Label htmlFor="dateOfBirth">Fecha de Nacimiento</Label>
               <StyledInput
                 type="date"
                 id="dateOfBirth"
@@ -150,7 +196,7 @@ const Register: React.FC = () => {
             </FormGroup>
 
             <FormGroup>
-              <StyledLabel htmlFor="gender">Género</StyledLabel>
+              <Label htmlFor="gender">Género</Label>
               <StyledSelect
                 id="gender"
                 name="gender"
@@ -167,18 +213,18 @@ const Register: React.FC = () => {
             </FormGroup>
           </FormRow>
 
-          <StyledButton type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading} variant="primary" style={{ marginTop: '10px' }}>
             {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
-          </StyledButton>
-        </StyledForm>
+          </Button>
+        </Form>
 
-        {error && <ErrorMessage>{error}</ErrorMessage>}
+        {error && <ErrorMessage style={{ marginTop: '20px' }}>{error}</ErrorMessage>}
 
-        <LinkText>
-          ¿Ya tienes cuenta? <Link to="/login">Inicia sesión aquí</Link>
+        <LinkText style={{ marginTop: '24px', textAlign: 'center' }}>
+          ¿Ya tienes cuenta? <Link to="/login" style={{ color: '#2e7d32', fontWeight: '600' }}>Inicia sesión aquí</Link>
         </LinkText>
-      </GlassCard>
-    </PageContainer>
+      </RegisterCard>
+    </CenteredContainer>
   );
 };
 

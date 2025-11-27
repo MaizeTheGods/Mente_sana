@@ -1,55 +1,62 @@
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+// --- Animations ---
+export const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 `;
 
+// --- Layout & Containers ---
 export const PageContainer = styled.div`
+  /* No longer needed as main wrapper, but kept for compatibility if needed */
+  width: 100%;
+`;
+
+export const PageHeader = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  min-height: 100vh;
-  width: 100%;
-  background: linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%);
-  padding: 0;
-  position: relative;
-  overflow-x: hidden;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
 `;
 
-export const GlassCard = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  padding: 40px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 500px; /* Default max-width, can be overridden */
-  backdrop-filter: blur(10px);
-  animation: ${fadeIn} 0.5s ease-out;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-`;
-
-export const PageTitle = styled.h2`
-  text-align: center;
-  color: #2e7d32;
-  margin-bottom: 10px;
-  font-size: 32px;
+export const PageTitle = styled.h1`
+  font-size: 28px;
   font-weight: 700;
+  color: #1e293b;
+  margin: 0;
 `;
 
 export const PageSubtitle = styled.p`
-  text-align: center;
-  color: #4caf50;
-  margin-bottom: 30px;
+  color: #64748b;
   font-size: 16px;
+  margin-top: 8px;
 `;
 
+// --- Cards ---
+export const Card = styled.div`
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+  border: 1px solid #f1f5f9;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+export const GlassCard = styled(Card)`
+  /* Keeping name for compatibility, but updating style to match new design */
+  background: white;
+  backdrop-filter: none;
+  border: 1px solid #f1f5f9;
+`;
+
+// --- Forms ---
 export const StyledForm = styled.form`
   display: flex;
   flex-direction: column;
@@ -57,95 +64,155 @@ export const StyledForm = styled.form`
 `;
 
 export const FormGroup = styled.div`
-  display: flex;
-  flex-direction: column;
+  margin-bottom: 20px;
 `;
 
 export const StyledLabel = styled.label`
-  font-weight: 500;
-  color: #2e7d32;
+  display: block;
   margin-bottom: 8px;
+  font-weight: 500;
+  color: #334155;
   font-size: 14px;
 `;
 
 export const StyledInput = styled.input`
-  padding: 12px 16px;
-  border: 2px solid #c8e6c9;
-  border-radius: 12px;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  background: #f1f8e9;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s;
+  background: #ffffff;
 
   &:focus {
     outline: none;
-    border-color: #4caf50;
-    background: #ffffff;
-    box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.1);
+    border-color: #2e7d32;
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
   }
 
   &::placeholder {
-    color: #a5d6a7;
+    color: #94a3b8;
   }
 `;
 
 export const StyledSelect = styled.select`
-  padding: 12px 16px;
-  border: 2px solid #c8e6c9;
-  border-radius: 12px;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  background: #f1f8e9;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
   cursor: pointer;
 
   &:focus {
     outline: none;
-    border-color: #4caf50;
-    background: #ffffff;
-    box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.1);
+    border-color: #2e7d32;
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
   }
 `;
 
-export const StyledButton = styled.button`
-  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
-  color: white;
-  border: none;
-  padding: 14px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(76, 175, 80, 0.2);
-  margin-top: 10px;
+export const StyledTextArea = styled.textarea`
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  min-height: 100px;
+  resize: vertical;
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);
+  &:focus {
+    outline: none;
+    border-color: #2e7d32;
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
   }
+`;
+
+// --- Buttons ---
+export const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'outline' }>`
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+
+  ${props => {
+    switch (props.variant) {
+      case 'danger':
+        return css`
+          background: #fee2e2;
+          color: #dc2626;
+          &:hover { background: #fecaca; }
+        `;
+      case 'success':
+        return css`
+          background: #dcfce7;
+          color: #16a34a;
+          &:hover { background: #bbf7d0; }
+        `;
+      case 'outline':
+        return css`
+          background: transparent;
+          border: 1px solid #cbd5e1;
+          color: #64748b;
+          &:hover { background: #f8fafc; border-color: #94a3b8; }
+        `;
+      case 'secondary':
+        return css`
+          background: #e2e8f0;
+          color: #475569;
+          &:hover { background: #cbd5e1; }
+        `;
+      case 'primary':
+      default:
+        return css`
+          background: #2e7d32;
+          color: white;
+          &:hover { background: #1b5e20; }
+        `;
+    }
+  }}
 
   &:disabled {
-    opacity: 0.7;
+    opacity: 0.6;
     cursor: not-allowed;
-    transform: none;
-    box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
   }
+`;
+
+export const StyledButton = styled(Button)`
+  /* Alias for compatibility */
+  width: 100%;
+  justify-content: center;
+`;
+
+// --- Utilities ---
+export const Badge = styled.span<{ color: string; bg: string }>`
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: ${props => props.bg};
+  color: ${props => props.color};
 `;
 
 export const ErrorMessage = styled.div`
-  color: #e74c3c;
+  color: #dc2626;
   font-size: 14px;
-  text-align: center;
-  margin-top: 10px;
+  margin-top: 8px;
   padding: 10px;
-  background: #fce4ec;
+  background: #fee2e2;
   border-radius: 8px;
-  border: 1px solid #f8bbd0;
 `;
 
 export const LinkText = styled.p`
   text-align: center;
   margin-top: 24px;
-  color: #666;
+  color: #64748b;
   font-size: 14px;
 
   a {
@@ -153,10 +220,8 @@ export const LinkText = styled.p`
     text-decoration: none;
     font-weight: 600;
     margin-left: 5px;
-    transition: color 0.2s;
 
     &:hover {
-      color: #1b5e20;
       text-decoration: underline;
     }
   }
@@ -164,96 +229,28 @@ export const LinkText = styled.p`
 
 export const IconWrapper = styled.div`
   text-align: center;
-  font-size: 48px;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 `;
 
-// Cube loader animation
+// --- Loaders ---
 const squareAnimation = keyframes`
- 0% {
-  left: 0;
-  top: 0;
- }
-
- 10.5% {
-  left: 0;
-  top: 0;
- }
-
- 12.5% {
-  left: 32px;
-  top: 0;
- }
-
- 23% {
-  left: 32px;
-  top: 0;
- }
-
- 25% {
-  left: 64px;
-  top: 0;
- }
-
- 35.5% {
-  left: 64px;
-  top: 0;
- }
-
- 37.5% {
-  left: 64px;
-  top: 32px;
- }
-
- 48% {
-  left: 64px;
-  top: 32px;
- }
-
- 50% {
-  left: 32px;
-  top: 32px;
- }
-
- 60.5% {
-  left: 32px;
-  top: 32px;
- }
-
- 62.5% {
-  left: 32px;
-  top: 64px;
- }
-
- 73% {
-  left: 32px;
-  top: 64px;
- }
-
- 75% {
-  left: 0;
-  top: 64px;
- }
-
- 85.5% {
-  left: 0;
-  top: 64px;
- }
-
- 87.5% {
-  left: 0;
-  top: 32px;
- }
-
- 98% {
-  left: 0;
-  top: 32px;
- }
-
- 100% {
-  left: 0;
-  top: 0;
- }
+ 0% { left: 0; top: 0; }
+ 10.5% { left: 0; top: 0; }
+ 12.5% { left: 32px; top: 0; }
+ 23% { left: 32px; top: 0; }
+ 25% { left: 64px; top: 0; }
+ 35.5% { left: 64px; top: 0; }
+ 37.5% { left: 64px; top: 32px; }
+ 48% { left: 64px; top: 32px; }
+ 50% { left: 32px; top: 32px; }
+ 60.5% { left: 32px; top: 32px; }
+ 62.5% { left: 32px; top: 64px; }
+ 73% { left: 32px; top: 64px; }
+ 75% { left: 0; top: 64px; }
+ 85.5% { left: 0; top: 64px; }
+ 87.5% { left: 0; top: 32px; }
+ 98% { left: 0; top: 32px; }
+ 100% { left: 0; top: 0; }
 `;
 
 export const CubeLoader = styled.div`
@@ -271,10 +268,7 @@ export const CubeSquare = styled.div<{ delay: number }>`
   height: 28px;
   margin: 2px;
   border-radius: 0px;
-  background: white;
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+  background: #2e7d32;
   animation: ${squareAnimation} 10s ease-in-out infinite both;
   animation-delay: ${props => props.delay}s;
 `;
@@ -282,4 +276,5 @@ export const CubeSquare = styled.div<{ delay: number }>`
 export const LoadingText = styled.div`
   color: #2e7d32;
   font-weight: 600;
+  margin-top: 20px;
 `;

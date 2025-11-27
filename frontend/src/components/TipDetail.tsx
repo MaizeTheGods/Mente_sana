@@ -2,182 +2,140 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import { tipsAPI, Tip } from '../services/api';
-import { CubeLoader, CubeSquare, LoadingText } from './SharedStyles';
+import {
+  PageHeader,
+  PageTitle,
+  Card,
+  Button,
+  CubeLoader,
+  CubeSquare,
+  LoadingText
+} from './SharedStyles';
 
-const Container = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%);
-  padding: 20px;
-`;
-
-const Card = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  padding: 40px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 1200px;
-  max-height: 90vh;
-  overflow-y: auto;
-  backdrop-filter: blur(10px);
+const DetailLayout = styled.div`
   display: grid;
-  grid-template-columns: 1fr 400px;
-  gap: 40px;
+  grid-template-columns: 1fr 350px;
+  gap: 24px;
 
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
-    gap: 30px;
   }
 `;
 
-const ContentSection = styled.div`
+const MainContent = styled(Card)`
+  padding: 32px;
+`;
+
+const SidebarContent = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 24px;
 `;
 
-const VideoSection = styled.div`
-  position: sticky;
-  top: 20px;
-  height: fit-content;
-`;
-
-const Title = styled.h1`
-  color: #2e7d32;
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 20px;
-  line-height: 1.2;
+const SidebarCard = styled(Card)`
+  padding: 24px;
 `;
 
 const MetaInfo = styled.div`
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin-bottom: 30px;
+  gap: 16px;
+  margin-bottom: 24px;
   flex-wrap: wrap;
 `;
 
-const Category = styled.div`
-  background: #4caf50;
-  color: white;
-  padding: 6px 16px;
+const CategoryBadge = styled.div`
+  background: #dcfce7;
+  color: #166534;
+  padding: 6px 12px;
   border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
 `;
 
 const Description = styled.p`
-  color: #555;
-  font-size: 1.2rem;
+  color: #475569;
+  font-size: 16px;
   line-height: 1.7;
-  margin-bottom: 30px;
+  margin-bottom: 32px;
 `;
 
-const WhyTitle = styled.h2`
-  color: #2e7d32;
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin-bottom: 20px;
+const SectionTitle = styled.h2`
+  color: #1e293b;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 24px;
+    background: #2e7d32;
+    border-radius: 2px;
+  }
 `;
 
-const WhyText = styled.p`
-  color: #444;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  margin-bottom: 30px;
-`;
-
-const HowTitle = styled.h3`
-  color: #2e7d32;
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 15px;
-`;
-
-const HowList = styled.ol`
+const StepsList = styled.ol`
   padding-left: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 32px;
 `;
 
-const HowItem = styled.li`
-  color: #444;
-  font-size: 1rem;
-  line-height: 1.5;
+const StepItem = styled.li`
+  color: #334155;
+  font-size: 16px;
+  line-height: 1.6;
   margin-bottom: 12px;
   padding-left: 8px;
 
   &::marker {
-    color: #4caf50;
-    font-weight: bold;
+    color: #2e7d32;
+    font-weight: 700;
   }
-`;
-
-const BenefitsTitle = styled.h3`
-  color: #2e7d32;
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 15px;
 `;
 
 const BenefitsList = styled.ul`
   padding-left: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 0;
 `;
 
 const BenefitItem = styled.li`
-  color: #444;
-  font-size: 1rem;
+  color: #334155;
+  font-size: 15px;
   line-height: 1.5;
   margin-bottom: 8px;
 
   &::marker {
-    color: #4caf50;
-  }
-`;
-
-const BackButton = styled.button`
-  padding: 12px 24px;
-  background: #6c757d;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  align-self: flex-start;
-
-  &:hover {
-    background: #5a6268;
-    transform: translateY(-2px);
+    color: #2e7d32;
   }
 `;
 
 const VideoContainer = styled.div`
-  background: #f8f9fa;
+  background: #000;
   border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e9ecef;
-`;
-
-const VideoTitle = styled.h3`
-  color: #2e7d32;
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin-bottom: 15px;
-  text-align: center;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  aspect-ratio: 16/9;
 `;
 
 const VideoFrame = styled.iframe`
   width: 100%;
-  height: 225px;
+  height: 100%;
   border: none;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+`;
+
+const WhyText = styled.div`
+  background: #f0fdf4;
+  padding: 20px;
+  border-radius: 12px;
+  border-left: 4px solid #2e7d32;
+  color: #334155;
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 32px;
 `;
 
 const TipDetail: React.FC = () => {
@@ -185,145 +143,133 @@ const TipDetail: React.FC = () => {
   const navigate = useNavigate();
   const [tip, setTip] = useState<Tip | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingData, setIsLoadingData] = useState(false);
 
   useEffect(() => {
     const loadTip = async () => {
-      console.log('💡 TipDetail: Starting to load tip with ID:', id);
-
-      if (!id) {
-        console.log('💡 TipDetail: No ID provided, returning early');
-        setIsLoading(false);
-        return;
-      }
-
-      setIsLoadingData(true);
+      if (!id) return;
       try {
-        console.log('💡 TipDetail: Calling tipsAPI.getTip with ID:', id);
         const response = await tipsAPI.getTip(id);
-        console.log('💡 TipDetail: API response received:', response);
-
         if (response && response.tip) {
-          console.log('💡 TipDetail: Tip data loaded successfully:', response.tip);
           setTip(response.tip);
-        } else {
-          console.log('💡 TipDetail: No tip data in response');
         }
       } catch (error) {
-        console.error('💡 TipDetail: Failed to load tip:', error);
-        console.error('💡 TipDetail: Error details:', {
-          message: error instanceof Error ? error.message : 'Unknown error',
-          stack: error instanceof Error ? error.stack : 'No stack trace',
-          name: error instanceof Error ? error.name : 'Unknown error type'
-        });
+        console.error('Failed to load tip:', error);
       } finally {
-        console.log('💡 TipDetail: Setting loading to false');
         setIsLoading(false);
-        setIsLoadingData(false);
       }
     };
-
     loadTip();
   }, [id]);
 
-  if (isLoading || isLoadingData) {
+  if (isLoading) {
     return (
-      <Container>
-        <Card style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '60px 20px' }}>
-          <CubeLoader>
-            <CubeSquare delay={0} />
-            <CubeSquare delay={1} />
-            <CubeSquare delay={2} />
-            <CubeSquare delay={3} />
-            <CubeSquare delay={4} />
-            <CubeSquare delay={5} />
-            <CubeSquare delay={6} />
-            <CubeSquare delay={7} />
-          </CubeLoader>
-          <LoadingText>Cargando consejo...</LoadingText>
-        </Card>
-      </Container>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px' }}>
+        <CubeLoader>
+          <CubeSquare delay={0} />
+          <CubeSquare delay={1} />
+          <CubeSquare delay={2} />
+          <CubeSquare delay={3} />
+          <CubeSquare delay={4} />
+          <CubeSquare delay={5} />
+          <CubeSquare delay={6} />
+          <CubeSquare delay={7} />
+        </CubeLoader>
+        <LoadingText>Cargando consejo...</LoadingText>
+      </div>
     );
   }
 
   if (!tip) {
     return (
-      <Container>
-        <Card>
-          <ContentSection>
-            <Title>Consejo no encontrado</Title>
-            <BackButton onClick={() => navigate('/tips')}>
-              ← Regresar a Consejos
-            </BackButton>
-          </ContentSection>
-        </Card>
-      </Container>
+      <div style={{ padding: '24px', textAlign: 'center' }}>
+        <h2>Consejo no encontrado</h2>
+        <Button onClick={() => navigate('/tips')}>
+          Regresar a Consejos
+        </Button>
+      </div>
     );
   }
 
-  // Mock data for how and benefits - in a real app, this would come from the API
-  const mockHow = [
+  // Mock data for how and benefits if missing
+  const howToSteps = [
     'Identifica situaciones donde puedes aplicar este consejo.',
     'Practica el consejo en momentos de calma.',
     'Integra el consejo gradualmente en tu rutina diaria.',
     'Reflexiona sobre los resultados y ajusta según sea necesario.'
   ];
 
-  const mockBenefits = [
+  const benefits = [
     'Mejora tu bienestar emocional',
     'Desarrolla hábitos saludables',
     'Aumenta tu resiliencia',
     'Mejora tu calidad de vida'
   ];
 
-
   return (
-    <Container>
-      <Card>
-        <ContentSection>
-          <Title>{tip.title}</Title>
+    <div style={{ paddingBottom: '40px' }}>
+      <PageHeader>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <Button variant="outline" onClick={() => navigate('/tips')} style={{ padding: '8px 12px' }}>
+            ←
+          </Button>
+          <PageTitle>{tip.title}</PageTitle>
+        </div>
+      </PageHeader>
 
+      <DetailLayout>
+        <MainContent>
           <MetaInfo>
-            <Category>{tip.category}</Category>
+            <CategoryBadge>{tip.category}</CategoryBadge>
           </MetaInfo>
 
           <Description>{tip.content}</Description>
 
-          <WhyTitle>¿Por qué es importante?</WhyTitle>
-          <WhyText>{tip.why || 'Este consejo es importante porque te ayuda a desarrollar hábitos saludables que mejoran tu bienestar emocional.'}</WhyText>
+          <SectionTitle>¿Por qué es importante?</SectionTitle>
+          <WhyText>
+            {tip.why || 'Este consejo es importante porque te ayuda a desarrollar hábitos saludables que mejoran tu bienestar emocional.'}
+          </WhyText>
 
-          <HowTitle>Cómo practicarlo:</HowTitle>
-          <HowList>
-            {mockHow.map((step, index) => (
-              <HowItem key={index}>{step}</HowItem>
+          <SectionTitle>Cómo practicarlo</SectionTitle>
+          <StepsList>
+            {howToSteps.map((step, index) => (
+              <StepItem key={index}>{step}</StepItem>
             ))}
-          </HowList>
+          </StepsList>
 
-          <BenefitsTitle>Beneficios:</BenefitsTitle>
+          <SectionTitle>Beneficios</SectionTitle>
           <BenefitsList>
-            {mockBenefits.map((benefit, index) => (
+            {benefits.map((benefit, index) => (
               <BenefitItem key={index}>{benefit}</BenefitItem>
             ))}
           </BenefitsList>
+        </MainContent>
 
-          <BackButton onClick={() => navigate('/tips')}>
-            ← Regresar a Consejos
-          </BackButton>
-        </ContentSection>
+        <SidebarContent>
+          <SidebarCard>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px', color: '#1e293b' }}>
+              Video Explicativo
+            </h3>
+            <VideoContainer>
+              <VideoFrame
+                src={`https://www.youtube.com/embed/${tip.media?.videoUrl || 'dQw4w9WgXcQ'}`}
+                title={`${tip.title} - Tutorial`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </VideoContainer>
+          </SidebarCard>
 
-        <VideoSection>
-          <VideoContainer>
-            <VideoTitle>Video Explicativo</VideoTitle>
-            <VideoFrame
-              src={`https://www.youtube.com/embed/${tip.media?.videoUrl || 'dQw4w9WgXcQ'}`}
-              title={`${tip.title} - Tutorial`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </VideoContainer>
-        </VideoSection>
-      </Card>
-    </Container>
+          <SidebarCard>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>
+              Recuerda
+            </h3>
+            <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.6' }}>
+              La práctica constante de pequeños hábitos positivos puede tener un gran impacto en tu salud mental a largo plazo.
+            </p>
+          </SidebarCard>
+        </SidebarContent>
+      </DetailLayout>
+    </div>
   );
 };
 
