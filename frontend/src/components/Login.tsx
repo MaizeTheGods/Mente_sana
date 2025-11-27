@@ -43,7 +43,9 @@ const Login: React.FC = () => {
   return (
     <PageContainer>
       <GlassCard>
-        <IconWrapper>🌿</IconWrapper>
+        <IconWrapper>
+          <img src="/logo.png" alt="Mente Sana Logo" style={{ width: '80px', height: '80px', borderRadius: '50%' }} />
+        </IconWrapper>
         <PageTitle>Bienvenido</PageTitle>
         <PageSubtitle>Ingresa a tu espacio de paz mental</PageSubtitle>
 
