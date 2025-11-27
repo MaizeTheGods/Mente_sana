@@ -5,7 +5,10 @@ import { tipsAPI, Tip, Category } from '../services/api';
 import {
   PageContainer,
   GlassCard,
-  PageTitle
+  PageTitle,
+  CubeLoader,
+  CubeSquare,
+  LoadingText
 } from './SharedStyles';
 
 const TipsGrid = styled.div`
@@ -85,6 +88,7 @@ const Tips: React.FC = () => {
   const [tips, setTips] = useState<Tip[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingData, setIsLoadingData] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -93,6 +97,7 @@ const Tips: React.FC = () => {
   }, []);
 
   const loadTips = async () => {
+    setIsLoadingData(true);
     try {
       const response = await tipsAPI.getTips();
       setTips(response.tips);
@@ -100,23 +105,37 @@ const Tips: React.FC = () => {
       console.error('Failed to load tips:', error);
     } finally {
       setIsLoading(false);
+      setIsLoadingData(false);
     }
   };
 
   const loadCategories = async () => {
+    setIsLoadingData(true);
     try {
       const response = await tipsAPI.getCategories();
       setCategories(response.categories);
     } catch (error) {
       console.error('Failed to load categories:', error);
+    } finally {
+      setIsLoadingData(false);
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isLoadingData) {
     return (
       <PageContainer>
-        <GlassCard>
-          <PageTitle>Cargando consejos...</PageTitle>
+        <GlassCard style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '60px 20px' }}>
+          <CubeLoader>
+            <CubeSquare delay={0} />
+            <CubeSquare delay={-1.4285714286} />
+            <CubeSquare delay={-2.8571428571} />
+            <CubeSquare delay={-4.2857142857} />
+            <CubeSquare delay={-5.7142857143} />
+            <CubeSquare delay={-7.1428571429} />
+            <CubeSquare delay={-8.5714285714} />
+            <CubeSquare delay={-10} />
+          </CubeLoader>
+          <LoadingText>Cargando consejos...</LoadingText>
         </GlassCard>
       </PageContainer>
     );

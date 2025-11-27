@@ -5,7 +5,10 @@ import { chatAPI, ChatGroup } from '../services/api';
 import {
   PageContainer,
   GlassCard,
-  PageTitle
+  PageTitle,
+  CubeLoader,
+  CubeSquare,
+  LoadingText
 } from './SharedStyles';
 
 const GroupsGrid = styled.div`
@@ -102,6 +105,7 @@ const Chat: React.FC = () => {
   const navigate = useNavigate();
   const [groups, setGroups] = useState<ChatGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingData, setIsLoadingData] = useState(false);
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
@@ -109,6 +113,7 @@ const Chat: React.FC = () => {
   }, []);
 
   const loadGroups = async () => {
+    setIsLoadingData(true);
     try {
       const response = await chatAPI.getGroups();
       setGroups(response.groups);
@@ -117,6 +122,7 @@ const Chat: React.FC = () => {
       setError('No se pudieron cargar los grupos de chat. Inténtalo de nuevo más tarde.');
     } finally {
       setIsLoading(false);
+      setIsLoadingData(false);
     }
   };
 
@@ -181,9 +187,19 @@ const Chat: React.FC = () => {
           </InfoText>
         </InfoSection>
 
-        {isLoading ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>
-            <PageTitle>Cargando grupos...</PageTitle>
+        {(isLoading || isLoadingData) ? (
+          <div style={{ textAlign: 'center', padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+            <CubeLoader>
+              <CubeSquare delay={0} />
+              <CubeSquare delay={-1.4285714286} />
+              <CubeSquare delay={-2.8571428571} />
+              <CubeSquare delay={-4.2857142857} />
+              <CubeSquare delay={-5.7142857143} />
+              <CubeSquare delay={-7.1428571429} />
+              <CubeSquare delay={-8.5714285714} />
+              <CubeSquare delay={-10} />
+            </CubeLoader>
+            <LoadingText>Cargando grupos...</LoadingText>
           </div>
         ) : error ? (
           <InfoSection style={{ borderLeftColor: '#e74c3c', background: '#fdf2f2' }}>

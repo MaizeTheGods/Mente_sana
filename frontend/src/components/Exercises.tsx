@@ -5,7 +5,10 @@ import { exercisesAPI, Exercise, Category } from '../services/api';
 import {
   PageContainer,
   GlassCard,
-  PageTitle
+  PageTitle,
+  CubeLoader,
+  CubeSquare,
+  LoadingText
 } from './SharedStyles';
 
 const ExerciseGrid = styled.div`
@@ -83,6 +86,7 @@ const Exercises: React.FC = () => {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingData, setIsLoadingData] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -91,6 +95,7 @@ const Exercises: React.FC = () => {
   }, []);
 
   const loadExercises = async () => {
+    setIsLoadingData(true);
     try {
       const response = await exercisesAPI.getExercises();
       setExercises(response.exercises);
@@ -98,15 +103,19 @@ const Exercises: React.FC = () => {
       console.error('Failed to load exercises:', error);
     } finally {
       setIsLoading(false);
+      setIsLoadingData(false);
     }
   };
 
   const loadCategories = async () => {
+    setIsLoadingData(true);
     try {
       const response = await exercisesAPI.getCategories();
       setCategories(response.categories);
     } catch (error) {
       console.error('Failed to load categories:', error);
+    } finally {
+      setIsLoadingData(false);
     }
   };
 
@@ -114,11 +123,21 @@ const Exercises: React.FC = () => {
     ? exercises
     : exercises.filter(exercise => exercise.category === selectedCategory);
 
-  if (isLoading) {
+  if (isLoading || isLoadingData) {
     return (
       <PageContainer>
-        <GlassCard>
-          <PageTitle>Cargando ejercicios...</PageTitle>
+        <GlassCard style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '60px 20px' }}>
+          <CubeLoader>
+            <CubeSquare delay={0} />
+            <CubeSquare delay={-1.4285714286} />
+            <CubeSquare delay={-2.8571428571} />
+            <CubeSquare delay={-4.2857142857} />
+            <CubeSquare delay={-5.7142857143} />
+            <CubeSquare delay={-7.1428571429} />
+            <CubeSquare delay={-8.5714285714} />
+            <CubeSquare delay={-10} />
+          </CubeLoader>
+          <LoadingText>Cargando ejercicios...</LoadingText>
         </GlassCard>
       </PageContainer>
     );
