@@ -300,6 +300,19 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
 
   // Function to request user location (requires user gesture for iOS Safari)
   const requestUserLocation = () => {
+    // Check if it's an iOS device
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+    if (isIOS) {
+      // For iOS devices, automatically set to Acapulco
+      console.log('iOS device detected, setting location to Acapulco');
+      const acapulcoCoords: [number, number] = [16.8531, -99.8237];
+      setMapCenter(acapulcoCoords);
+      setLocationLoading(false);
+      setLocationError('');
+      onLocationSelect?.(acapulcoCoords);
+      return;
+    }
 
     if (!navigator.geolocation) {
       const msg = 'La geolocalización no está disponible en este navegador.';
