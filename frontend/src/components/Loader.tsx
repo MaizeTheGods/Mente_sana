@@ -18,10 +18,10 @@ const Loader = () => {
 
 const StyledWrapper = styled.div`
   .spinner {
-    width: 70.4px;
-    height: 70.4px;
-    --clr: rgb(247, 197, 159);
-    --clr-alpha: rgb(247, 197, 159,.1);
+    width: 120px;
+    height: 120px;
+    --clr: #2e7d32;
+    --clr-alpha: rgba(46, 125, 50, 0.1);
     animation: spinner 1.6s infinite ease;
     transform-style: preserve-3d;
   }
@@ -31,11 +31,11 @@ const StyledWrapper = styled.div`
     height: 100%;
     position: absolute;
     width: 100%;
-    border: 3.5px solid var(--clr);
+    border: 6px solid var(--clr);
   }
 
   .spinner div:nth-of-type(1) {
-    transform: translateZ(-35.2px) rotateY(180deg);
+    transform: translateZ(-60px) rotateY(180deg);
   }
 
   .spinner div:nth-of-type(2) {
@@ -59,7 +59,7 @@ const StyledWrapper = styled.div`
   }
 
   .spinner div:nth-of-type(6) {
-    transform: translateZ(35.2px);
+    transform: translateZ(60px);
   }
 
   @keyframes spinner {
