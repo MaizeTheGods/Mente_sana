@@ -1,445 +1,778 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title as ChartTitle,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from 'chart.js';
+import { Line, Doughnut } from 'react-chartjs-2';
+import { tipsAPI, Tip, Category } from '../services/api';
 
-const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ChartTitle,
+  Tooltip,
+  Legend,
+  ArcElement
+);
+
+// --- Styled Components ---
+
+const Layout = styled.div`
+  display: flex;
+  min-height: 100vh;
+  background-color: #f0f2f5;
+  font-family: 'Inter', sans-serif;
+`;
+
+const Sidebar = styled.div`
+  width: 260px;
+  background: #ffffff;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
   padding: 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  height: 100vh;
+  z-index: 100;
+`;
+
+const Logo = styled.div`
+  font-size: 24px;
+  font-weight: 800;
+  color: #2e7d32;
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+`;
+
+const NavItem = styled.div<{ active: boolean }>`
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: ${props => props.active ? '#2e7d32' : '#64748b'};
+  background: ${props => props.active ? '#e8f5e9' : 'transparent'};
+  font-weight: ${props => props.active ? '600' : '500'};
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${props => props.active ? '#e8f5e9' : '#f8fafc'};
+    color: #2e7d32;
+  }
+`;
+
+const MainContent = styled.div`
+  flex: 1;
+  margin-left: 260px;
+  padding: 30px;
+  overflow-y: auto;
 `;
 
 const Header = styled.div`
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #e9ecef;
 `;
 
-const Title = styled.h1`
-  color: #2e7d32;
-  margin-bottom: 10px;
-  font-size: 32px;
+const PageTitle = styled.h1`
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
 `;
 
-const Subtitle = styled.p`
-  color: #666;
-  font-size: 16px;
+const UserProfile = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const Avatar = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #2e7d32;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
 `;
 
 const StatsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 20px;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 `;
 
 const StatCard = styled.div`
-  background: linear-gradient(135deg, #4caf50, #66bb6a);
-  color: white;
-  padding: 25px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 4px 6px rgba(76, 175, 80, 0.2);
-`;
-
-const StatNumber = styled.div`
-  font-size: 36px;
-  font-weight: bold;
-  margin-bottom: 5px;
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
 `;
 
 const StatLabel = styled.div`
-  font-size: 16px;
-  opacity: 0.9;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
 `;
 
-const Section = styled.div`
-  margin-bottom: 40px;
+const StatValue = styled.div`
+  color: #1e293b;
+  font-size: 32px;
+  font-weight: 700;
 `;
 
-const SectionTitle = styled.h2`
-  color: #2e7d32;
+const ChartsContainer = styled.div`
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const ChartCard = styled.div`
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const ChartHeader = styled.h3`
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
   margin-bottom: 20px;
-  font-size: 24px;
-  border-bottom: 2px solid #e9ecef;
-  padding-bottom: 10px;
 `;
 
-const UsersTable = styled.div`
-  background: #f8f9fa;
-  border-radius: 8px;
+// --- Users Table Styles ---
+const TableContainer = styled.div`
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 `;
 
 const TableHeader = styled.div`
   display: grid;
   grid-template-columns: 2fr 2fr 1fr 1fr 1.5fr;
-  gap: 15px;
-  padding: 15px 20px;
-  background: #2e7d32;
-  color: white;
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
   font-weight: 600;
+  color: #64748b;
+  font-size: 14px;
 `;
 
 const TableRow = styled.div`
   display: grid;
   grid-template-columns: 2fr 2fr 1fr 1fr 1.5fr;
-  gap: 15px;
-  padding: 15px 20px;
-  border-bottom: 1px solid #e9ecef;
+  padding: 16px 24px;
+  border-bottom: 1px solid #f1f5f9;
   align-items: center;
+  transition: background 0.2s;
 
   &:hover {
-    background: #f1f8e9;
+    background: #f8fafc;
+  }
+
+  &:last-child {
+    border-bottom: none;
   }
 `;
 
-const UserInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const UserName = styled.div`
-  font-weight: 600;
-  color: #2e7d32;
-`;
-
-const UserEmail = styled.div`
-  font-size: 14px;
-  color: #666;
-`;
-
-const RoleBadge = styled.span<{ role: string }>`
+const Badge = styled.span<{ color: string; bg: string }>`
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
-  text-transform: uppercase;
-
-  ${props => {
-    switch (props.role) {
-      case 'owner':
-        return 'background: #ffd700; color: #333;';
-      case 'admin':
-        return 'background: #ff6b6b; color: white;';
-      default:
-        return 'background: #4caf50; color: white;';
-    }
-  }}
+  background: ${props => props.bg};
+  color: ${props => props.color};
 `;
 
-const StatusBadge = styled.span<{ active: boolean }>`
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-
-  ${props => props.active
-    ? 'background: #4caf50; color: white;'
-    : 'background: #ff6b6b; color: white;'
-  }
-`;
-
-const ActionButton = styled.button<{ variant: 'primary' | 'danger' | 'success' }>`
+const ActionButton = styled.button<{ variant?: 'danger' | 'success' | 'primary' }>`
   padding: 6px 12px;
   border: none;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-
+  margin-right: 8px;
+  transition: all 0.2s;
+  
   ${props => {
     switch (props.variant) {
       case 'danger':
-        return 'background: #dc3545; color: white; &:hover { background: #c82333; }';
+        return 'background: #fee2e2; color: #dc2626; &:hover { background: #fecaca; }';
       case 'success':
-        return 'background: #28a745; color: white; &:hover { background: #218838; }';
+        return 'background: #dcfce7; color: #16a34a; &:hover { background: #bbf7d0; }';
       default:
-        return 'background: #007bff; color: white; &:hover { background: #0056b3; }';
+        return 'background: #e0f2fe; color: #0284c7; &:hover { background: #bae6fd; }';
     }
   }}
 `;
 
+// --- Tips Styles ---
+const TipsHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+`;
+
+const AddButton = styled.button`
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #1b5e20;
+  }
+`;
+
+const TipsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+`;
+
+const TipCard = styled.div`
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+`;
+
+const TipTitle = styled.h4`
+  font-size: 18px;
+  color: #1e293b;
+  margin-bottom: 8px;
+`;
+
+const TipContent = styled.p`
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;
+
+const TipFooter = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+`;
+
+// --- Modal Styles ---
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+`;
+
+const ModalContent = styled.div`
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+`;
+
+const FormGroup = styled.div`
+  margin-bottom: 20px;
+`;
+
+const Label = styled.label`
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #334155;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  &:focus {
+    outline: none;
+    border-color: #2e7d32;
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+  }
+`;
+
+const TextArea = styled.textarea`
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  min-height: 100px;
+  resize: vertical;
+  &:focus {
+    outline: none;
+    border-color: #2e7d32;
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+  }
+`;
+
 const Select = styled.select`
-  padding: 6px 12px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  font-size: 12px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
   background: white;
 `;
 
-const Loading = styled.div`
-  text-align: center;
-  padding: 40px;
-  color: #666;
+const ModalActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 30px;
 `;
 
-const Error = styled.div`
-  background: #f8d7da;
-  color: #721c24;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  border: 1px solid #f5c6cb;
-`;
 
 const AdminPanel: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'tips'>('dashboard');
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
+  const [tips, setTips] = useState<Tip[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
-  console.log('AdminPanel: Component rendered');
-  console.log('AdminPanel: User object:', user);
-  console.log('AdminPanel: User role:', user?.role);
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTip, setEditingTip] = useState<Tip | null>(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    content: '',
+    category: '',
+    videoUrl: ''
+  });
 
-  const loadAdminData = async () => {
+  useEffect(() => {
+    if (user?.role === 'admin' || user?.role === 'owner') {
+      loadData();
+    }
+  }, [user, activeTab]);
+
+  const loadData = async () => {
+    setLoading(true);
     try {
-      console.log('AdminPanel: Loading admin data...');
-      setLoading(true);
       const token = localStorage.getItem('token');
-      console.log('AdminPanel: Token exists:', !!token);
-
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      };
-      console.log('AdminPanel: Request headers:', headers);
-
+      const headers = { 'Authorization': `Bearer ${token}` };
       const backendUrl = 'https://mente-sana-backend.onrender.com';
-      const [statsResponse, usersResponse] = await Promise.all([
-        fetch(`${backendUrl}/api/admin/stats`, { headers }),
-        fetch(`${backendUrl}/api/admin/users`, { headers })
-      ]);
 
-      console.log('AdminPanel: Stats response status:', statsResponse.status);
-      console.log('AdminPanel: Users response status:', usersResponse.status);
-
-      if (!statsResponse.ok || !usersResponse.ok) {
-        console.log('AdminPanel: Response not ok');
-        console.log('AdminPanel: Stats response text:', await statsResponse.text());
-        console.log('AdminPanel: Users response text:', await usersResponse.text());
-        throw new (Error as any)('Failed to load admin data');
+      if (activeTab === 'dashboard') {
+        const statsRes = await fetch(`${backendUrl}/api/admin/stats`, { headers });
+        const statsData = await statsRes.json();
+        setStats(statsData);
+      } else if (activeTab === 'users') {
+        const usersRes = await fetch(`${backendUrl}/api/admin/users`, { headers });
+        const usersData = await usersRes.json();
+        setUsers(usersData.users);
+      } else if (activeTab === 'tips') {
+        const [tipsRes, catsRes] = await Promise.all([
+          tipsAPI.getTips(),
+          tipsAPI.getCategories()
+        ]);
+        setTips(tipsRes.tips);
+        setCategories(catsRes.categories);
       }
-
-      const statsData = await statsResponse.json();
-      const usersData = await usersResponse.json();
-
-      console.log('AdminPanel: Stats data received:', statsData);
-      console.log('AdminPanel: Users data received:', usersData);
-
-      setStats(statsData);
-      setUsers(usersData.users);
-    } catch (err: any) {
-      console.log('AdminPanel: Error loading data:', err);
-      setError(err.message);
+    } catch (error) {
+      console.error('Error loading data:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (user?.role === 'admin' || user?.role === 'owner') {
-      loadAdminData();
-    }
-  }, [user]);
+  // --- User Actions ---
+  const handleUserAction = async (userId: string, action: 'toggleStatus' | 'delete' | 'changeRole', value?: any) => {
+    const token = localStorage.getItem('token');
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+    const backendUrl = 'https://mente-sana-backend.onrender.com';
 
-  const updateUserRole = async (userId: string, newRole: string) => {
     try {
-      const response = await fetch(`https://mente-sana-backend.onrender.com/api/admin/users/${userId}/role`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ role: newRole })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new (Error as any)(errorData.error || 'Failed to update user role');
+      if (action === 'toggleStatus') {
+        await fetch(`${backendUrl}/api/admin/users/${userId}/status`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ isActive: value })
+        });
+      } else if (action === 'delete') {
+        if (!window.confirm('¿Estás seguro?')) return;
+        await fetch(`${backendUrl}/api/admin/users/${userId}`, {
+          method: 'DELETE',
+          headers
+        });
+      } else if (action === 'changeRole') {
+        await fetch(`${backendUrl}/api/admin/users/${userId}/role`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ role: value })
+        });
       }
-
-      // Reload data
-      loadAdminData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+      loadData();
+    } catch (error) {
+      console.error('Action failed:', error);
+      alert('Error al realizar la acción');
     }
   };
 
-  const toggleUserStatus = async (userId: string, currentStatus: boolean) => {
-    try {
-      const response = await fetch(`https://mente-sana-backend.onrender.com/api/admin/users/${userId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ isActive: !currentStatus })
+  // --- Tip Actions ---
+  const handleOpenModal = (tip?: Tip) => {
+    if (tip) {
+      setEditingTip(tip);
+      setFormData({
+        title: tip.title,
+        content: tip.content || '',
+        category: tip.category,
+        videoUrl: tip.media?.videoUrl || ''
       });
+    } else {
+      setEditingTip(null);
+      setFormData({ title: '', content: '', category: categories[0]?.id || 'general', videoUrl: '' });
+    }
+    setIsModalOpen(true);
+  };
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new (Error as any)(errorData.error || 'Failed to update user status');
+  const handleSaveTip = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const tipData = {
+        ...formData,
+        media: formData.videoUrl ? { videoUrl: formData.videoUrl } : undefined
+      };
+
+      if (editingTip) {
+        await tipsAPI.updateTip(editingTip._id, tipData);
+      } else {
+        await tipsAPI.createTip(tipData);
       }
-
-      // Reload data
-      loadAdminData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+      setIsModalOpen(false);
+      loadData();
+    } catch (error) {
+      console.error('Error saving tip:', error);
+      alert('Error al guardar el consejo');
     }
   };
 
-  const deleteUser = async (userId: string) => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar este usuario? Esta acción no se puede deshacer.')) {
-      return;
-    }
-
+  const handleDeleteTip = async (id: string) => {
+    if (!window.confirm('¿Eliminar consejo?')) return;
     try {
-      const response = await fetch(`https://mente-sana-backend.onrender.com/api/admin/users/${userId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new (Error as any)(errorData.error || 'Failed to delete user');
-      }
-
-      // Reload data
-      loadAdminData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+      await tipsAPI.deleteTip(id);
+      loadData();
+    } catch (error) {
+      console.error('Error deleting tip:', error);
     }
   };
 
   if (!user || (user.role !== 'admin' && user.role !== 'owner')) {
-    console.log('AdminPanel: Access denied - user role check failed');
-    console.log('AdminPanel: User exists:', !!user);
-    console.log('AdminPanel: User role condition:', user?.role !== 'admin' && user?.role !== 'owner');
-    return (
-      <Container>
-        <Error>Acceso denegado. Solo administradores pueden acceder a este panel.</Error>
-      </Container>
-    );
+    return <div style={{ padding: 40, textAlign: 'center' }}>Acceso Denegado</div>;
   }
 
-  console.log('AdminPanel: Access granted - rendering admin panel');
+  // Chart Data Preparation
+  const userGrowthData = {
+    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'], // Mock data for now, ideally calculate from users creation date
+    datasets: [
+      {
+        label: 'Nuevos Usuarios',
+        data: [12, 19, 3, 5, 2, 3], // Mock data
+        borderColor: '#2e7d32',
+        backgroundColor: 'rgba(46, 125, 50, 0.1)',
+        tension: 0.4,
+        fill: true,
+      },
+    ],
+  };
 
-  if (loading) {
-    return (
-      <Container>
-        <Loading>Cargando datos del panel de administración...</Loading>
-      </Container>
-    );
-  }
+  const userRolesData = {
+    labels: ['Usuarios', 'Admins', 'Owners'],
+    datasets: [
+      {
+        data: [
+          stats?.stats?.totalUsers || 0,
+          stats?.stats?.adminUsers || 0,
+          1 // Owner (approx)
+        ],
+        backgroundColor: ['#4caf50', '#2196f3', '#ffc107'],
+        borderWidth: 0,
+      },
+    ],
+  };
 
   return (
-    <Container>
-      <Header>
-        <Title>Panel de Administración</Title>
-        <Subtitle>Gestión de usuarios y contenido de Mente Sana</Subtitle>
-      </Header>
+    <Layout>
+      <Sidebar>
+        <Logo onClick={() => navigate('/dashboard')}>
+          🌿 Mente Sana
+        </Logo>
+        <NavItem active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')}>
+          📊 Dashboard
+        </NavItem>
+        <NavItem active={activeTab === 'users'} onClick={() => setActiveTab('users')}>
+          👥 Usuarios
+        </NavItem>
+        <NavItem active={activeTab === 'tips'} onClick={() => setActiveTab('tips')}>
+          💡 Consejos
+        </NavItem>
 
-      {error && <Error>{error}</Error>}
+        <div style={{ marginTop: 'auto' }}>
+          <NavItem active={false} onClick={() => navigate('/dashboard')}>
+            ⬅️ Volver a la App
+          </NavItem>
+        </div>
+      </Sidebar>
 
-      {stats && (
-        <StatsGrid>
-          <StatCard>
-            <StatNumber>{stats.stats.totalUsers}</StatNumber>
-            <StatLabel>Usuarios Totales</StatLabel>
-          </StatCard>
-          <StatCard>
-            <StatNumber>{stats.stats.activeUsers}</StatNumber>
-            <StatLabel>Usuarios Activos</StatLabel>
-          </StatCard>
-          <StatCard>
-            <StatNumber>{stats.stats.adminUsers}</StatNumber>
-            <StatLabel>Administradores</StatLabel>
-          </StatCard>
-          <StatCard>
-            <StatNumber>{stats.stats.totalExercises}</StatNumber>
-            <StatLabel>Ejercicios</StatLabel>
-          </StatCard>
-          <StatCard>
-            <StatNumber>{stats.stats.totalTips}</StatNumber>
-            <StatLabel>Consejos</StatLabel>
-          </StatCard>
-        </StatsGrid>
-      )}
+      <MainContent>
+        <Header>
+          <PageTitle>
+            {activeTab === 'dashboard' && 'Panel de Control'}
+            {activeTab === 'users' && 'Gestión de Usuarios'}
+            {activeTab === 'tips' && 'Biblioteca de Consejos'}
+          </PageTitle>
+          <UserProfile>
+            <span>{user.firstName} {user.lastName}</span>
+            <Avatar>{user.firstName[0]}</Avatar>
+          </UserProfile>
+        </Header>
 
-      <Section>
-        <SectionTitle>Gestión de Usuarios</SectionTitle>
-        <UsersTable>
-          <TableHeader>
-            <div>Usuario</div>
-            <div>Email</div>
-            <div>Rol</div>
-            <div>Estado</div>
-            <div>Acciones</div>
-          </TableHeader>
+        {activeTab === 'dashboard' && stats && (
+          <>
+            <StatsGrid>
+              <StatCard>
+                <StatLabel>Total Usuarios</StatLabel>
+                <StatValue>{stats.stats.totalUsers}</StatValue>
+              </StatCard>
+              <StatCard>
+                <StatLabel>Usuarios Activos</StatLabel>
+                <StatValue>{stats.stats.activeUsers}</StatValue>
+              </StatCard>
+              <StatCard>
+                <StatLabel>Consejos Publicados</StatLabel>
+                <StatValue>{stats.stats.totalTips}</StatValue>
+              </StatCard>
+              <StatCard>
+                <StatLabel>Ejercicios</StatLabel>
+                <StatValue>{stats.stats.totalExercises}</StatValue>
+              </StatCard>
+            </StatsGrid>
 
-          {users.map(user => (
-            <TableRow key={user._id}>
-              <UserInfo>
-                <UserName>{user.firstName} {user.lastName}</UserName>
-                <UserEmail>{user.username}</UserEmail>
-              </UserInfo>
+            <ChartsContainer>
+              <ChartCard>
+                <ChartHeader>Crecimiento de Usuarios</ChartHeader>
+                <div style={{ flex: 1, position: 'relative' }}>
+                  <Line data={userGrowthData} options={{ maintainAspectRatio: false, responsive: true }} />
+                </div>
+              </ChartCard>
+              <ChartCard>
+                <ChartHeader>Distribución</ChartHeader>
+                <div style={{ flex: 1, position: 'relative', display: 'flex', justifyContent: 'center' }}>
+                  <Doughnut data={userRolesData} options={{ maintainAspectRatio: false, responsive: true }} />
+                </div>
+              </ChartCard>
+            </ChartsContainer>
+          </>
+        )}
 
-              <div>{user.email}</div>
-
-              <div>
-                {user.role === 'owner' ? (
-                  <RoleBadge role={user.role}>Owner</RoleBadge>
-                ) : (
-                  <Select
-                    value={user.role}
-                    onChange={(e) => updateUserRole(user._id, e.target.value)}
-                    disabled={user.role === 'owner'}
+        {activeTab === 'users' && (
+          <TableContainer>
+            <TableHeader>
+              <div>Usuario</div>
+              <div>Email</div>
+              <div>Rol</div>
+              <div>Estado</div>
+              <div>Acciones</div>
+            </TableHeader>
+            {users.map(u => (
+              <TableRow key={u._id}>
+                <div style={{ fontWeight: 500 }}>{u.firstName} {u.lastName}</div>
+                <div style={{ color: '#64748b' }}>{u.email}</div>
+                <div>
+                  <select
+                    value={u.role}
+                    onChange={(e) => handleUserAction(u._id, 'changeRole', e.target.value)}
+                    disabled={u.role === 'owner'}
+                    style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #e2e8f0' }}
                   >
                     <option value="user">Usuario</option>
                     <option value="admin">Admin</option>
-                  </Select>
-                )}
-              </div>
-
-              <div>
-                <StatusBadge active={user.isActive}>
-                  {user.isActive ? 'Activo' : 'Inactivo'}
-                </StatusBadge>
-              </div>
-
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <ActionButton
-                  variant={user.isActive ? 'danger' : 'success'}
-                  onClick={() => toggleUserStatus(user._id, user.isActive)}
-                  disabled={user.role === 'owner'}
-                >
-                  {user.isActive ? 'Desactivar' : 'Activar'}
-                </ActionButton>
-
-                {user.role !== 'owner' && (
-                  <ActionButton
-                    variant="danger"
-                    onClick={() => deleteUser(user._id)}
+                  </select>
+                </div>
+                <div>
+                  <Badge
+                    bg={u.isActive ? '#dcfce7' : '#fee2e2'}
+                    color={u.isActive ? '#16a34a' : '#dc2626'}
                   >
-                    Eliminar
+                    {u.isActive ? 'Activo' : 'Inactivo'}
+                  </Badge>
+                </div>
+                <div>
+                  <ActionButton
+                    variant={u.isActive ? 'danger' : 'success'}
+                    onClick={() => handleUserAction(u._id, 'toggleStatus', !u.isActive)}
+                    disabled={u.role === 'owner'}
+                  >
+                    {u.isActive ? 'Desactivar' : 'Activar'}
                   </ActionButton>
-                )}
-              </div>
-            </TableRow>
-          ))}
-        </UsersTable>
-      </Section>
-    </Container>
+                  {u.role !== 'owner' && (
+                    <ActionButton variant="danger" onClick={() => handleUserAction(u._id, 'delete')}>
+                      Eliminar
+                    </ActionButton>
+                  )}
+                </div>
+              </TableRow>
+            ))}
+          </TableContainer>
+        )}
+
+        {activeTab === 'tips' && (
+          <>
+            <TipsHeader>
+              <div style={{ color: '#64748b' }}>Gestiona el contenido de bienestar</div>
+              <AddButton onClick={() => handleOpenModal()}>
+                + Nuevo Consejo
+              </AddButton>
+            </TipsHeader>
+            <TipsGrid>
+              {tips.map(tip => (
+                <TipCard key={tip._id}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <Badge bg="#e0f2fe" color="#0284c7">{tip.category}</Badge>
+                    {tip.media?.videoUrl && <span>🎥</span>}
+                  </div>
+                  <TipTitle>{tip.title}</TipTitle>
+                  <TipContent>{tip.content}</TipContent>
+                  <TipFooter>
+                    <ActionButton onClick={() => handleOpenModal(tip)}>Editar</ActionButton>
+                    <ActionButton variant="danger" onClick={() => handleDeleteTip(tip._id)}>Eliminar</ActionButton>
+                  </TipFooter>
+                </TipCard>
+              ))}
+            </TipsGrid>
+          </>
+        )}
+      </MainContent>
+
+      {isModalOpen && (
+        <ModalOverlay onClick={() => setIsModalOpen(false)}>
+          <ModalContent onClick={e => e.stopPropagation()}>
+            <h2 style={{ marginBottom: 20, color: '#1e293b' }}>
+              {editingTip ? 'Editar Consejo' : 'Nuevo Consejo'}
+            </h2>
+            <form onSubmit={handleSaveTip}>
+              <FormGroup>
+                <Label>Título</Label>
+                <Input
+                  required
+                  value={formData.title}
+                  onChange={e => setFormData({ ...formData, title: e.target.value })}
+                />
+              </FormGroup>
+              <FormGroup>
+                <Label>Categoría</Label>
+                <Select
+                  value={formData.category}
+                  onChange={e => setFormData({ ...formData, category: e.target.value })}
+                >
+                  {categories.map(c => (
+                    <option key={c.id} value={c.id}>{c.label}</option>
+                  ))}
+                </Select>
+              </FormGroup>
+              <FormGroup>
+                <Label>Contenido</Label>
+                <TextArea
+                  required
+                  value={formData.content}
+                  onChange={e => setFormData({ ...formData, content: e.target.value })}
+                />
+              </FormGroup>
+              <FormGroup>
+                <Label>Video URL (YouTube ID)</Label>
+                <Input
+                  placeholder="Ej: dQw4w9WgXcQ"
+                  value={formData.videoUrl}
+                  onChange={e => setFormData({ ...formData, videoUrl: e.target.value })}
+                />
+              </FormGroup>
+              <ModalActions>
+                <ActionButton type="button" variant="danger" onClick={() => setIsModalOpen(false)}>
+                  Cancelar
+                </ActionButton>
+                <ActionButton type="submit" variant="success">
+                  Guardar
+                </ActionButton>
+              </ModalActions>
+            </form>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+    </Layout>
   );
 };
 
