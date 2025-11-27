@@ -280,7 +280,7 @@ const AdminPanel: React.FC = () => {
   };
 
   const deleteUser = async (userId: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este usuario? Esta acción no se puede deshacer.')) {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar este usuario? Esta acción no se puede deshacer.')) {
       return;
     }
 
