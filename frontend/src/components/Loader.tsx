@@ -20,10 +20,11 @@ const StyledWrapper = styled.div`
   .spinner {
     width: 200px;
     height: 200px;
-    --clr: #4caf50;
-    --clr-alpha: rgba(76, 175, 80, 0.1);
+    --clr: #66bb6a;
+    --clr-alpha: rgba(102, 187, 106, 0.1);
     animation: spinner 1.6s infinite ease;
     transform-style: preserve-3d;
+    position: relative;
   }
 
   .spinner > div {
@@ -32,6 +33,7 @@ const StyledWrapper = styled.div`
     position: absolute;
     width: 100%;
     border: 10px solid var(--clr);
+    box-sizing: border-box;
   }
 
   .spinner div:nth-of-type(1) {
