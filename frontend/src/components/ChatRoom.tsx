@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
-import { chatAPI, ChatGroup, ChatMessage, initializeSocket, getSocket } from '../services/api';
+import { chatAPI, ChatGroup, ChatMessage } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
 const Container = styled.div`
@@ -693,15 +693,12 @@ const ChatRoom: React.FC = () => {
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string>('');
   const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
-  const [isTyping, setIsTyping] = useState<{ [userId: string]: { firstName: string; lastName: string } }>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
-  const typingTimer = useRef<NodeJS.Timeout | null>(null);
-  const socket = useRef<any>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -709,82 +706,26 @@ const ChatRoom: React.FC = () => {
 
   useEffect(() => {
     if (id && user) {
-      initializeSocketConnection();
       loadGroup();
       loadMessages();
     }
+  }, [id, user]);
 
-    return () => {
-      // Cleanup socket connection
-      if (socket.current) {
-        socket.current.emit('leave-group', id);
-        socket.current.disconnect();
-      }
-    };
+  // Poll for new messages every 10 seconds
+  useEffect(() => {
+    if (!id || !user) return;
+
+    const interval = setInterval(() => {
+      loadMessages();
+    }, 10000); // 10 seconds
+
+    return () => clearInterval(interval);
   }, [id, user]);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  const initializeSocketConnection = () => {
-    const token = localStorage.getItem('token');
-    console.log('Initializing socket with token present:', !!token);
-    if (!token) return;
-
-    socket.current = initializeSocket(token);
-
-    // Add connection event listeners for debugging
-    socket.current.on('connect', () => {
-      console.log('Socket connected successfully');
-    });
-
-    socket.current.on('connect_error', (error: any) => {
-      console.error('Socket connection error:', error);
-    });
-
-    socket.current.on('disconnect', (reason: string) => {
-      console.log('Socket disconnected:', reason);
-    });
-
-    // Join group room
-    socket.current.emit('join-group', id);
-
-    // Listen for new messages
-    socket.current.on('new-message', (message: ChatMessage) => {
-      console.log('Received new message:', message);
-      console.log('Message content:', message.content, 'from:', message.senderId);
-      setMessages(prev => {
-        // Check if message already exists to avoid duplicates
-        if (prev.some(m => m._id === message._id)) {
-          console.log('Message already exists, skipping');
-          return prev;
-        }
-        console.log('Adding new message to state');
-        return [...prev, message];
-      });
-    });
-
-    // Listen for deleted messages
-    socket.current.on('message-deleted', (messageId: string) => {
-      console.log('Message deleted:', messageId);
-      setMessages(prev => prev.filter(m => m._id !== messageId));
-    });
-
-    // Listen for typing indicators
-    socket.current.on('user-typing', (data: { userId: string; firstName: string; lastName: string; isTyping: boolean }) => {
-      console.log('Typing indicator:', data);
-      setIsTyping(prev => {
-        const newTyping = { ...prev };
-        if (data.isTyping) {
-          newTyping[data.userId] = { firstName: data.firstName, lastName: data.lastName };
-        } else {
-          delete newTyping[data.userId];
-        }
-        return newTyping;
-      });
-    });
-  };
 
   const loadGroup = async () => {
     try {
@@ -826,8 +767,7 @@ const ChatRoom: React.FC = () => {
     e.preventDefault();
     console.log('Attempting to send message. Conditions:', {
       hasContent: !!newMessage.trim(),
-      notSending: !isSending,
-      hasSocket: !!socket.current
+      notSending: !isSending
     });
 
     if (!newMessage.trim()) {
@@ -838,23 +778,16 @@ const ChatRoom: React.FC = () => {
       console.log('Not sending: already sending a message');
       return;
     }
-    if (!socket.current) {
-      console.log('Not sending: socket not connected');
-      return;
-    }
 
     console.log('Sending message:', newMessage.trim());
-    // Stop typing indicator
-    socket.current.emit('typing-stop', id);
 
     setIsSending(true);
     try {
-      socket.current.emit('send-message', {
-        groupId: id,
-        content: newMessage.trim()
-      });
+      await chatAPI.sendMessage(id!, newMessage.trim());
       setNewMessage('');
-      console.log('Message emit successful');
+      console.log('Message sent successfully');
+      // Reload messages to show the new one
+      await loadMessages();
     } catch (error) {
       console.error('Failed to send message:', error);
       setError('No se pudo enviar el mensaje. Inténtalo de nuevo.');
@@ -869,11 +802,10 @@ const ChatRoom: React.FC = () => {
     }
 
     try {
-      socket.current.emit('delete-message', {
-        groupId: id,
-        messageId
-      });
+      await chatAPI.deleteMessage(id!, messageId);
       setMenuOpenFor(null); // Close menu after deletion
+      // Reload messages to reflect the deletion
+      await loadMessages();
     } catch (error) {
       console.error('Failed to delete message:', error);
       setError('No se pudo eliminar el mensaje. Inténtalo de nuevo.');
@@ -884,31 +816,6 @@ const ChatRoom: React.FC = () => {
     const value = e.target.value;
     console.log('Input changed to:', value);
     setNewMessage(value);
-
-    // Handle typing indicators
-    if (!socket.current) {
-      console.log('No socket for typing indicators');
-      return;
-    }
-
-    if (value.trim() && !isSending) {
-      console.log('Starting typing indicator');
-      socket.current.emit('typing-start', id);
-
-      // Clear existing timer
-      if (typingTimer.current) {
-        clearTimeout(typingTimer.current);
-      }
-
-      // Set timer to stop typing indicator after 2 seconds of no input
-      typingTimer.current = setTimeout(() => {
-        console.log('Auto-stopping typing indicator');
-        socket.current.emit('typing-stop', id);
-      }, 2000);
-    } else {
-      console.log('Stopping typing indicator');
-      socket.current.emit('typing-stop', id);
-    }
   };
 
   const toggleMenu = (messageId: string) => {
@@ -1157,24 +1064,6 @@ const ChatRoom: React.FC = () => {
                 </MessageList>
               )}
 
-              {/* Typing indicator */}
-              {Object.keys(isTyping).length > 0 && (
-                <TypingIndicator>
-                  <TypingBubble>
-                    <TypingDots>
-                      <TypingDot delay={0} />
-                      <TypingDot delay={0.2} />
-                      <TypingDot delay={0.4} />
-                    </TypingDots>
-                    <TypingText>
-                      {Object.values(isTyping).length === 1
-                        ? `${Object.values(isTyping)[0].firstName} está escribiendo...`
-                        : `${Object.values(isTyping).length} personas están escribiendo...`
-                      }
-                    </TypingText>
-                  </TypingBubble>
-                </TypingIndicator>
-              )}
             </MessagesContainer>
 
             <InputContainer>
