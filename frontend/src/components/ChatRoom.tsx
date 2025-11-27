@@ -729,6 +729,7 @@ const ChatRoom: React.FC = () => {
 
   const initializeSocketConnection = () => {
     const token = localStorage.getItem('token');
+    console.log('Initializing socket with token present:', !!token);
     if (!token) return;
 
     socket.current = initializeSocket(token);
@@ -820,6 +821,7 @@ const ChatRoom: React.FC = () => {
     e.preventDefault();
     if (!newMessage.trim() || isSending || !socket.current) return;
 
+    console.log('Sending message:', newMessage.trim());
     // Stop typing indicator
     socket.current.emit('typing-stop', id);
 
