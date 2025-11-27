@@ -131,6 +131,8 @@ router.post('/register', registerValidation, async (req, res) => {
       gender: user.gender,
       role: user.role,
       preferences: user.preferences,
+      questionnaireCompleted: user.questionnaireCompleted,
+      questionnaireCount: user.questionnaireCount,
       createdAt: user.createdAt
     };
 
@@ -201,7 +203,9 @@ router.post('/login', loginValidation, async (req, res) => {
       lastName: user.lastName,
       role: user.role,
       preferences: user.preferences,
-      progressTracking: user.progressTracking
+      progressTracking: user.progressTracking,
+      questionnaireCompleted: user.questionnaireCompleted,
+      questionnaireCount: user.questionnaireCount
     };
 
     res.json({
