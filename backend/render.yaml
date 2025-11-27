@@ -30,7 +30,7 @@ services:
       - key: RATE_LIMIT_MAX_REQUESTS
         value: 100
       - key: CORS_ORIGIN
-        value: https://mente-sana.vercel.app,https://mente-sanadev.vercel.app
+        value: https://mente-sana.vercel.app,https://agoraa.vercel.app
       - key: ENCRYPTION_KEY
         sync: false
       - key: ANALYTICS_ENABLED
