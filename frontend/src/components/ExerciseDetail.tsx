@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import { exercisesAPI, Exercise } from '../services/api';
+import { CubeLoader, CubeSquare, LoadingText } from './SharedStyles';
 
 const Container = styled.div`
   display: flex;
@@ -179,6 +180,7 @@ const ExerciseDetail: React.FC = () => {
   const navigate = useNavigate();
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingData, setIsLoadingData] = useState(false);
 
   useEffect(() => {
     const loadExercise = async () => {
@@ -190,6 +192,7 @@ const ExerciseDetail: React.FC = () => {
         return;
       }
 
+      setIsLoadingData(true);
       try {
         console.log('🏋️ ExerciseDetail: Calling exercisesAPI.getExercise with ID:', id);
         const response = await exercisesAPI.getExercise(id);
@@ -211,19 +214,28 @@ const ExerciseDetail: React.FC = () => {
       } finally {
         console.log('🏋️ ExerciseDetail: Setting loading to false');
         setIsLoading(false);
+        setIsLoadingData(false);
       }
     };
 
     loadExercise();
   }, [id]);
 
-  if (isLoading) {
+  if (isLoading || isLoadingData) {
     return (
       <Container>
-        <Card>
-          <ContentSection>
-            <Title>Cargando ejercicio...</Title>
-          </ContentSection>
+        <Card style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '60px 20px' }}>
+          <CubeLoader>
+            <CubeSquare delay={0} />
+            <CubeSquare delay={-1.4285714286} />
+            <CubeSquare delay={-2.8571428571} />
+            <CubeSquare delay={-4.2857142857} />
+            <CubeSquare delay={-5.7142857143} />
+            <CubeSquare delay={-7.1428571429} />
+            <CubeSquare delay={-8.5714285714} />
+            <CubeSquare delay={-10} />
+          </CubeLoader>
+          <LoadingText>Cargando ejercicio...</LoadingText>
         </Card>
       </Container>
     );

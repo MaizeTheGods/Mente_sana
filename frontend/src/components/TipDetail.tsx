@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import { tipsAPI, Tip } from '../services/api';
+import { CubeLoader, CubeSquare, LoadingText } from './SharedStyles';
 
 const Container = styled.div`
   display: flex;
@@ -184,6 +185,7 @@ const TipDetail: React.FC = () => {
   const navigate = useNavigate();
   const [tip, setTip] = useState<Tip | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingData, setIsLoadingData] = useState(false);
 
   useEffect(() => {
     const loadTip = async () => {
@@ -195,6 +197,7 @@ const TipDetail: React.FC = () => {
         return;
       }
 
+      setIsLoadingData(true);
       try {
         console.log('💡 TipDetail: Calling tipsAPI.getTip with ID:', id);
         const response = await tipsAPI.getTip(id);
@@ -216,19 +219,28 @@ const TipDetail: React.FC = () => {
       } finally {
         console.log('💡 TipDetail: Setting loading to false');
         setIsLoading(false);
+        setIsLoadingData(false);
       }
     };
 
     loadTip();
   }, [id]);
 
-  if (isLoading) {
+  if (isLoading || isLoadingData) {
     return (
       <Container>
-        <Card>
-          <ContentSection>
-            <Title>Cargando consejo...</Title>
-          </ContentSection>
+        <Card style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '60px 20px' }}>
+          <CubeLoader>
+            <CubeSquare delay={0} />
+            <CubeSquare delay={-1.4285714286} />
+            <CubeSquare delay={-2.8571428571} />
+            <CubeSquare delay={-4.2857142857} />
+            <CubeSquare delay={-5.7142857143} />
+            <CubeSquare delay={-7.1428571429} />
+            <CubeSquare delay={-8.5714285714} />
+            <CubeSquare delay={-10} />
+          </CubeLoader>
+          <LoadingText>Cargando consejo...</LoadingText>
         </Card>
       </Container>
     );
