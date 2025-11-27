@@ -206,17 +206,15 @@ const AdminPanel: React.FC = () => {
       const token = localStorage.getItem('token');
       console.log('AdminPanel: Token exists:', !!token);
 
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+      console.log('AdminPanel: Request headers:', headers);
+
       const [statsResponse, usersResponse] = await Promise.all([
-        fetch('/api/admin/stats', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }),
-        fetch('/api/admin/users', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
+        fetch('/api/admin/stats', { headers }),
+        fetch('/api/admin/users', { headers })
       ]);
 
       console.log('AdminPanel: Stats response status:', statsResponse.status);
