@@ -382,9 +382,9 @@ const Dashboard: React.FC = () => {
     scales: {
       y: {
         beginAtZero: true,
-        max: 63, // DASS-21 maximum score
+        max: 30,
         ticks: {
-          stepSize: 7
+          stepSize: 5
         },
         grid: {
           color: 'rgba(0, 0, 0, 0.1)'
@@ -656,9 +656,9 @@ const Dashboard: React.FC = () => {
                   scales: {
                     y: {
                       beginAtZero: true,
-                      max: 63, // DASS-21 maximum score
+                      max: 30,
                       ticks: {
-                        stepSize: 7,
+                        stepSize: 4,
                         callback: function(value) {
                           return value;
                         }
