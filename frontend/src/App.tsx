@@ -12,6 +12,7 @@ import Chat from './components/Chat';
 import ChatRoom from './components/ChatRoom';
 import ExerciseDetail from './components/ExerciseDetail';
 import TipDetail from './components/TipDetail';
+import AdminPanel from './components/AdminPanel';
 import styled, { createGlobalStyle } from 'styled-components';
 import { GlassCard, CubeLoader, CubeSquare, LoadingText } from './components/SharedStyles';
 import { Line, Bar } from 'react-chartjs-2';
@@ -212,6 +213,11 @@ const App: React.FC = () => {
               <Route path="/tip/:id" element={
                 <ProtectedRoute>
                   <TipDetail />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin" element={
+                <ProtectedRoute>
+                  <AdminPanel />
                 </ProtectedRoute>
               } />
 
@@ -442,7 +448,15 @@ const Dashboard: React.FC = () => {
       icon: '🗺️',
       gradient: 'linear-gradient(135deg, #66bb6a 0%, #81c784 100%)',
       action: () => navigate('/maps')
-    }
+    },
+    ...(user?.role === 'admin' || user?.role === 'owner' ? [{
+      id: 'admin',
+      title: 'Panel de Administración',
+      description: 'Gestiona usuarios, contenido y configuraciones del sistema',
+      icon: '⚙️',
+      gradient: 'linear-gradient(135deg, #ff9800 0%, #ffb74d 100%)',
+      action: () => navigate('/admin')
+    }] : [])
   ];
 
   return (
