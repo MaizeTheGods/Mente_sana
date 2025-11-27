@@ -14,7 +14,7 @@ import {
   ArcElement,
 } from 'chart.js';
 import { Line, Doughnut } from 'react-chartjs-2';
-import { tipsAPI, Tip, Category } from '../services/api';
+import { tipsAPI, exercisesAPI, Tip, Category } from '../services/api';
 
 ChartJS.register(
   CategoryScale,
@@ -394,20 +394,30 @@ const ModalActions = styled.div`
 const AdminPanel: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'tips'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'tips' | 'exercises'>('dashboard');
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [tips, setTips] = useState<Tip[]>([]);
+  const [exercises, setExercises] = useState<any[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTip, setEditingTip] = useState<Tip | null>(null);
+  const [editingExercise, setEditingExercise] = useState<any | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     content: '',
     category: '',
+    videoUrl: ''
+  });
+  const [exerciseFormData, setExerciseFormData] = useState({
+    title: '',
+    description: '',
+    category: '',
+    duration: 5,
+    instructions: '',
     videoUrl: ''
   });
 
@@ -438,6 +448,13 @@ const AdminPanel: React.FC = () => {
           tipsAPI.getCategories()
         ]);
         setTips(tipsRes.tips);
+        setCategories(catsRes.categories);
+      } else if (activeTab === 'exercises') {
+        const [exercisesRes, catsRes] = await Promise.all([
+          exercisesAPI.getExercises(),
+          exercisesAPI.getCategories()
+        ]);
+        setExercises(exercisesRes.exercises);
         setCategories(catsRes.categories);
       }
     } catch (error) {
@@ -531,6 +548,67 @@ const AdminPanel: React.FC = () => {
     }
   };
 
+  // --- Exercise Actions ---
+  const handleOpenExerciseModal = (exercise?: any) => {
+    if (exercise) {
+      setEditingExercise(exercise);
+      setExerciseFormData({
+        title: exercise.title,
+        description: exercise.description,
+        category: exercise.category,
+        duration: exercise.duration,
+        instructions: exercise.instructions?.map((i: any) => i.text).join('\n\n') || '',
+        videoUrl: exercise.media?.videoUrl || ''
+      });
+    } else {
+      setEditingExercise(null);
+      setExerciseFormData({
+        title: '',
+        description: '',
+        category: categories[0]?.id || 'breathing',
+        duration: 5,
+        instructions: '',
+        videoUrl: ''
+      });
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleSaveExercise = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const exerciseData = {
+        ...exerciseFormData,
+        instructions: exerciseFormData.instructions.split('\n\n').map((text, index) => ({
+          step: index + 1,
+          text: text.trim()
+        })),
+        media: exerciseFormData.videoUrl ? { videoUrl: exerciseFormData.videoUrl } : undefined
+      };
+
+      if (editingExercise) {
+        await exercisesAPI.updateExercise(editingExercise._id, exerciseData);
+      } else {
+        await exercisesAPI.createExercise(exerciseData);
+      }
+      setIsModalOpen(false);
+      loadData();
+    } catch (error) {
+      console.error('Error saving exercise:', error);
+      alert('Error al guardar el ejercicio');
+    }
+  };
+
+  const handleDeleteExercise = async (id: string) => {
+    if (!window.confirm('¿Eliminar ejercicio?')) return;
+    try {
+      await exercisesAPI.deleteExercise(id);
+      loadData();
+    } catch (error) {
+      console.error('Error deleting exercise:', error);
+    }
+  };
+
   if (!user || (user.role !== 'admin' && user.role !== 'owner')) {
     return <div style={{ padding: 40, textAlign: 'center' }}>Acceso Denegado</div>;
   }
@@ -580,6 +658,9 @@ const AdminPanel: React.FC = () => {
         <NavItem active={activeTab === 'tips'} onClick={() => setActiveTab('tips')}>
           💡 Consejos
         </NavItem>
+        <NavItem active={activeTab === 'exercises'} onClick={() => setActiveTab('exercises')}>
+          🧘 Ejercicios
+        </NavItem>
 
         <div style={{ marginTop: 'auto' }}>
           <NavItem active={false} onClick={() => navigate('/dashboard')}>
@@ -594,6 +675,7 @@ const AdminPanel: React.FC = () => {
             {activeTab === 'dashboard' && 'Panel de Control'}
             {activeTab === 'users' && 'Gestión de Usuarios'}
             {activeTab === 'tips' && 'Biblioteca de Consejos'}
+            {activeTab === 'exercises' && 'Biblioteca de Ejercicios'}
           </PageTitle>
           <UserProfile>
             <span>{user.firstName} {user.lastName}</span>
@@ -716,59 +798,156 @@ const AdminPanel: React.FC = () => {
             </TipsGrid>
           </>
         )}
+
+        {activeTab === 'exercises' && (
+          <>
+            <TipsHeader>
+              <div style={{ color: '#64748b' }}>Gestiona los ejercicios de meditación y relajación</div>
+              <AddButton onClick={() => handleOpenExerciseModal()}>
+                + Nuevo Ejercicio
+              </AddButton>
+            </TipsHeader>
+            <TipsGrid>
+              {exercises.map(exercise => (
+                <TipCard key={exercise._id}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <Badge bg="#e0f2fe" color="#0284c7">{exercise.category}</Badge>
+                    {exercise.media?.videoUrl && <span>🎥</span>}
+                  </div>
+                  <TipTitle>{exercise.title}</TipTitle>
+                  <TipContent>{exercise.description}</TipContent>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <span style={{ color: '#64748b', fontSize: '14px' }}>Duración: {exercise.duration} min</span>
+                  </div>
+                  <TipFooter>
+                    <ActionButton onClick={() => handleOpenExerciseModal(exercise)}>Editar</ActionButton>
+                    <ActionButton variant="danger" onClick={() => handleDeleteExercise(exercise._id)}>Eliminar</ActionButton>
+                  </TipFooter>
+                </TipCard>
+              ))}
+            </TipsGrid>
+          </>
+        )}
       </MainContent>
 
       {isModalOpen && (
         <ModalOverlay onClick={() => setIsModalOpen(false)}>
           <ModalContent onClick={e => e.stopPropagation()}>
             <h2 style={{ marginBottom: 20, color: '#1e293b' }}>
-              {editingTip ? 'Editar Consejo' : 'Nuevo Consejo'}
+              {editingTip ? 'Editar Consejo' : editingExercise ? 'Editar Ejercicio' : activeTab === 'tips' ? 'Nuevo Consejo' : 'Nuevo Ejercicio'}
             </h2>
-            <form onSubmit={handleSaveTip}>
-              <FormGroup>
-                <Label>Título</Label>
-                <Input
-                  required
-                  value={formData.title}
-                  onChange={e => setFormData({ ...formData, title: e.target.value })}
-                />
-              </FormGroup>
-              <FormGroup>
-                <Label>Categoría</Label>
-                <Select
-                  value={formData.category}
-                  onChange={e => setFormData({ ...formData, category: e.target.value })}
-                >
-                  {categories.map(c => (
-                    <option key={c.id} value={c.id}>{c.label}</option>
-                  ))}
-                </Select>
-              </FormGroup>
-              <FormGroup>
-                <Label>Contenido</Label>
-                <TextArea
-                  required
-                  value={formData.content}
-                  onChange={e => setFormData({ ...formData, content: e.target.value })}
-                />
-              </FormGroup>
-              <FormGroup>
-                <Label>Video URL (YouTube ID)</Label>
-                <Input
-                  placeholder="Ej: dQw4w9WgXcQ"
-                  value={formData.videoUrl}
-                  onChange={e => setFormData({ ...formData, videoUrl: e.target.value })}
-                />
-              </FormGroup>
-              <ModalActions>
-                <ActionButton type="button" variant="danger" onClick={() => setIsModalOpen(false)}>
-                  Cancelar
-                </ActionButton>
-                <ActionButton type="submit" variant="success">
-                  Guardar
-                </ActionButton>
-              </ModalActions>
-            </form>
+            {activeTab === 'tips' ? (
+              <form onSubmit={handleSaveTip}>
+                <FormGroup>
+                  <Label>Título</Label>
+                  <Input
+                    required
+                    value={formData.title}
+                    onChange={e => setFormData({ ...formData, title: e.target.value })}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <Label>Categoría</Label>
+                  <Select
+                    value={formData.category}
+                    onChange={e => setFormData({ ...formData, category: e.target.value })}
+                  >
+                    {categories.map(c => (
+                      <option key={c.id} value={c.id}>{c.label}</option>
+                    ))}
+                  </Select>
+                </FormGroup>
+                <FormGroup>
+                  <Label>Contenido</Label>
+                  <TextArea
+                    required
+                    value={formData.content}
+                    onChange={e => setFormData({ ...formData, content: e.target.value })}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <Label>Video URL (YouTube ID)</Label>
+                  <Input
+                    placeholder="Ej: dQw4w9WgXcQ"
+                    value={formData.videoUrl}
+                    onChange={e => setFormData({ ...formData, videoUrl: e.target.value })}
+                  />
+                </FormGroup>
+                <ModalActions>
+                  <ActionButton type="button" variant="danger" onClick={() => setIsModalOpen(false)}>
+                    Cancelar
+                  </ActionButton>
+                  <ActionButton type="submit" variant="success">
+                    Guardar
+                  </ActionButton>
+                </ModalActions>
+              </form>
+            ) : (
+              <form onSubmit={handleSaveExercise}>
+                <FormGroup>
+                  <Label>Título</Label>
+                  <Input
+                    required
+                    value={exerciseFormData.title}
+                    onChange={e => setExerciseFormData({ ...exerciseFormData, title: e.target.value })}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <Label>Categoría</Label>
+                  <Select
+                    value={exerciseFormData.category}
+                    onChange={e => setExerciseFormData({ ...exerciseFormData, category: e.target.value })}
+                  >
+                    {categories.map(c => (
+                      <option key={c.id} value={c.id}>{c.label}</option>
+                    ))}
+                  </Select>
+                </FormGroup>
+                <FormGroup>
+                  <Label>Descripción</Label>
+                  <TextArea
+                    required
+                    value={exerciseFormData.description}
+                    onChange={e => setExerciseFormData({ ...exerciseFormData, description: e.target.value })}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <Label>Duración (minutos)</Label>
+                  <Input
+                    type="number"
+                    required
+                    min="1"
+                    value={exerciseFormData.duration}
+                    onChange={e => setExerciseFormData({ ...exerciseFormData, duration: parseInt(e.target.value) })}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <Label>Instrucciones (una por línea)</Label>
+                  <TextArea
+                    required
+                    placeholder="Paso 1: Siéntate cómodamente&#10;&#10;Paso 2: Respira profundamente"
+                    value={exerciseFormData.instructions}
+                    onChange={e => setExerciseFormData({ ...exerciseFormData, instructions: e.target.value })}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <Label>Video URL (YouTube ID)</Label>
+                  <Input
+                    placeholder="Ej: dQw4w9WgXcQ"
+                    value={exerciseFormData.videoUrl}
+                    onChange={e => setExerciseFormData({ ...exerciseFormData, videoUrl: e.target.value })}
+                  />
+                </FormGroup>
+                <ModalActions>
+                  <ActionButton type="button" variant="danger" onClick={() => setIsModalOpen(false)}>
+                    Cancelar
+                  </ActionButton>
+                  <ActionButton type="submit" variant="success">
+                    Guardar
+                  </ActionButton>
+                </ModalActions>
+              </form>
+            )}
           </ModalContent>
         </ModalOverlay>
       )}
