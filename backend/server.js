@@ -96,24 +96,17 @@ app.use((req, res) => {
 // Socket.io middleware for authentication
 io.use(async (socket, next) => {
   const token = socket.handshake.auth.token;
-  console.log('Socket auth token:', token ? 'present' : 'missing');
   if (!token) {
     return next(new Error('Authentication error'));
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Decoded keys:', Object.keys(decoded));
-    console.log('Decoded user ID:', decoded._id);
     socket.userId = decoded._id;
 
     // Get full user data from database
     const User = require('./models/User');
     const user = await User.findById(decoded._id);
-    console.log('User found in DB:', !!user);
-    if (user) {
-      console.log('User data:', { firstName: user.firstName, lastName: user.lastName });
-    }
     if (!user) {
       return next(new Error('User not found'));
     }
@@ -126,7 +119,6 @@ io.use(async (socket, next) => {
 
     next();
   } catch (error) {
-    console.log('JWT verify error:', error.message);
     next(new Error('Authentication error'));
   }
 });
@@ -181,7 +173,6 @@ io.on('connection', (socket) => {
 
   // Handle new messages
   socket.on('send-message', async (data) => {
-    console.log('Received send-message event:', { groupId: data.groupId, content: data.content, userId: socket.userId });
     try {
       const { groupId, content } = data;
 
@@ -189,7 +180,6 @@ io.on('connection', (socket) => {
       const ChatGroup = require('./models/ChatGroup');
       const group = await ChatGroup.findById(groupId);
       if (!group) {
-        console.log('Group not found:', groupId);
         return;
       }
 
@@ -197,7 +187,6 @@ io.on('connection', (socket) => {
         member => member.userId.toString() === socket.userId.toString() && member.isActive
       );
       if (!isMember) {
-        console.log('User not member of group:', socket.userId, groupId);
         return;
       }
 
@@ -211,12 +200,10 @@ io.on('connection', (socket) => {
       });
 
       await message.save();
-      console.log('Message saved:', message._id);
       await message.populate('senderId', 'firstName lastName');
 
       // Send message to all users in the group (including sender)
       io.to(`group-${groupId}`).emit('new-message', message);
-      console.log('Message emitted to group:', `group-${groupId}`);
     } catch (error) {
       console.error('Error sending message:', error);
     }
