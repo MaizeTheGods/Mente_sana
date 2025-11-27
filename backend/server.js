@@ -50,10 +50,16 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Database connection
+console.log('Attempting to connect to MongoDB...');
+console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
 mongoose.connect(process.env.MONGODB_URI)
-.then(() => console.log('MongoDB connected successfully'))
+.then(() => {
+  console.log('MongoDB connected successfully');
+  console.log('Connection ready state:', mongoose.connection.readyState);
+})
 .catch(err => {
   console.error('MongoDB connection error:', err);
+  console.error('Connection failed, but continuing...');
   // Don't exit process, let it continue - database operations will fail gracefully
 });
 
@@ -253,10 +259,16 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 5000;
+console.log(`Starting server on port ${PORT}...`);
+console.log(`PORT environment variable:`, process.env.PORT);
 
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`✅ Server successfully started and listening on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV}`);
+  console.log(`CORS_ORIGIN:`, process.env.CORS_ORIGIN);
+}).on('error', (err) => {
+  console.error('❌ Server failed to start:', err);
+  process.exit(1);
 });
 
 module.exports = app;
