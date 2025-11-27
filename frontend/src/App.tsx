@@ -270,9 +270,17 @@ const Dashboard: React.FC = () => {
   // Load historical results
   React.useEffect(() => {
     const loadResults = async () => {
+      console.log('Dashboard: Loading results...');
+      console.log('Dashboard: user exists:', !!user);
+      console.log('Dashboard: hasCompletedQuestionnaire:', hasCompletedQuestionnaire);
+      console.log('Dashboard: user.questionnaireCompleted:', user?.questionnaireCompleted);
+
       if (user && hasCompletedQuestionnaire) {
         try {
+          console.log('Dashboard: Calling questionnaireAPI.getResults()...');
           const response = await questionnaireAPI.getResults();
+          console.log('Dashboard: API response:', response);
+          console.log('Dashboard: Setting results:', response.results);
           setResults(response.results);
         } catch (error) {
           console.error('Failed to load results:', error);
@@ -280,6 +288,7 @@ const Dashboard: React.FC = () => {
           setIsLoading(false);
         }
       } else {
+        console.log('Dashboard: Not loading results - conditions not met');
         setIsLoading(false);
       }
     };
@@ -289,11 +298,19 @@ const Dashboard: React.FC = () => {
 
   // Prepare chart data for progress line chart
   const progressChartData = React.useMemo(() => {
-    if (!results.length) return null;
+    console.log('Dashboard: Preparing progress chart data...');
+    console.log('Dashboard: results.length:', results.length);
+
+    if (!results.length) {
+      console.log('Dashboard: No results, returning null');
+      return null;
+    }
 
     const sortedResults = results.sort((a, b) =>
       new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     );
+
+    console.log('Dashboard: sortedResults:', sortedResults);
 
     const labels = sortedResults.map(result =>
       new Date(result.createdAt).toLocaleDateString('es-ES', {
@@ -302,7 +319,9 @@ const Dashboard: React.FC = () => {
       })
     );
 
-    return {
+    console.log('Dashboard: labels:', labels);
+
+    const chartData = {
       labels,
       datasets: [
         {
@@ -331,6 +350,9 @@ const Dashboard: React.FC = () => {
         }
       ]
     };
+
+    console.log('Dashboard: progressChartData:', chartData);
+    return chartData;
   }, [results]);
 
   const progressChartOptions = {
@@ -458,7 +480,15 @@ const Dashboard: React.FC = () => {
       </DashboardHeader>
 
       {/* Latest Results Charts */}
-      {hasCompletedQuestionnaire && results.length > 0 && (
+      {(() => {
+        console.log('Dashboard: Checking charts condition...');
+        console.log('Dashboard: hasCompletedQuestionnaire:', hasCompletedQuestionnaire);
+        console.log('Dashboard: results.length:', results.length);
+        console.log('Dashboard: results:', results);
+        const shouldShow = hasCompletedQuestionnaire && results.length > 0;
+        console.log('Dashboard: Should show charts:', shouldShow);
+        return shouldShow;
+      })() && (
         <div style={{
           display: 'grid',
           gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr',
