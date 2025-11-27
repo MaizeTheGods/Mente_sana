@@ -102,11 +102,13 @@ io.use(async (socket, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Socket auth: decoded._id =', decoded._id);
     socket.userId = decoded._id;
 
     // Get full user data from database
     const User = require('./models/User');
     const user = await User.findById(decoded._id);
+    console.log('Socket auth: user found =', !!user);
     if (!user) {
       return next(new Error('User not found'));
     }
