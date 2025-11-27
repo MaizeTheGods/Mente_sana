@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import { chatAPI, ChatGroup, ChatMessage } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -613,28 +613,132 @@ const SendButton = styled.button`
   }
 `;
 
+// From Uiverse.io by ZacharyCrespin
+const squareAnimation = keyframes`
+ 0% {
+  left: 0;
+  top: 0;
+ }
+
+ 10.5% {
+  left: 0;
+  top: 0;
+ }
+
+ 12.5% {
+  left: 32px;
+  top: 0;
+ }
+
+ 23% {
+  left: 32px;
+  top: 0;
+ }
+
+ 25% {
+  left: 64px;
+  top: 0;
+ }
+
+ 35.5% {
+  left: 64px;
+  top: 0;
+ }
+
+ 37.5% {
+  left: 64px;
+  top: 32px;
+ }
+
+ 48% {
+  left: 64px;
+  top: 32px;
+ }
+
+ 50% {
+  left: 32px;
+  top: 32px;
+ }
+
+ 60.5% {
+  left: 32px;
+  top: 32px;
+ }
+
+ 62.5% {
+  left: 32px;
+  top: 64px;
+ }
+
+ 73% {
+  left: 32px;
+  top: 64px;
+ }
+
+ 75% {
+  left: 0;
+  top: 64px;
+ }
+
+ 85.5% {
+  left: 0;
+  top: 64px;
+ }
+
+ 87.5% {
+  left: 0;
+  top: 32px;
+ }
+
+ 98% {
+  left: 0;
+  top: 32px;
+ }
+
+ 100% {
+  left: 0;
+  top: 0;
+ }
+`;
+
 const LoadingMessage = styled.div`
   text-align: center;
   padding: 60px 20px;
   color: #5a6c7d;
   font-size: 18px;
   font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+`;
 
-  &::after {
-    content: '';
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #4caf50;
-    border-radius: 50%;
-    border-top-color: transparent;
-    animation: spin 1s ease-in-out infinite;
-    margin-left: 12px;
-  }
+const CubeLoader = styled.div`
+  position: relative;
+  width: 96px;
+  height: 96px;
+  transform: rotate(45deg);
+`;
 
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
+const CubeSquare = styled.div<{ delay: number }>`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 28px;
+  margin: 2px;
+  border-radius: 0px;
+  background: white;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  animation: ${squareAnimation} 10s ease-in-out infinite both;
+  animation-delay: ${props => props.delay}s;
+`;
+
+const LoadingText = styled.div`
+  color: #2e7d32;
+  font-weight: 600;
 `;
 
 const ErrorMessage = styled.div`
@@ -918,24 +1022,19 @@ const ChatRoom: React.FC = () => {
     return (
       <Container>
         <DashboardContainer>
-          <div style={{
-            textAlign: 'center',
-            padding: '80px 20px',
-            color: '#5a6c7d',
-            fontSize: '18px',
-            fontWeight: '500'
-          }}>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              border: '3px solid #4caf50',
-              borderRadius: '50%',
-              borderTopColor: 'transparent',
-              animation: 'spin 1s ease-in-out infinite',
-              margin: '0 auto 20px'
-            }}></div>
-            Cargando sala de chat...
-          </div>
+          <LoadingMessage>
+            <CubeLoader>
+              <CubeSquare delay={0} />
+              <CubeSquare delay={-1.4285714286} />
+              <CubeSquare delay={-2.8571428571} />
+              <CubeSquare delay={-4.2857142857} />
+              <CubeSquare delay={-5.7142857143} />
+              <CubeSquare delay={-7.1428571429} />
+              <CubeSquare delay={-8.5714285714} />
+              <CubeSquare delay={-10} />
+            </CubeLoader>
+            <LoadingText>Cargando sala de chat...</LoadingText>
+          </LoadingMessage>
         </DashboardContainer>
       </Container>
     );
