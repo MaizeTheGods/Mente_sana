@@ -195,32 +195,50 @@ const AdminPanel: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  console.log('AdminPanel: Component rendered');
+  console.log('AdminPanel: User object:', user);
+  console.log('AdminPanel: User role:', user?.role);
+
   const loadAdminData = async () => {
     try {
+      console.log('AdminPanel: Loading admin data...');
       setLoading(true);
+      const token = localStorage.getItem('token');
+      console.log('AdminPanel: Token exists:', !!token);
+
       const [statsResponse, usersResponse] = await Promise.all([
         fetch('/api/admin/stats', {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${token}`
           }
         }),
         fetch('/api/admin/users', {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${token}`
           }
         })
       ]);
 
+      console.log('AdminPanel: Stats response status:', statsResponse.status);
+      console.log('AdminPanel: Users response status:', usersResponse.status);
+
       if (!statsResponse.ok || !usersResponse.ok) {
+        console.log('AdminPanel: Response not ok');
+        console.log('AdminPanel: Stats response text:', await statsResponse.text());
+        console.log('AdminPanel: Users response text:', await usersResponse.text());
         throw new (Error as any)('Failed to load admin data');
       }
 
       const statsData = await statsResponse.json();
       const usersData = await usersResponse.json();
 
+      console.log('AdminPanel: Stats data received:', statsData);
+      console.log('AdminPanel: Users data received:', usersData);
+
       setStats(statsData);
       setUsers(usersData.users);
     } catch (err: any) {
+      console.log('AdminPanel: Error loading data:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -305,12 +323,17 @@ const AdminPanel: React.FC = () => {
   };
 
   if (!user || (user.role !== 'admin' && user.role !== 'owner')) {
+    console.log('AdminPanel: Access denied - user role check failed');
+    console.log('AdminPanel: User exists:', !!user);
+    console.log('AdminPanel: User role condition:', user?.role !== 'admin' && user?.role !== 'owner');
     return (
       <Container>
         <Error>Acceso denegado. Solo administradores pueden acceder a este panel.</Error>
       </Container>
     );
   }
+
+  console.log('AdminPanel: Access granted - rendering admin panel');
 
   if (loading) {
     return (
