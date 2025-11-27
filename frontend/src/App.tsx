@@ -14,8 +14,9 @@ import ExerciseDetail from './components/ExerciseDetail';
 import TipDetail from './components/TipDetail';
 import AdminPanel from './components/AdminPanel';
 import SidebarLayout from './components/SidebarLayout';
+import Loader from './components/Loader';
 import styled, { createGlobalStyle } from 'styled-components';
-import { Card, CubeLoader, CubeSquare, LoadingText, PageHeader, PageTitle, PageSubtitle } from './components/SharedStyles';
+import { Card, PageHeader, PageTitle, PageSubtitle } from './components/SharedStyles';
 import { Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -74,17 +75,8 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
         background: '#f0f2f5'
       }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
-          <CubeLoader>
-            <CubeSquare delay={0} />
-            <CubeSquare delay={1} />
-            <CubeSquare delay={2} />
-            <CubeSquare delay={3} />
-            <CubeSquare delay={4} />
-            <CubeSquare delay={5} />
-            <CubeSquare delay={6} />
-            <CubeSquare delay={7} />
-          </CubeLoader>
-          <LoadingText>Cargando...</LoadingText>
+          <Loader />
+          <div style={{ color: '#64748b', fontSize: '16px', fontWeight: '500' }}>Cargando...</div>
         </div>
       </div>
     );
@@ -107,17 +99,8 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         background: '#f0f2f5'
       }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
-          <CubeLoader>
-            <CubeSquare delay={0} />
-            <CubeSquare delay={1} />
-            <CubeSquare delay={2} />
-            <CubeSquare delay={3} />
-            <CubeSquare delay={4} />
-            <CubeSquare delay={5} />
-            <CubeSquare delay={6} />
-            <CubeSquare delay={7} />
-          </CubeLoader>
-          <LoadingText>Cargando...</LoadingText>
+          <Loader />
+          <div style={{ color: '#64748b', fontSize: '16px', fontWeight: '500' }}>Cargando...</div>
         </div>
       </div>
     );
