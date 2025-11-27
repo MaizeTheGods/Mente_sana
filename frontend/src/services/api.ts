@@ -333,6 +333,21 @@ export const chatAPI = {
    const response = await api.delete(`/chat/groups/${groupId}/messages/${messageId}`);
    return response.data;
  },
+
+ startTyping: async (groupId: string): Promise<{ message: string }> => {
+   const response = await api.post(`/chat/groups/${groupId}/typing/start`);
+   return response.data;
+ },
+
+ stopTyping: async (groupId: string): Promise<{ message: string }> => {
+   const response = await api.post(`/chat/groups/${groupId}/typing/stop`);
+   return response.data;
+ },
+
+ getTypingUsers: async (groupId: string): Promise<{ typingUsers: { firstName: string; lastName: string }[] }> => {
+   const response = await api.get(`/chat/groups/${groupId}/typing`);
+   return response.data;
+ },
 };
 
 // Chat Types

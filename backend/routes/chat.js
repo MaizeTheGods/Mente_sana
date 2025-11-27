@@ -259,4 +259,94 @@ router.delete('/groups/:groupId/messages/:messageId', authenticateToken, async (
   }
 });
 
+// @route   POST /api/chat/groups/:id/typing/start
+// @desc    Start typing indicator
+// @access  Private
+router.post('/groups/:id/typing/start', authenticateToken, async (req, res) => {
+  try {
+    const group = await ChatGroup.findById(req.params.id);
+    if (!group || !group.isActive) {
+      return res.status(404).json({ error: 'Chat group not found' });
+    }
+
+    const isMember = group.currentMembers.some(
+      member => member.userId.toString() === req.user._id.toString() && member.isActive
+    );
+
+    if (!isMember) {
+      return res.status(403).json({ error: 'Not a member of this group' });
+    }
+
+    // Update user's typing status
+    const User = require('../models/User');
+    await User.findByIdAndUpdate(req.user._id, { isTyping: true });
+
+    res.json({ message: 'Typing started' });
+  } catch (error) {
+    console.error('Start typing error:', error);
+    res.status(500).json({ error: 'Failed to start typing' });
+  }
+});
+
+// @route   POST /api/chat/groups/:id/typing/stop
+// @desc    Stop typing indicator
+// @access  Private
+router.post('/groups/:id/typing/stop', authenticateToken, async (req, res) => {
+  try {
+    const group = await ChatGroup.findById(req.params.id);
+    if (!group || !group.isActive) {
+      return res.status(404).json({ error: 'Chat group not found' });
+    }
+
+    const isMember = group.currentMembers.some(
+      member => member.userId.toString() === req.user._id.toString() && member.isActive
+    );
+
+    if (!isMember) {
+      return res.status(403).json({ error: 'Not a member of this group' });
+    }
+
+    // Update user's typing status
+    const User = require('../models/User');
+    await User.findByIdAndUpdate(req.user._id, { isTyping: false });
+
+    res.json({ message: 'Typing stopped' });
+  } catch (error) {
+    console.error('Stop typing error:', error);
+    res.status(500).json({ error: 'Failed to stop typing' });
+  }
+});
+
+// @route   GET /api/chat/groups/:id/typing
+// @desc    Get users who are typing in the group
+// @access  Private
+router.get('/groups/:id/typing', authenticateToken, async (req, res) => {
+  try {
+    const group = await ChatGroup.findById(req.params.id);
+    if (!group || !group.isActive) {
+      return res.status(404).json({ error: 'Chat group not found' });
+    }
+
+    const isMember = group.currentMembers.some(
+      member => member.userId.toString() === req.user._id.toString() && member.isActive
+    );
+
+    if (!isMember) {
+      return res.status(403).json({ error: 'Not a member of this group' });
+    }
+
+    // Get members who are typing
+    const User = require('../models/User');
+    const typingUsers = await User.find({
+      _id: { $in: group.currentMembers.map(m => m.userId) },
+      isTyping: true
+    }).select('firstName lastName');
+
+    res.json({ typingUsers });
+  } catch (error) {
+    console.error('Get typing users error:', error);
+    res.status(500).json({ error: 'Failed to get typing users' });
+  }
+});
+
 module.exports = router;

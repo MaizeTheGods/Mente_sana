@@ -693,7 +693,7 @@ const ChatRoom: React.FC = () => {
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string>('');
   const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
-  const [isTyping, setIsTyping] = useState(false);
+  const [typingUsers, setTypingUsers] = useState<{ firstName: string; lastName: string }[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -713,12 +713,13 @@ const ChatRoom: React.FC = () => {
     }
   }, [id, user]);
 
-  // Poll for new messages every 1 second
+  // Poll for new messages and typing users every 1 second
   useEffect(() => {
     if (!id || !user) return;
 
     const interval = setInterval(() => {
       loadMessages();
+      loadTypingUsers();
     }, 1000); // 1 second
 
     return () => clearInterval(interval);
@@ -765,6 +766,19 @@ const ChatRoom: React.FC = () => {
     await loadMessages(currentPage + 1, true);
   };
 
+  const loadTypingUsers = async () => {
+    try {
+      const response = await chatAPI.getTypingUsers(id!);
+      // Filter out current user
+      const filteredUsers = response.typingUsers.filter(
+        typingUser => !(user?.firstName === typingUser.firstName && user?.lastName === typingUser.lastName)
+      );
+      setTypingUsers(filteredUsers);
+    } catch (error) {
+      console.error('Failed to load typing users:', error);
+    }
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Attempting to send message. Conditions:', {
@@ -783,7 +797,11 @@ const ChatRoom: React.FC = () => {
 
     console.log('Sending message:', newMessage.trim());
     // Stop typing indicator
-    setIsTyping(false);
+    try {
+      await chatAPI.stopTyping(id!);
+    } catch (error) {
+      console.error('Failed to stop typing:', error);
+    }
 
     setIsSending(true);
     try {
@@ -823,7 +841,8 @@ const ChatRoom: React.FC = () => {
 
     // Handle typing indicator
     if (value.trim() && !isSending) {
-      setIsTyping(true);
+      // Start typing
+      chatAPI.startTyping(id!).catch(error => console.error('Failed to start typing:', error));
 
       // Clear existing timer
       if (typingTimer.current) {
@@ -832,10 +851,11 @@ const ChatRoom: React.FC = () => {
 
       // Set timer to stop typing indicator after 2 seconds of no input
       typingTimer.current = setTimeout(() => {
-        setIsTyping(false);
+        chatAPI.stopTyping(id!).catch(error => console.error('Failed to stop typing:', error));
       }, 2000);
     } else {
-      setIsTyping(false);
+      // Stop typing
+      chatAPI.stopTyping(id!).catch(error => console.error('Failed to stop typing:', error));
     }
   };
 
@@ -1086,7 +1106,7 @@ const ChatRoom: React.FC = () => {
               )}
 
               {/* Typing indicator */}
-              {isTyping && (
+              {typingUsers.length > 0 && (
                 <TypingIndicator>
                   <TypingBubble>
                     <TypingDots>
@@ -1094,7 +1114,12 @@ const ChatRoom: React.FC = () => {
                       <TypingDot delay={0.2} />
                       <TypingDot delay={0.4} />
                     </TypingDots>
-                    <TypingText>Estás escribiendo...</TypingText>
+                    <TypingText>
+                      {typingUsers.length === 1
+                        ? `${typingUsers[0].firstName} ${typingUsers[0].lastName} está escribiendo...`
+                        : `${typingUsers.length} personas están escribiendo...`
+                      }
+                    </TypingText>
                   </TypingBubble>
                 </TypingIndicator>
               )}
