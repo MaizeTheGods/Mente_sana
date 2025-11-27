@@ -191,13 +191,13 @@ const Chat: React.FC = () => {
           <div style={{ textAlign: 'center', padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
             <CubeLoader>
               <CubeSquare delay={0} />
-              <CubeSquare delay={-1.4285714286} />
-              <CubeSquare delay={-2.8571428571} />
-              <CubeSquare delay={-4.2857142857} />
-              <CubeSquare delay={-5.7142857143} />
-              <CubeSquare delay={-7.1428571429} />
-              <CubeSquare delay={-8.5714285714} />
-              <CubeSquare delay={-10} />
+              <CubeSquare delay={1} />
+              <CubeSquare delay={2} />
+              <CubeSquare delay={3} />
+              <CubeSquare delay={4} />
+              <CubeSquare delay={5} />
+              <CubeSquare delay={6} />
+              <CubeSquare delay={7} />
             </CubeLoader>
             <LoadingText>Cargando grupos...</LoadingText>
           </div>
