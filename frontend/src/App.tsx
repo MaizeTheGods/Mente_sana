@@ -14,13 +14,14 @@ import ExerciseDetail from './components/ExerciseDetail';
 import TipDetail from './components/TipDetail';
 import styled, { createGlobalStyle } from 'styled-components';
 import { GlassCard, CubeLoader, CubeSquare, LoadingText } from './components/SharedStyles';
-import { Line } from 'react-chartjs-2';
+import { Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
@@ -32,6 +33,7 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend
@@ -260,7 +262,6 @@ const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [results, setResults] = React.useState<any[]>([]);
-  const [selectedDisorder, setSelectedDisorder] = React.useState<'depression' | 'anxiety' | 'stress'>('depression');
   const [isLoading, setIsLoading] = React.useState(true);
 
   // Check if user has completed questionnaire (questionnaireCompleted is true)
@@ -286,8 +287,8 @@ const Dashboard: React.FC = () => {
     loadResults();
   }, [user, hasCompletedQuestionnaire]);
 
-  // Prepare chart data
-  const chartData = React.useMemo(() => {
+  // Prepare chart data for progress line chart
+  const progressChartData = React.useMemo(() => {
     if (!results.length) return null;
 
     const sortedResults = results.sort((a, b) =>
@@ -301,25 +302,38 @@ const Dashboard: React.FC = () => {
       })
     );
 
-    const data = sortedResults.map(result => result.scores[selectedDisorder]);
-
     return {
       labels,
-      datasets: [{
-        label: selectedDisorder === 'depression' ? 'Depresión' :
-          selectedDisorder === 'anxiety' ? 'Ansiedad' : 'Estrés',
-        data,
-        borderColor: selectedDisorder === 'depression' ? '#dc3545' :
-          selectedDisorder === 'anxiety' ? '#ffc107' : '#6f42c1',
-        backgroundColor: selectedDisorder === 'depression' ? 'rgba(220, 53, 69, 0.1)' :
-          selectedDisorder === 'anxiety' ? 'rgba(255, 193, 7, 0.1)' : 'rgba(111, 66, 193, 0.1)',
-        tension: 0.4,
-        fill: true
-      }]
+      datasets: [
+        {
+          label: 'Depresión',
+          data: sortedResults.map(result => result.scores?.depression || 0),
+          borderColor: '#dc3545',
+          backgroundColor: 'rgba(220, 53, 69, 0.1)',
+          tension: 0.4,
+          fill: false
+        },
+        {
+          label: 'Ansiedad',
+          data: sortedResults.map(result => result.scores?.anxiety || 0),
+          borderColor: '#ffc107',
+          backgroundColor: 'rgba(255, 193, 7, 0.1)',
+          tension: 0.4,
+          fill: false
+        },
+        {
+          label: 'Estrés',
+          data: sortedResults.map(result => result.scores?.stress || 0),
+          borderColor: '#6f42c1',
+          backgroundColor: 'rgba(111, 66, 193, 0.1)',
+          tension: 0.4,
+          fill: false
+        }
+      ]
     };
-  }, [results, selectedDisorder]);
+  }, [results]);
 
-  const chartOptions = {
+  const progressChartOptions = {
     responsive: true,
     plugins: {
       legend: {
@@ -327,10 +341,9 @@ const Dashboard: React.FC = () => {
       },
       title: {
         display: true,
-        text: `Progreso en ${selectedDisorder === 'depression' ? 'Depresión' :
-          selectedDisorder === 'anxiety' ? 'Ansiedad' : 'Estrés'}`,
+        text: 'Progreso en Salud Mental',
         font: {
-          size: 16,
+          size: 14,
           weight: 'bold' as const
         }
       },
@@ -444,6 +457,131 @@ const Dashboard: React.FC = () => {
         </button>
       </DashboardHeader>
 
+      {/* Latest Results Charts */}
+      {hasCompletedQuestionnaire && results.length > 0 && (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr',
+          gap: window.innerWidth <= 768 ? '24px' : '32px',
+          marginBottom: window.innerWidth <= 768 ? '32px' : '48px'
+        }}>
+          {/* Latest Results Column Chart */}
+          <GlassCard style={{ width: '100%' }}>
+            <h3 style={{
+              color: '#2e7d32',
+              fontSize: '1.5rem',
+              fontWeight: '600',
+              margin: '0 0 24px 0',
+              textAlign: 'center'
+            }}>
+              📊 Mis Últimos Resultados
+            </h3>
+
+            <div style={{
+              height: window.innerWidth <= 768 ? '300px' : '350px',
+              position: 'relative'
+            }}>
+              <Bar
+                data={{
+                  labels: ['Depresión', 'Ansiedad', 'Estrés'],
+                  datasets: [{
+                    label: 'Puntuación',
+                    data: [
+                      results[results.length - 1]?.scores?.depression || 0,
+                      results[results.length - 1]?.scores?.anxiety || 0,
+                      results[results.length - 1]?.scores?.stress || 0
+                    ],
+                    backgroundColor: [
+                      'rgba(220, 53, 69, 0.8)',
+                      'rgba(255, 193, 7, 0.8)',
+                      'rgba(111, 66, 193, 0.8)'
+                    ],
+                    borderColor: [
+                      '#dc3545',
+                      '#ffc107',
+                      '#6f42c1'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                  }]
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      display: false,
+                    },
+                    title: {
+                      display: true,
+                      text: 'Último Cuestionario Completado',
+                      font: {
+                        size: 14,
+                        weight: 'bold'
+                      }
+                    },
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      max: 21,
+                      ticks: {
+                        stepSize: 3
+                      }
+                    }
+                  }
+                }}
+              />
+            </div>
+
+            <div style={{
+              marginTop: '16px',
+              padding: '12px',
+              background: '#f8f9fa',
+              borderRadius: '8px',
+              textAlign: 'center',
+              color: '#6b7280',
+              fontSize: '13px'
+            }}>
+              <strong>Última evaluación:</strong> {results[results.length - 1] ? new Date(results[results.length - 1].createdAt).toLocaleDateString('es-ES') : 'N/A'}
+            </div>
+          </GlassCard>
+
+          {/* Progress Line Chart */}
+          <GlassCard style={{ width: '100%' }}>
+            <h3 style={{
+              color: '#2e7d32',
+              fontSize: '1.5rem',
+              fontWeight: '600',
+              margin: '0 0 24px 0',
+              textAlign: 'center'
+            }}>
+              📈 Mi Progreso en el Tiempo
+            </h3>
+
+            <div style={{
+              height: window.innerWidth <= 768 ? '300px' : '350px',
+              position: 'relative'
+            }}>
+              {progressChartData && <Line data={progressChartData} options={progressChartOptions} />}
+            </div>
+
+            <div style={{
+              marginTop: '16px',
+              padding: '12px',
+              background: '#f8f9fa',
+              borderRadius: '8px',
+              textAlign: 'center',
+              color: '#6b7280',
+              fontSize: '13px'
+            }}>
+              <strong>💡 Tip:</strong> Una disminución en las puntuaciones indica mejora en tu bienestar mental.
+            </div>
+          </GlassCard>
+        </div>
+      )}
+
       <div style={{ marginBottom: window.innerWidth <= 768 ? '24px' : '32px' }}>
         <h2 style={{
           color: '#2e7d32',
@@ -464,75 +602,6 @@ const Dashboard: React.FC = () => {
         </p>
       </div>
 
-      {/* Progress Chart Section */}
-      {results.length > 1 && (
-        <GlassCard style={{ marginBottom: window.innerWidth <= 768 ? '32px' : '48px', width: '100%', maxWidth: '100%' }}>
-          <h2 style={{
-            color: '#2e7d32',
-            fontSize: '1.875rem',
-            fontWeight: '600',
-            margin: '0 0 24px 0',
-            textAlign: 'center'
-          }}>
-            📈 Mi Progreso en Salud Mental
-          </h2>
-
-          {/* Disorder Selector */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '16px',
-            marginBottom: '32px',
-            flexWrap: 'wrap'
-          }}>
-            {[
-              { key: 'depression', label: 'Depresión', color: '#dc3545' },
-              { key: 'anxiety', label: 'Ansiedad', color: '#ffc107' },
-              { key: 'stress', label: 'Estrés', color: '#6f42c1' }
-            ].map((disorder) => (
-              <button
-                key={disorder.key}
-                onClick={() => setSelectedDisorder(disorder.key as any)}
-                style={{
-                  padding: '12px 24px',
-                  border: `2px solid ${selectedDisorder === disorder.key ? disorder.color : '#e9ecef'}`,
-                  borderRadius: '25px',
-                  background: selectedDisorder === disorder.key ? disorder.color : 'white',
-                  color: selectedDisorder === disorder.key ? 'white' : '#666',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  boxShadow: selectedDisorder === disorder.key ? `0 4px 12px ${disorder.color}40` : 'none'
-                }}
-              >
-                {disorder.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Chart */}
-          <div style={{
-            height: window.innerWidth <= 768 ? '300px' : '400px',
-            position: 'relative'
-          }}>
-            {chartData && <Line data={chartData} options={chartOptions} />}
-          </div>
-
-          <div style={{
-            marginTop: '24px',
-            padding: '16px',
-            background: '#f8f9fa',
-            borderRadius: '8px',
-            textAlign: 'center',
-            color: '#6b7280',
-            fontSize: '14px'
-          }}>
-            <strong>💡 Tip:</strong> Realiza el cuestionario periódicamente para ver tu progreso.
-            Una disminución en las puntuaciones indica mejora en tu bienestar mental.
-          </div>
-        </GlassCard>
-      )}
 
       {/* Features Grid */}
       <div style={{
