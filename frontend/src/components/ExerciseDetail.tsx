@@ -6,9 +6,11 @@ import {
   PageHeader,
   PageTitle,
   Card,
-  Button
+  Button,
+  CubeLoader,
+  CubeSquare,
+  LoadingText
 } from './SharedStyles';
-import Loader from './Loader';
 
 const DetailLayout = styled.div`
   display: grid;
@@ -163,8 +165,17 @@ const ExerciseDetail: React.FC = () => {
   if (isLoading) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px' }}>
-        <Loader />
-        <div style={{ color: '#64748b', fontSize: '16px', fontWeight: '500', marginTop: '20px' }}>Cargando ejercicio...</div>
+        <CubeLoader>
+          <CubeSquare delay={0} />
+          <CubeSquare delay={1} />
+          <CubeSquare delay={2} />
+          <CubeSquare delay={3} />
+          <CubeSquare delay={4} />
+          <CubeSquare delay={5} />
+          <CubeSquare delay={6} />
+          <CubeSquare delay={7} />
+        </CubeLoader>
+        <LoadingText>Cargando ejercicio...</LoadingText>
       </div>
     );
   }
