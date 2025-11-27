@@ -713,14 +713,14 @@ const ChatRoom: React.FC = () => {
     }
   }, [id, user]);
 
-  // Poll for new messages and typing users every 1 second
+  // Poll for new messages and typing users every 5 seconds
   useEffect(() => {
     if (!id || !user) return;
 
     const interval = setInterval(() => {
       loadMessages();
       loadTypingUsers();
-    }, 1000); // 1 second
+    }, 5000); // 5 seconds
 
     return () => clearInterval(interval);
   }, [id, user]);
