@@ -5,7 +5,10 @@ import {
   PageContainer,
   GlassCard,
   PageTitle,
-  StyledButton
+  StyledButton,
+  CubeLoader,
+  CubeSquare,
+  LoadingText
 } from './SharedStyles';
 
 const Questionnaire: React.FC = () => {
@@ -13,6 +16,7 @@ const Questionnaire: React.FC = () => {
   const [responses, setResponses] = useState<{ [key: string]: number }>({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingData, setIsLoadingData] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [scale, setScale] = useState<{ [key: number]: string }>({});
 
@@ -23,6 +27,7 @@ const Questionnaire: React.FC = () => {
   }, []);
 
   const loadQuestionnaire = async () => {
+    setIsLoadingData(true);
     try {
       const data: QuestionnaireQuestion = await questionnaireAPI.getQuestions();
       setQuestions(data.questions);
@@ -31,6 +36,7 @@ const Questionnaire: React.FC = () => {
       console.error('Failed to load questionnaire:', error);
     } finally {
       setIsLoading(false);
+      setIsLoadingData(false);
     }
   };
 
@@ -78,11 +84,21 @@ const Questionnaire: React.FC = () => {
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
   const currentResponse = responses[currentQuestionIndex.toString()];
 
-  if (isLoading) {
+  if (isLoading || isLoadingData) {
     return (
       <PageContainer>
-        <GlassCard>
-          <div style={{ textAlign: 'center' }}>Cargando cuestionario...</div>
+        <GlassCard style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '60px 20px' }}>
+          <CubeLoader>
+            <CubeSquare delay={0} />
+            <CubeSquare delay={-1.4285714286} />
+            <CubeSquare delay={-2.8571428571} />
+            <CubeSquare delay={-4.2857142857} />
+            <CubeSquare delay={-5.7142857143} />
+            <CubeSquare delay={-7.1428571429} />
+            <CubeSquare delay={-8.5714285714} />
+            <CubeSquare delay={-10} />
+          </CubeLoader>
+          <LoadingText>Cargando cuestionario...</LoadingText>
         </GlassCard>
       </PageContainer>
     );
