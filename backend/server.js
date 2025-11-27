@@ -181,18 +181,25 @@ io.on('connection', (socket) => {
 
   // Handle new messages
   socket.on('send-message', async (data) => {
+    console.log('Received send-message event:', { groupId: data.groupId, content: data.content, userId: socket.userId });
     try {
       const { groupId, content } = data;
 
       // Verify user is member of the group
       const ChatGroup = require('./models/ChatGroup');
       const group = await ChatGroup.findById(groupId);
-      if (!group) return;
+      if (!group) {
+        console.log('Group not found:', groupId);
+        return;
+      }
 
       const isMember = group.currentMembers.some(
         member => member.userId.toString() === socket.userId.toString() && member.isActive
       );
-      if (!isMember) return;
+      if (!isMember) {
+        console.log('User not member of group:', socket.userId, groupId);
+        return;
+      }
 
       // Create message
       const ChatMessage = require('./models/ChatMessage');
@@ -204,10 +211,12 @@ io.on('connection', (socket) => {
       });
 
       await message.save();
+      console.log('Message saved:', message._id);
       await message.populate('senderId', 'firstName lastName');
 
       // Send message to all users in the group (including sender)
       io.to(`group-${groupId}`).emit('new-message', message);
+      console.log('Message emitted to group:', `group-${groupId}`);
     } catch (error) {
       console.error('Error sending message:', error);
     }

@@ -753,9 +753,14 @@ const ChatRoom: React.FC = () => {
     // Listen for new messages
     socket.current.on('new-message', (message: ChatMessage) => {
       console.log('Received new message:', message);
+      console.log('Message content:', message.content, 'from:', message.senderId);
       setMessages(prev => {
         // Check if message already exists to avoid duplicates
-        if (prev.some(m => m._id === message._id)) return prev;
+        if (prev.some(m => m._id === message._id)) {
+          console.log('Message already exists, skipping');
+          return prev;
+        }
+        console.log('Adding new message to state');
         return [...prev, message];
       });
     });
