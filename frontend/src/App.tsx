@@ -479,6 +479,76 @@ const Dashboard: React.FC = () => {
         </button>
       </DashboardHeader>
 
+      <div style={{ marginBottom: window.innerWidth <= 768 ? '24px' : '32px' }}>
+        <h2 style={{
+          color: '#2e7d32',
+          fontSize: window.innerWidth <= 768 ? '1.5rem' : '1.875rem',
+          fontWeight: '600',
+          margin: '0 0 8px 0',
+          textAlign: 'center'
+        }}>
+          ¿Qué te gustaría hacer hoy?
+        </h2>
+        <p style={{
+          color: '#4caf50',
+          fontSize: window.innerWidth <= 768 ? '1rem' : '1.125rem',
+          textAlign: 'center',
+          margin: '0'
+        }}>
+          Explora las herramientas disponibles para cuidar tu bienestar emocional
+        </p>
+      </div>
+
+
+      {/* Features Grid */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: window.innerWidth <= 768 ? '16px' : '24px',
+        marginBottom: window.innerWidth <= 768 ? '32px' : '48px'
+      }}>
+        {features.map((feature, index) => (
+          <FeatureCard
+            key={feature.id}
+            onClick={feature.action}
+            style={{
+              animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`
+            }}
+          >
+            <div style={{
+              width: window.innerWidth <= 768 ? '56px' : '64px',
+              height: window.innerWidth <= 768 ? '56px' : '64px',
+              borderRadius: window.innerWidth <= 768 ? '14px' : '16px',
+              background: feature.gradient,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: window.innerWidth <= 768 ? '1.75rem' : '2rem',
+              marginBottom: window.innerWidth <= 768 ? '16px' : '20px',
+              boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)'
+            }}>
+              {feature.icon}
+            </div>
+            <h3 style={{
+              color: '#2e7d32',
+              fontSize: window.innerWidth <= 768 ? '1.125rem' : '1.25rem',
+              fontWeight: '600',
+              margin: '0 0 12px 0'
+            }}>
+              {feature.title}
+            </h3>
+            <p style={{
+              color: '#4caf50',
+              fontSize: window.innerWidth <= 768 ? '0.9rem' : '1rem',
+              lineHeight: '1.5',
+              margin: '0'
+            }}>
+              {feature.description}
+            </p>
+          </FeatureCard>
+        ))}
+      </div>
+
       {/* Latest Results Charts */}
       {(() => {
         console.log('Dashboard: Checking charts condition...');
@@ -611,76 +681,6 @@ const Dashboard: React.FC = () => {
           </GlassCard>
         </div>
       )}
-
-      <div style={{ marginBottom: window.innerWidth <= 768 ? '24px' : '32px' }}>
-        <h2 style={{
-          color: '#2e7d32',
-          fontSize: window.innerWidth <= 768 ? '1.5rem' : '1.875rem',
-          fontWeight: '600',
-          margin: '0 0 8px 0',
-          textAlign: 'center'
-        }}>
-          ¿Qué te gustaría hacer hoy?
-        </h2>
-        <p style={{
-          color: '#4caf50',
-          fontSize: window.innerWidth <= 768 ? '1rem' : '1.125rem',
-          textAlign: 'center',
-          margin: '0'
-        }}>
-          Explora las herramientas disponibles para cuidar tu bienestar emocional
-        </p>
-      </div>
-
-
-      {/* Features Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: window.innerWidth <= 768 ? '16px' : '24px',
-        marginBottom: window.innerWidth <= 768 ? '32px' : '48px'
-      }}>
-        {features.map((feature, index) => (
-          <FeatureCard
-            key={feature.id}
-            onClick={feature.action}
-            style={{
-              animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`
-            }}
-          >
-            <div style={{
-              width: window.innerWidth <= 768 ? '56px' : '64px',
-              height: window.innerWidth <= 768 ? '56px' : '64px',
-              borderRadius: window.innerWidth <= 768 ? '14px' : '16px',
-              background: feature.gradient,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: window.innerWidth <= 768 ? '1.75rem' : '2rem',
-              marginBottom: window.innerWidth <= 768 ? '16px' : '20px',
-              boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)'
-            }}>
-              {feature.icon}
-            </div>
-            <h3 style={{
-              color: '#2e7d32',
-              fontSize: window.innerWidth <= 768 ? '1.125rem' : '1.25rem',
-              fontWeight: '600',
-              margin: '0 0 12px 0'
-            }}>
-              {feature.title}
-            </h3>
-            <p style={{
-              color: '#4caf50',
-              fontSize: window.innerWidth <= 768 ? '0.9rem' : '1rem',
-              lineHeight: '1.5',
-              margin: '0'
-            }}>
-              {feature.description}
-            </p>
-          </FeatureCard>
-        ))}
-      </div>
 
       {/* Footer */}
       <footer style={{
