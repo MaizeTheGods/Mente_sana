@@ -693,12 +693,14 @@ const ChatRoom: React.FC = () => {
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string>('');
   const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
+  const [isTyping, setIsTyping] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+  const typingTimer = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -711,13 +713,13 @@ const ChatRoom: React.FC = () => {
     }
   }, [id, user]);
 
-  // Poll for new messages every 10 seconds
+  // Poll for new messages every 1 second
   useEffect(() => {
     if (!id || !user) return;
 
     const interval = setInterval(() => {
       loadMessages();
-    }, 10000); // 10 seconds
+    }, 1000); // 1 second
 
     return () => clearInterval(interval);
   }, [id, user]);
@@ -780,6 +782,8 @@ const ChatRoom: React.FC = () => {
     }
 
     console.log('Sending message:', newMessage.trim());
+    // Stop typing indicator
+    setIsTyping(false);
 
     setIsSending(true);
     try {
@@ -816,6 +820,23 @@ const ChatRoom: React.FC = () => {
     const value = e.target.value;
     console.log('Input changed to:', value);
     setNewMessage(value);
+
+    // Handle typing indicator
+    if (value.trim() && !isSending) {
+      setIsTyping(true);
+
+      // Clear existing timer
+      if (typingTimer.current) {
+        clearTimeout(typingTimer.current);
+      }
+
+      // Set timer to stop typing indicator after 2 seconds of no input
+      typingTimer.current = setTimeout(() => {
+        setIsTyping(false);
+      }, 2000);
+    } else {
+      setIsTyping(false);
+    }
   };
 
   const toggleMenu = (messageId: string) => {
@@ -1062,6 +1083,20 @@ const ChatRoom: React.FC = () => {
                   })}
                   <div ref={messagesEndRef} />
                 </MessageList>
+              )}
+
+              {/* Typing indicator */}
+              {isTyping && (
+                <TypingIndicator>
+                  <TypingBubble>
+                    <TypingDots>
+                      <TypingDot delay={0} />
+                      <TypingDot delay={0.2} />
+                      <TypingDot delay={0.4} />
+                    </TypingDots>
+                    <TypingText>Estás escribiendo...</TypingText>
+                  </TypingBubble>
+                </TypingIndicator>
               )}
 
             </MessagesContainer>
