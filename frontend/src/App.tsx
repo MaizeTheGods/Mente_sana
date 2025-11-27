@@ -13,7 +13,7 @@ import ChatRoom from './components/ChatRoom';
 import ExerciseDetail from './components/ExerciseDetail';
 import TipDetail from './components/TipDetail';
 import styled, { createGlobalStyle } from 'styled-components';
-import { GlassCard } from './components/SharedStyles';
+import { GlassCard, CubeLoader, CubeSquare, LoadingText } from './components/SharedStyles';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -85,7 +85,29 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div>Cargando...</div>;
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%)'
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+          <CubeLoader>
+            <CubeSquare delay={0} />
+            <CubeSquare delay={-1.4285714286} />
+            <CubeSquare delay={-2.8571428571} />
+            <CubeSquare delay={-4.2857142857} />
+            <CubeSquare delay={-5.7142857143} />
+            <CubeSquare delay={-7.1428571429} />
+            <CubeSquare delay={-8.5714285714} />
+            <CubeSquare delay={-10} />
+          </CubeLoader>
+          <LoadingText>Cargando...</LoadingText>
+        </div>
+      </div>
+    );
   }
 
   return user ? <>{children}</> : <Navigate to="/login" />;
@@ -96,7 +118,29 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div>Cargando...</div>;
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%)'
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+          <CubeLoader>
+            <CubeSquare delay={0} />
+            <CubeSquare delay={-1.4285714286} />
+            <CubeSquare delay={-2.8571428571} />
+            <CubeSquare delay={-4.2857142857} />
+            <CubeSquare delay={-5.7142857143} />
+            <CubeSquare delay={-7.1428571429} />
+            <CubeSquare delay={-8.5714285714} />
+            <CubeSquare delay={-10} />
+          </CubeLoader>
+          <LoadingText>Cargando...</LoadingText>
+        </div>
+      </div>
+    );
   }
 
   return user ? <Navigate to="/dashboard" /> : <>{children}</>;
