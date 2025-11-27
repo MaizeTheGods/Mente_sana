@@ -103,7 +103,7 @@ io.use(async (socket, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Full decoded:', decoded);
+    console.log('Decoded keys:', Object.keys(decoded));
     console.log('Decoded user ID:', decoded._id);
     socket.userId = decoded._id;
 
