@@ -75,6 +75,30 @@ const MessageSender = styled.div`
   font-weight: 600;
   margin-bottom: 4px;
   color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const MessageAvatar = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #2e7d32;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+`;
+
+const MessageAvatarImage = styled.img`
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 `;
 
 const MessageTime = styled.div<{ isOwn: boolean }>`
@@ -220,7 +244,30 @@ const ChatRoom: React.FC = () => {
               const isOwn = msg.senderId._id === user?._id;
               return (
                 <div key={msg._id} style={{ display: 'flex', flexDirection: 'column', alignItems: isOwn ? 'flex-end' : 'flex-start' }}>
-                  {!isOwn && <MessageSender>{msg.senderId.firstName} {msg.senderId.lastName}</MessageSender>}
+                  {!isOwn && (
+                    <MessageSender>
+                      <MessageAvatar>
+                        {msg.senderId.preferences?.profileImage && msg.senderId.preferences.profileImage !== 'default-avatar.png' ? (
+                          <MessageAvatarImage
+                            src={`/avatars/${msg.senderId.preferences.profileImage}`}
+                            alt="Avatar"
+                            onError={(e) => {
+                              // Fallback to initials if image fails to load
+                              const target = e.currentTarget as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                parent.textContent = msg.senderId.firstName[0];
+                              }
+                            }}
+                          />
+                        ) : (
+                          msg.senderId.firstName[0]
+                        )}
+                      </MessageAvatar>
+                      {msg.senderId.firstName} {msg.senderId.lastName}
+                    </MessageSender>
+                  )}
                   <MessageBubble isOwn={isOwn}>
                     {msg.content}
                     <MessageTime isOwn={isOwn}>

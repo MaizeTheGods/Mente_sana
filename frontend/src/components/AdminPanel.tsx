@@ -394,12 +394,13 @@ const ModalActions = styled.div`
 const AdminPanel: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'tips' | 'exercises'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'tips' | 'exercises' | 'avatars'>('dashboard');
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [tips, setTips] = useState<Tip[]>([]);
   const [exercises, setExercises] = useState<any[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [avatars, setAvatars] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Modal State
@@ -661,6 +662,9 @@ const AdminPanel: React.FC = () => {
         <NavItem active={activeTab === 'exercises'} onClick={() => setActiveTab('exercises')}>
           🧘 Ejercicios
         </NavItem>
+        <NavItem active={activeTab === 'avatars'} onClick={() => setActiveTab('avatars')}>
+          👤 Avatares
+        </NavItem>
 
         <div style={{ marginTop: 'auto' }}>
           <NavItem active={false} onClick={() => navigate('/dashboard')}>
@@ -676,6 +680,7 @@ const AdminPanel: React.FC = () => {
             {activeTab === 'users' && 'Gestión de Usuarios'}
             {activeTab === 'tips' && 'Biblioteca de Consejos'}
             {activeTab === 'exercises' && 'Biblioteca de Ejercicios'}
+            {activeTab === 'avatars' && 'Gestión de Avatares'}
           </PageTitle>
           <UserProfile>
             <span>{user.firstName} {user.lastName}</span>
@@ -828,8 +833,94 @@ const AdminPanel: React.FC = () => {
             </TipsGrid>
           </>
         )}
-      </MainContent>
 
+        {activeTab === 'avatars' && (
+          <>
+            <TipsHeader>
+              <div style={{ color: '#64748b' }}>Gestiona las imágenes de perfil disponibles para los usuarios</div>
+              <AddButton>
+                + Subir Avatar
+              </AddButton>
+            </TipsHeader>
+            <TipsGrid>
+              {['default-avatar.png', 'avatar-1.png', 'avatar-2.png', 'avatar-3.png', 'avatar-4.png', 'avatar-5.png', 'avatar-6.png', 'avatar-7.png', 'avatar-8.png'].map((avatar) => (
+                <TipCard key={avatar}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                    <div style={{
+                      width: '80px',
+                      height: '80px',
+                      borderRadius: '50%',
+                      overflow: 'hidden',
+                      border: '3px solid #2e7d32'
+                    }}>
+                      {avatar === 'default-avatar.png' ? (
+                        <div style={{
+                          width: '100%',
+                          height: '100%',
+                          background: 'linear-gradient(135deg, #2e7d32, #4caf50)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                          fontSize: '32px',
+                          fontWeight: 'bold'
+                        }}>
+                          ?
+                        </div>
+                      ) : (
+                        <img
+                          src={`/avatars/${avatar}`}
+                          alt={`Avatar ${avatar}`}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={(e) => {
+                            const target = e.currentTarget as HTMLImageElement;
+                            target.style.display = 'none';
+                            const placeholder = target.nextElementSibling as HTMLElement;
+                            if (placeholder) {
+                              placeholder.style.display = 'flex';
+                            }
+                          }}
+                        />
+                      )}
+                      {avatar !== 'default-avatar.png' && (
+                        <div style={{
+                          display: 'none',
+                          width: '100%',
+                          height: '100%',
+                          background: 'linear-gradient(135deg, #2e7d32, #4caf50)',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                          fontSize: '32px',
+                          fontWeight: 'bold'
+                        }}>
+                          ?
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>
+                        {avatar === 'default-avatar.png' ? 'Avatar Predeterminado' : `Avatar ${avatar.split('.')[0].split('-')[1]}`}
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                        <ActionButton variant="primary" style={{ fontSize: '12px', padding: '6px 12px' }}>
+                          Editar
+                        </ActionButton>
+                        {avatar !== 'default-avatar.png' && (
+                          <ActionButton variant="danger" style={{ fontSize: '12px', padding: '6px 12px' }}>
+                            Eliminar
+                          </ActionButton>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </TipCard>
+              ))}
+            </TipsGrid>
+          </>
+        )}
+
+      </MainContent>
       {isModalOpen && (
         <ModalOverlay onClick={() => setIsModalOpen(false)}>
           <ModalContent onClick={e => e.stopPropagation()}>

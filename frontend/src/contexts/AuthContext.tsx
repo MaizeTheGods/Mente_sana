@@ -8,6 +8,7 @@ interface AuthContextType {
   register: (userData: any) => Promise<void>;
   logout: () => void;
   updateProfile: (updates: Partial<User>) => Promise<void>;
+  updateProfileImage: (profileImage: string) => Promise<void>;
   isLoading: boolean;
 }
 
@@ -100,6 +101,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const updateProfileImage = async (profileImage: string) => {
+    try {
+      const response = await authAPI.updateProfile({
+        preferences: {
+          language: user?.preferences?.language || 'es',
+          theme: user?.preferences?.theme || 'light',
+          notifications: user?.preferences?.notifications || true,
+          profileImage
+        }
+      });
+      const updatedUser = response.user;
+
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const value: AuthContextType = {
     user,
     token,
@@ -107,6 +127,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     register,
     logout,
     updateProfile,
+    updateProfileImage,
     isLoading,
   };
 

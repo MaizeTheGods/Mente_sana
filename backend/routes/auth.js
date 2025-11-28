@@ -248,7 +248,8 @@ router.put('/profile', authenticateToken, [
   body('lastName').optional().trim().isLength({ min: 1, max: 50 }),
   body('preferences.language').optional().isIn(['es', 'en']),
   body('preferences.theme').optional().isIn(['light', 'dark']),
-  body('preferences.notifications').optional().isBoolean()
+  body('preferences.notifications').optional().isBoolean(),
+  body('preferences.profileImage').optional().isString().isLength({ min: 1, max: 100 })
 ], async (req, res) => {
   try {
     const errors = validationResult(req);

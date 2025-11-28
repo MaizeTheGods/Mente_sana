@@ -14,6 +14,7 @@ import ExerciseDetail from './components/ExerciseDetail';
 import TipDetail from './components/TipDetail';
 import AdminPanel from './components/AdminPanel';
 import SidebarLayout from './components/SidebarLayout';
+import Profile from './components/Profile';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Card, CubeLoader, CubeSquare, LoadingText, PageHeader, PageTitle, PageSubtitle } from './components/SharedStyles';
 import { Line, Bar } from 'react-chartjs-2';
@@ -158,6 +159,11 @@ const AppRoutes: React.FC = () => {
         <Route path="/maps" element={
           <ProtectedRoute>
             <HealthServicesMap />
+          </ProtectedRoute>
+        } />
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         } />
         <Route path="/exercises" element={

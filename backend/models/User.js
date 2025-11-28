@@ -97,6 +97,10 @@ const userSchema = new mongoose.Schema({
       type: String,
       enum: ['light', 'dark'],
       default: 'light'
+    },
+    profileImage: {
+      type: String,
+      default: 'default-avatar.png'
     }
   },
   role: {

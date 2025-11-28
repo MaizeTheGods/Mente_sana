@@ -51,6 +51,7 @@ export interface User {
     language: string;
     theme: string;
     notifications: boolean;
+    profileImage: string;
   };
   progressTracking: {
     streakDays: number;
@@ -371,6 +372,9 @@ export interface ChatMessage {
     _id: string;
     firstName: string;
     lastName: string;
+    preferences?: {
+      profileImage: string;
+    };
   };
   content: string;
   messageType: 'text' | 'image' | 'file';

@@ -131,6 +131,15 @@ const Avatar = styled.div`
   align-items: center;
   justify-content: center;
   font-weight: 600;
+  overflow: hidden;
+  position: relative;
+`;
+
+const AvatarImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 `;
 
 const UserInfo = styled.div`
@@ -161,6 +170,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
 
     const navItems = [
         { path: '/dashboard', label: 'Dashboard', icon: '📊' },
+        { path: '/profile', label: 'Perfil', icon: '👤' },
         { path: '/questionnaire', label: 'Cuestionario', icon: '📝' },
         { path: '/exercises', label: 'Ejercicios', icon: '🧘' },
         { path: '/tips', label: 'Consejos', icon: '💡' },
@@ -210,7 +220,25 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
                 ))}
 
                 <UserProfile>
-                    <Avatar>{user?.firstName?.[0]}</Avatar>
+                    <Avatar>
+                        {user?.preferences?.profileImage && user.preferences.profileImage !== 'default-avatar.png' ? (
+                            <AvatarImage
+                                src={`/avatars/${user.preferences.profileImage}`}
+                                alt="Avatar"
+                                onError={(e) => {
+                                    // Fallback to initials if image fails to load
+                                    const target = e.currentTarget as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    const parent = target.parentElement;
+                                    if (parent) {
+                                        parent.textContent = user?.firstName?.[0] || '';
+                                    }
+                                }}
+                            />
+                        ) : (
+                            user?.firstName?.[0]
+                        )}
+                    </Avatar>
                     <UserInfo>
                         <UserName>{user?.firstName} {user?.lastName}</UserName>
                         <UserRole>{user?.role === 'user' ? 'Miembro' : user?.role}</UserRole>
