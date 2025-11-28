@@ -17,7 +17,6 @@ const avatarSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['general', 'profesional', 'divertido', 'anime', 'animales', 'naturaleza', 'arte', 'deporte'],
     default: 'general'
   },
   uploadedBy: {
