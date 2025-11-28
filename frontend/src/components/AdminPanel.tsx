@@ -432,7 +432,7 @@ const AdminPanel: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('general');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [editingCategory, setEditingCategory] = useState<any | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
@@ -694,6 +694,12 @@ const AdminPanel: React.FC = () => {
       return;
     }
 
+    // Get the selected category from the form
+    const categoryFromForm = formData.get('category') as string;
+    const categoryToUse = categoryFromForm || selectedCategory;
+
+    console.log('Uploading to category:', categoryToUse); // Debug log
+
     setIsUploading(true);
     setUploadProgress({ current: 0, total: files.length });
 
@@ -705,7 +711,7 @@ const AdminPanel: React.FC = () => {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         try {
-          await uploadsAPI.uploadAvatar(file, selectedCategory);
+          await uploadsAPI.uploadAvatar(file, categoryToUse);
           successCount++;
           setUploadProgress({ current: i + 1, total: files.length });
         } catch (error) {
@@ -719,9 +725,9 @@ const AdminPanel: React.FC = () => {
       loadAvatars();
 
       if (errorCount === 0) {
-        alert(`${successCount} avatar(es) subido(s) exitosamente`);
+        alert(`${successCount} avatar(es) subido(s) exitosamente a la categoría "${categoryToUse}"`);
       } else {
-        alert(`${successCount} avatar(es) subido(s) exitosamente, ${errorCount} error(es)`);
+        alert(`${successCount} avatar(es) subido(s) exitosamente, ${errorCount} error(es) en la categoría "${categoryToUse}"`);
       }
 
       setIsUploadModalOpen(false);
@@ -1021,7 +1027,10 @@ const AdminPanel: React.FC = () => {
           <>
             <TipsHeader>
               <div style={{ color: '#64748b' }}>Gestiona las imágenes de perfil disponibles para los usuarios</div>
-              <AddButton onClick={() => setIsUploadModalOpen(true)}>
+              <AddButton onClick={() => {
+                loadCategories(); // Asegurar que las categorías estén cargadas
+                setIsUploadModalOpen(true);
+              }}>
                 + Subir Avatares
               </AddButton>
             </TipsHeader>
@@ -1160,7 +1169,8 @@ const AdminPanel: React.FC = () => {
                     <FormGroup>
                       <Label>Categoría</Label>
                       <Select
-                        value={selectedCategory}
+                        name="category"
+                        value={selectedCategory || avatarCategories.filter(category => category.isActive)[0]?.name || ''}
                         onChange={e => setSelectedCategory(e.target.value)}
                         disabled={isUploading}
                       >
