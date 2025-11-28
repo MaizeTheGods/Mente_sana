@@ -465,6 +465,7 @@ const AdminPanel: React.FC = () => {
   useEffect(() => {
     if (activeTab === 'avatars' && (user?.role === 'admin' || user?.role === 'owner')) {
       loadAvatars();
+      loadCategories(); // Necesario para el dropdown de categorías en subida
     }
     if (activeTab === 'categories' && (user?.role === 'admin' || user?.role === 'owner')) {
       loadCategories();
@@ -1129,7 +1130,7 @@ const AdminPanel: React.FC = () => {
                         onChange={e => setSelectedCategory(e.target.value)}
                         disabled={isUploading}
                       >
-                        {avatarCategories.map(category => (
+                        {avatarCategories.filter(category => category.isActive).map(category => (
                           <option key={category.name} value={category.name}>
                             {category.icon} {category.label}
                           </option>
