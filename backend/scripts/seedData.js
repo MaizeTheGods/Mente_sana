@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Exercise = require('../models/Exercise');
 const Tip = require('../models/Tip');
 const ChatGroup = require('../models/ChatGroup');
+const AvatarCategory = require('../models/AvatarCategory');
 
 const exercisesData = [
   {
@@ -490,6 +491,54 @@ const tipsData = [
   }
 ];
 
+const avatarCategoriesData = [
+  {
+    name: 'general',
+    label: 'General',
+    icon: '👤',
+    color: '#2e7d32',
+    description: 'Avatares generales para todos los usuarios',
+    order: 1,
+    isActive: true
+  },
+  {
+    name: 'profesional',
+    label: 'Profesional',
+    icon: '💼',
+    color: '#1976d2',
+    description: 'Avatares para entornos profesionales',
+    order: 2,
+    isActive: true
+  },
+  {
+    name: 'estudiante',
+    label: 'Estudiante',
+    icon: '🎓',
+    color: '#388e3c',
+    description: 'Avatares para estudiantes y académicos',
+    order: 3,
+    isActive: true
+  },
+  {
+    name: 'familiar',
+    label: 'Familiar',
+    icon: '👨‍👩‍👧‍👦',
+    color: '#f57c00',
+    description: 'Avatares para contextos familiares',
+    order: 4,
+    isActive: true
+  },
+  {
+    name: 'deportivo',
+    label: 'Deportivo',
+    icon: '🏃‍♂️',
+    color: '#7b1fa2',
+    description: 'Avatares para entusiastas del deporte',
+    order: 5,
+    isActive: true
+  }
+];
+
 const categoriesData = {
   exercises: [
     { id: 'all', label: 'Todos', icon: '🧘' },
@@ -517,7 +566,12 @@ async function seedDatabase() {
     await Exercise.deleteMany({});
     await Tip.deleteMany({});
     await ChatGroup.deleteMany({});
+    await AvatarCategory.deleteMany({});
     console.log('🗑️  Cleared existing data');
+
+    // Insert avatar categories
+    const avatarCategories = await AvatarCategory.insertMany(avatarCategoriesData);
+    console.log(`✅ Inserted ${avatarCategories.length} avatar categories`);
 
     // Insert exercises
     const exercises = await Exercise.insertMany(exercisesData);
@@ -557,12 +611,15 @@ async function seedDatabase() {
 
     console.log('🎉 Database seeding completed successfully!');
     console.log('\n📊 Summary:');
+    console.log(`   Avatar Categories: ${avatarCategories.length}`);
     console.log(`   Exercises: ${exercises.length}`);
     console.log(`   Tips: ${tips.length}`);
     console.log(`   Chat Groups: ${chatGroups.length}`);
     console.log('\n🎬 All exercises and tips now have video URLs!');
+    console.log('👤 Avatar categories are ready for profile customization!');
     console.log('👥 Chat groups are ready for community support!');
     console.log('   🌟 8 amazing support groups created!');
+    console.log('   🎨 5 avatar categories created!');
 
   } catch (error) {
     console.error('❌ Error seeding database:', error);
@@ -585,4 +642,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { seedDatabase, exercisesData, tipsData, chatGroupsData, categoriesData };
+module.exports = { seedDatabase, exercisesData, tipsData, chatGroupsData, categoriesData, avatarCategoriesData };

@@ -6,66 +6,47 @@ const defaultCategories = [
   {
     name: 'general',
     label: 'General',
-    description: 'Avatares generales y neutrales',
+    description: 'Avatares generales para todos los usuarios',
     icon: '👤',
     color: '#2e7d32',
-    order: 1
+    order: 1,
+    isActive: true
   },
   {
     name: 'profesional',
     label: 'Profesional',
-    description: 'Avatares formales y corporativos',
+    description: 'Avatares para entornos profesionales',
     icon: '💼',
     color: '#1976d2',
-    order: 2
+    order: 2,
+    isActive: true
   },
   {
-    name: 'divertido',
-    label: 'Divertido',
-    description: 'Avatares coloridos y expresivos',
-    icon: '🎭',
-    color: '#ff9800',
-    order: 3
+    name: 'estudiante',
+    label: 'Estudiante',
+    description: 'Avatares para estudiantes y académicos',
+    icon: '🎓',
+    color: '#388e3c',
+    order: 3,
+    isActive: true
   },
   {
-    name: 'anime',
-    label: 'Anime',
-    description: 'Estilo anime y manga',
-    icon: '🎌',
-    color: '#9c27b0',
-    order: 4
+    name: 'familiar',
+    label: 'Familiar',
+    description: 'Avatares para contextos familiares',
+    icon: '👨‍👩‍👧‍👦',
+    color: '#f57c00',
+    order: 4,
+    isActive: true
   },
   {
-    name: 'animales',
-    label: 'Animales',
-    description: 'Avatares con animales',
-    icon: '🐾',
-    color: '#795548',
-    order: 5
-  },
-  {
-    name: 'naturaleza',
-    label: 'Naturaleza',
-    description: 'Paisajes y elementos naturales',
-    icon: '🌿',
-    color: '#4caf50',
-    order: 6
-  },
-  {
-    name: 'arte',
-    label: 'Arte',
-    description: 'Diseños artísticos y abstractos',
-    icon: '🎨',
-    color: '#e91e63',
-    order: 7
-  },
-  {
-    name: 'deporte',
-    label: 'Deporte',
-    description: 'Temática deportiva',
-    icon: '⚽',
-    color: '#2196f3',
-    order: 8
+    name: 'deportivo',
+    label: 'Deportivo',
+    description: 'Avatares para entusiastas del deporte',
+    icon: '🏃‍♂️',
+    color: '#7b1fa2',
+    order: 5,
+    isActive: true
   }
 ];
 
