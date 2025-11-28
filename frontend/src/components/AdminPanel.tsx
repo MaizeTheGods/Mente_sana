@@ -1026,94 +1026,113 @@ const AdminPanel: React.FC = () => {
               </AddButton>
             </TipsHeader>
 
-            {avatars && Object.entries(avatars).map(([category, categoryAvatars]) => (
-              <div key={category} style={{ marginBottom: '40px' }}>
-                <h3 style={{
-                  color: '#1e293b',
-                  fontSize: '20px',
-                  fontWeight: '600',
-                  marginBottom: '20px',
-                  textTransform: 'capitalize'
-                }}>
-                  {category === 'default' ? 'Predeterminado' : category}
-                </h3>
+            {avatars && Object.entries(avatars)
+              .sort(([categoryA], [categoryB]) => {
+                // Ordenar por categoría: default primero, luego por orden de categorías
+                if (categoryA === 'default') return -1;
+                if (categoryB === 'default') return 1;
 
-                <div style={{
-                  display: 'flex',
-                  gap: '16px',
-                  overflowX: 'auto',
-                  paddingBottom: '10px',
-                  scrollbarWidth: 'thin',
-                  scrollbarColor: '#cbd5e1 transparent'
-                }}>
-                  {(categoryAvatars as any[]).map((avatar: any) => (
-                    <div key={avatar._id} style={{
-                      flex: '0 0 auto',
-                      width: '120px',
-                      textAlign: 'center'
+                const catA = avatarCategories.find(cat => cat.name === categoryA);
+                const catB = avatarCategories.find(cat => cat.name === categoryB);
+
+                if (catA && catB) {
+                  return (catA.order || 0) - (catB.order || 0);
+                }
+
+                return categoryA.localeCompare(categoryB);
+              })
+              .map(([category, categoryAvatars]) => {
+                const categoryInfo = avatarCategories.find(cat => cat.name === category);
+                return (
+                  <div key={category} style={{ marginBottom: '40px' }}>
+                    <h3 style={{
+                      color: '#1e293b',
+                      fontSize: '20px',
+                      fontWeight: '600',
+                      marginBottom: '20px',
+                      textTransform: 'capitalize'
                     }}>
-                      <div style={{
-                        width: '80px',
-                        height: '80px',
-                        borderRadius: '50%',
-                        overflow: 'hidden',
-                        border: '3px solid #2e7d32',
-                        margin: '0 auto 12px',
-                        background: avatar._id === 'default' ? 'linear-gradient(135deg, #2e7d32, #4caf50)' : 'transparent',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        {avatar._id === 'default' ? (
-                          <span style={{ color: 'white', fontSize: '32px', fontWeight: 'bold' }}>?</span>
-                        ) : (
-                          <img
-                            src={avatar.url}
-                            alt={`Avatar ${avatar.filename}`}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            onError={(e) => {
-                              const target = e.currentTarget as HTMLImageElement;
-                              target.style.display = 'none';
-                              const placeholder = target.nextElementSibling as HTMLElement;
-                              if (placeholder) {
-                                placeholder.style.display = 'flex';
-                              }
-                            }}
-                          />
-                        )}
-                        {avatar._id !== 'default' && (
+                      {category === 'default' ? '👤 Predeterminado' :
+                       categoryInfo ? `${categoryInfo.icon} ${categoryInfo.label}` : category}
+                    </h3>
+
+                    <div style={{
+                      display: 'flex',
+                      gap: '16px',
+                      overflowX: 'auto',
+                      paddingBottom: '10px',
+                      scrollbarWidth: 'thin',
+                      scrollbarColor: '#cbd5e1 transparent'
+                    }}>
+                      {(categoryAvatars as any[]).map((avatar: any) => (
+                        <div key={avatar._id} style={{
+                          flex: '0 0 auto',
+                          width: '120px',
+                          textAlign: 'center'
+                        }}>
                           <div style={{
-                            display: 'none',
-                            width: '100%',
-                            height: '100%',
-                            background: 'linear-gradient(135deg, #2e7d32, #4caf50)',
+                            width: '80px',
+                            height: '80px',
+                            borderRadius: '50%',
+                            overflow: 'hidden',
+                            border: '3px solid #2e7d32',
+                            margin: '0 auto 12px',
+                            background: avatar._id === 'default' ? 'linear-gradient(135deg, #2e7d32, #4caf50)' : 'transparent',
+                            display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center',
-                            color: 'white',
-                            fontSize: '32px',
-                            fontWeight: 'bold'
+                            justifyContent: 'center'
                           }}>
-                            ?
+                            {avatar._id === 'default' ? (
+                              <span style={{ color: 'white', fontSize: '32px', fontWeight: 'bold' }}>?</span>
+                            ) : (
+                              <img
+                                src={avatar.url}
+                                alt={`Avatar ${avatar.filename}`}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                onError={(e) => {
+                                  const target = e.currentTarget as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const placeholder = target.nextElementSibling as HTMLElement;
+                                  if (placeholder) {
+                                    placeholder.style.display = 'flex';
+                                  }
+                                }}
+                              />
+                            )}
+                            {avatar._id !== 'default' && (
+                              <div style={{
+                                display: 'none',
+                                width: '100%',
+                                height: '100%',
+                                background: 'linear-gradient(135deg, #2e7d32, #4caf50)',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'white',
+                                fontSize: '32px',
+                                fontWeight: 'bold'
+                              }}>
+                                ?
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>
-                        {avatar._id === 'default' ? 'Predeterminado' : avatar.filename}
-                      </div>
-                      {avatar._id !== 'default' && (
-                        <ActionButton
-                          variant="danger"
-                          style={{ fontSize: '10px', padding: '4px 8px' }}
-                          onClick={() => handleDeleteAvatar(avatar._id)}
-                        >
-                          Eliminar
-                        </ActionButton>
-                      )}
+                          <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>
+                            {avatar._id === 'default' ? 'Predeterminado' : avatar.filename}
+                          </div>
+                          {avatar._id !== 'default' && (
+                            <ActionButton
+                              variant="danger"
+                              style={{ fontSize: '10px', padding: '4px 8px' }}
+                              onClick={() => handleDeleteAvatar(avatar._id)}
+                            >
+                              Eliminar
+                            </ActionButton>
+                          )}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+                  </div>
+                );
+              })}
 
             {isUploadModalOpen && (
               <ModalOverlay onClick={() => setIsUploadModalOpen(false)}>
