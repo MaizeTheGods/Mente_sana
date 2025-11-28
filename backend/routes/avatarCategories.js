@@ -5,7 +5,7 @@ const AvatarCategory = require('../models/AvatarCategory');
 const router = express.Router();
 
 // @route   GET /api/avatar-categories
-// @desc    Get all avatar categories
+// @desc    Get all avatar categories (active and inactive)
 // @access  Private (Admin only)
 router.get('/', authenticateToken, async (req, res) => {
   try {
@@ -14,9 +14,9 @@ router.get('/', authenticateToken, async (req, res) => {
       return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
     }
 
-    const categories = await AvatarCategory.find({ isActive: true })
+    const categories = await AvatarCategory.find({})
       .populate('createdBy', 'firstName lastName')
-      .sort({ order: 1, createdAt: -1 });
+      .sort({ isActive: -1, order: 1, createdAt: -1 });
 
     res.json({ categories });
 

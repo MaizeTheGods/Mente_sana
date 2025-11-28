@@ -158,9 +158,10 @@ const Profile: React.FC = () => {
         const avatarsResponse = await uploadsAPI.getAvatars();
         setAvailableAvatars(avatarsResponse.avatarsByCategory);
 
-        // Load categories
+        // Load categories (only active ones for users)
         const categoriesResponse = await api.get('/avatar-categories');
-        setAvatarCategories(categoriesResponse.data.categories);
+        const activeCategories = categoriesResponse.data.categories.filter((cat: any) => cat.isActive);
+        setAvatarCategories(activeCategories);
       } catch (error) {
         console.error('Error loading data:', error);
         // Fallback to default

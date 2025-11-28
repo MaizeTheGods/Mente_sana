@@ -723,15 +723,26 @@ const AdminPanel: React.FC = () => {
   };
 
   const handleDeleteCategory = async (categoryId: string) => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar esta categoría? Esto no eliminará los avatares existentes.')) return;
+    if (!window.confirm('¿Estás seguro de que quieres desactivar esta categoría? Los avatares existentes permanecerán.')) return;
 
     try {
       await avatarCategoriesAPI.deleteCategory(categoryId);
       loadCategories();
-      alert('Categoría eliminada exitosamente');
+      alert('Categoría desactivada exitosamente');
     } catch (error) {
       console.error('Error deleting category:', error);
-      alert('Error al eliminar la categoría');
+      alert('Error al desactivar la categoría');
+    }
+  };
+
+  const handleRestoreCategory = async (categoryId: string) => {
+    try {
+      await avatarCategoriesAPI.updateCategory(categoryId, { isActive: true });
+      loadCategories();
+      alert('Categoría activada exitosamente');
+    } catch (error) {
+      console.error('Error restoring category:', error);
+      alert('Error al activar la categoría');
     }
   };
 
@@ -1118,7 +1129,7 @@ const AdminPanel: React.FC = () => {
         {activeTab === 'categories' && (
           <>
             <TipsHeader>
-              <div style={{ color: '#64748b' }}>Gestiona las categorías disponibles para organizar los avatares</div>
+              <div style={{ color: '#64748b' }}>Gestiona todas las categorías de avatares (activas e inactivas)</div>
               <AddButton onClick={() => {
                 setEditingCategory(null);
                 setIsCategoryModalOpen(true);
@@ -1129,7 +1140,13 @@ const AdminPanel: React.FC = () => {
 
             <div style={{ display: 'grid', gap: '16px' }}>
               {avatarCategories.map((category: any) => (
-                <Card key={category._id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Card key={category._id} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  opacity: category.isActive ? 1 : 0.6,
+                  background: category.isActive ? 'white' : '#f8fafc'
+                }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <div style={{
                       width: '48px',
@@ -1139,14 +1156,22 @@ const AdminPanel: React.FC = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '24px'
+                      fontSize: '24px',
+                      opacity: category.isActive ? 1 : 0.5
                     }}>
                       {category.icon || '📁'}
                     </div>
                     <div>
-                      <h3 style={{ margin: '0 0 4px 0', color: '#1e293b', fontSize: '18px' }}>
-                        {category.label}
-                      </h3>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <h3 style={{ margin: '0 0 4px 0', color: '#1e293b', fontSize: '18px' }}>
+                          {category.label}
+                        </h3>
+                        {!category.isActive && (
+                          <Badge bg="#fee2e2" color="#dc2626" style={{ fontSize: '10px' }}>
+                            Inactiva
+                          </Badge>
+                        )}
+                      </div>
                       <p style={{ margin: '0', color: '#64748b', fontSize: '14px' }}>
                         {category.description || 'Sin descripción'}
                       </p>
@@ -1164,12 +1189,21 @@ const AdminPanel: React.FC = () => {
                     >
                       Editar
                     </ActionButton>
-                    <ActionButton
-                      variant="danger"
-                      onClick={() => handleDeleteCategory(category._id)}
-                    >
-                      Eliminar
-                    </ActionButton>
+                    {category.isActive ? (
+                      <ActionButton
+                        variant="danger"
+                        onClick={() => handleDeleteCategory(category._id)}
+                      >
+                        Desactivar
+                      </ActionButton>
+                    ) : (
+                      <ActionButton
+                        variant="success"
+                        onClick={() => handleRestoreCategory(category._id)}
+                      >
+                        Activar
+                      </ActionButton>
+                    )}
                   </div>
                 </Card>
               ))}
