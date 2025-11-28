@@ -1026,25 +1026,21 @@ const AdminPanel: React.FC = () => {
               </AddButton>
             </TipsHeader>
 
-            {avatars && Object.entries(avatars)
-              .sort(([categoryA], [categoryB]) => {
-                // Ordenar por categoría: default primero, luego por orden de categorías
-                if (categoryA === 'default') return -1;
-                if (categoryB === 'default') return 1;
-
-                const catA = avatarCategories.find(cat => cat.name === categoryA);
-                const catB = avatarCategories.find(cat => cat.name === categoryB);
-
-                if (catA && catB) {
-                  return (catA.order || 0) - (catB.order || 0);
+            {avatarCategories
+              .filter(category => category.isActive)
+              .sort((catA, catB) => {
+                // Ordenar por orden definido, luego alfabéticamente
+                if (catA.order !== undefined && catB.order !== undefined) {
+                  return catA.order - catB.order;
                 }
-
-                return categoryA.localeCompare(categoryB);
+                if (catA.order !== undefined) return -1;
+                if (catB.order !== undefined) return 1;
+                return catA.name.localeCompare(catB.name);
               })
-              .map(([category, categoryAvatars]) => {
-                const categoryInfo = avatarCategories.find(cat => cat.name === category);
+              .map((category) => {
+                const categoryAvatars = avatars?.[category.name] || [];
                 return (
-                  <div key={category} style={{ marginBottom: '40px' }}>
+                  <div key={category.name} style={{ marginBottom: '40px' }}>
                     <h3 style={{
                       color: '#1e293b',
                       fontSize: '20px',
@@ -1052,84 +1048,103 @@ const AdminPanel: React.FC = () => {
                       marginBottom: '20px',
                       textTransform: 'capitalize'
                     }}>
-                      {category === 'default' ? '👤 Predeterminado' :
-                       categoryInfo ? `${categoryInfo.icon} ${categoryInfo.label}` : category}
+                      {category.icon} {category.label}
                     </h3>
 
-                    <div style={{
-                      display: 'flex',
-                      gap: '16px',
-                      overflowX: 'auto',
-                      paddingBottom: '10px',
-                      scrollbarWidth: 'thin',
-                      scrollbarColor: '#cbd5e1 transparent'
-                    }}>
-                      {(categoryAvatars as any[]).map((avatar: any) => (
-                        <div key={avatar._id} style={{
-                          flex: '0 0 auto',
-                          width: '120px',
-                          textAlign: 'center'
-                        }}>
-                          <div style={{
-                            width: '80px',
-                            height: '80px',
-                            borderRadius: '50%',
-                            overflow: 'hidden',
-                            border: '3px solid #2e7d32',
-                            margin: '0 auto 12px',
-                            background: avatar._id === 'default' ? 'linear-gradient(135deg, #2e7d32, #4caf50)' : 'transparent',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
+                    {categoryAvatars.length > 0 ? (
+                      <div style={{
+                        display: 'flex',
+                        gap: '16px',
+                        overflowX: 'auto',
+                        paddingBottom: '10px',
+                        scrollbarWidth: 'thin',
+                        scrollbarColor: '#cbd5e1 transparent'
+                      }}>
+                        {categoryAvatars.map((avatar: any) => (
+                          <div key={avatar._id} style={{
+                            flex: '0 0 auto',
+                            width: '120px',
+                            textAlign: 'center'
                           }}>
-                            {avatar._id === 'default' ? (
-                              <span style={{ color: 'white', fontSize: '32px', fontWeight: 'bold' }}>?</span>
-                            ) : (
-                              <img
-                                src={avatar.url}
-                                alt={`Avatar ${avatar.filename}`}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                onError={(e) => {
-                                  const target = e.currentTarget as HTMLImageElement;
-                                  target.style.display = 'none';
-                                  const placeholder = target.nextElementSibling as HTMLElement;
-                                  if (placeholder) {
-                                    placeholder.style.display = 'flex';
-                                  }
-                                }}
-                              />
-                            )}
+                            <div style={{
+                              width: '80px',
+                              height: '80px',
+                              borderRadius: '50%',
+                              overflow: 'hidden',
+                              border: '3px solid #2e7d32',
+                              margin: '0 auto 12px',
+                              background: avatar._id === 'default' ? 'linear-gradient(135deg, #2e7d32, #4caf50)' : 'transparent',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}>
+                              {avatar._id === 'default' ? (
+                                <span style={{ color: 'white', fontSize: '32px', fontWeight: 'bold' }}>?</span>
+                              ) : (
+                                <img
+                                  src={avatar.url}
+                                  alt={`Avatar ${avatar.filename}`}
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                  onError={(e) => {
+                                    const target = e.currentTarget as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    const placeholder = target.nextElementSibling as HTMLElement;
+                                    if (placeholder) {
+                                      placeholder.style.display = 'flex';
+                                    }
+                                  }}
+                                />
+                              )}
+                              {avatar._id !== 'default' && (
+                                <div style={{
+                                  display: 'none',
+                                  width: '100%',
+                                  height: '100%',
+                                  background: 'linear-gradient(135deg, #2e7d32, #4caf50)',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  color: 'white',
+                                  fontSize: '32px',
+                                  fontWeight: 'bold'
+                                }}>
+                                  ?
+                                </div>
+                              )}
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>
+                              {avatar._id === 'default' ? 'Predeterminado' : avatar.filename}
+                            </div>
                             {avatar._id !== 'default' && (
-                              <div style={{
-                                display: 'none',
-                                width: '100%',
-                                height: '100%',
-                                background: 'linear-gradient(135deg, #2e7d32, #4caf50)',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: 'white',
-                                fontSize: '32px',
-                                fontWeight: 'bold'
-                              }}>
-                                ?
-                              </div>
+                              <ActionButton
+                                variant="danger"
+                                style={{ fontSize: '10px', padding: '4px 8px' }}
+                                onClick={() => handleDeleteAvatar(avatar._id)}
+                              >
+                                Eliminar
+                              </ActionButton>
                             )}
                           </div>
-                          <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>
-                            {avatar._id === 'default' ? 'Predeterminado' : avatar.filename}
-                          </div>
-                          {avatar._id !== 'default' && (
-                            <ActionButton
-                              variant="danger"
-                              style={{ fontSize: '10px', padding: '4px 8px' }}
-                              onClick={() => handleDeleteAvatar(avatar._id)}
-                            >
-                              Eliminar
-                            </ActionButton>
-                          )}
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={{
+                        padding: '40px',
+                        textAlign: 'center',
+                        background: '#f8fafc',
+                        borderRadius: '12px',
+                        border: '2px dashed #cbd5e1'
+                      }}>
+                        <div style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }}>
+                          {category.icon}
                         </div>
-                      ))}
-                    </div>
+                        <p style={{ color: '#64748b', margin: '0' }}>
+                          No hay avatares en esta categoría aún
+                        </p>
+                        <p style={{ color: '#94a3b8', fontSize: '14px', margin: '8px 0 0 0' }}>
+                          Sube algunos avatares para comenzar
+                        </p>
+                      </div>
+                    )}
                   </div>
                 );
               })}
