@@ -249,7 +249,7 @@ router.put('/profile', authenticateToken, [
   body('preferences.language').optional().isIn(['es', 'en']),
   body('preferences.theme').optional().isIn(['light', 'dark']),
   body('preferences.notifications').optional().isBoolean(),
-  body('preferences.profileImage').optional().isString().isLength({ min: 1, max: 100 })
+  body('preferences.profileImage').optional().isString().isLength({ min: 1, max: 500 })
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
