@@ -434,6 +434,8 @@ const AdminPanel: React.FC = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('general');
   const [editingCategory, setEditingCategory] = useState<any | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -672,22 +674,62 @@ const AdminPanel: React.FC = () => {
   const handleFileUpload = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const file = formData.get('avatar') as File;
+    const files = formData.getAll('avatar') as File[];
 
-    if (!file) {
-      alert('Por favor selecciona un archivo');
+    if (!files || files.length === 0) {
+      alert('Por favor selecciona al menos un archivo');
       return;
     }
 
+    // Validate file types and sizes
+    const invalidFiles = files.filter(file => {
+      const isValidType = file.type.startsWith('image/');
+      const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB max
+      return !isValidType || !isValidSize;
+    });
+
+    if (invalidFiles.length > 0) {
+      alert('Algunos archivos no son válidos. Solo se permiten imágenes de hasta 5MB.');
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadProgress({ current: 0, total: files.length });
+
     try {
-      const response = await uploadsAPI.uploadAvatar(file, selectedCategory);
-      // Reload avatars after upload
+      let successCount = 0;
+      let errorCount = 0;
+
+      // Upload files one by one to show progress
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        try {
+          await uploadsAPI.uploadAvatar(file, selectedCategory);
+          successCount++;
+          setUploadProgress({ current: i + 1, total: files.length });
+        } catch (error) {
+          console.error(`Error uploading ${file.name}:`, error);
+          errorCount++;
+          setUploadProgress({ current: i + 1, total: files.length });
+        }
+      }
+
+      // Reload avatars after all uploads
       loadAvatars();
+
+      if (errorCount === 0) {
+        alert(`${successCount} avatar(es) subido(s) exitosamente`);
+      } else {
+        alert(`${successCount} avatar(es) subido(s) exitosamente, ${errorCount} error(es)`);
+      }
+
       setIsUploadModalOpen(false);
-      alert('Avatar subido exitosamente');
     } catch (error) {
-      console.error('Error uploading avatar:', error);
-      alert('Error al subir el avatar');
+      console.error('Error uploading avatars:', error);
+      alert('Error al subir los avatares');
+    } finally {
+      setIsUploading(false);
+      setUploadProgress({ current: 0, total: 0 });
     }
   };
 
@@ -979,7 +1021,7 @@ const AdminPanel: React.FC = () => {
             <TipsHeader>
               <div style={{ color: '#64748b' }}>Gestiona las imágenes de perfil disponibles para los usuarios</div>
               <AddButton onClick={() => setIsUploadModalOpen(true)}>
-                + Subir Avatar
+                + Subir Avatares
               </AddButton>
             </TipsHeader>
 
@@ -1076,7 +1118,7 @@ const AdminPanel: React.FC = () => {
               <ModalOverlay onClick={() => setIsUploadModalOpen(false)}>
                 <ModalContent onClick={e => e.stopPropagation()}>
                   <h2 style={{ marginBottom: 20, color: '#1e293b' }}>
-                    Subir Nuevo Avatar
+                    Subir Nuevos Avatares
                   </h2>
 
                   <form onSubmit={handleFileUpload}>
@@ -1085,6 +1127,7 @@ const AdminPanel: React.FC = () => {
                       <Select
                         value={selectedCategory}
                         onChange={e => setSelectedCategory(e.target.value)}
+                        disabled={isUploading}
                       >
                         {avatarCategories.map(category => (
                           <option key={category.name} value={category.name}>
@@ -1095,28 +1138,65 @@ const AdminPanel: React.FC = () => {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label>Seleccionar Imagen</Label>
+                      <Label>Seleccionar Imágenes (máximo 5MB por imagen)</Label>
                       <input
                         type="file"
                         name="avatar"
                         accept="image/*"
+                        multiple
                         required
+                        disabled={isUploading}
                         style={{
                           width: '100%',
                           padding: '10px',
                           border: '1px solid #cbd5e1',
                           borderRadius: '8px',
-                          fontSize: '14px'
+                          fontSize: '14px',
+                          backgroundColor: isUploading ? '#f8fafc' : 'white'
                         }}
                       />
+                      <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+                        Puedes seleccionar múltiples imágenes a la vez
+                      </div>
                     </FormGroup>
 
+                    {isUploading && (
+                      <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+                        <div style={{ color: '#2e7d32', fontWeight: '600', marginBottom: '8px' }}>
+                          Subiendo {uploadProgress.current} de {uploadProgress.total} imagen(es)...
+                        </div>
+                        <div style={{
+                          width: '100%',
+                          height: '8px',
+                          background: '#e2e8f0',
+                          borderRadius: '4px',
+                          overflow: 'hidden'
+                        }}>
+                          <div style={{
+                            width: `${(uploadProgress.current / uploadProgress.total) * 100}%`,
+                            height: '100%',
+                            background: '#2e7d32',
+                            transition: 'width 0.3s ease'
+                          }} />
+                        </div>
+                      </div>
+                    )}
+
                     <ModalActions>
-                      <ActionButton type="button" variant="danger" onClick={() => setIsUploadModalOpen(false)}>
+                      <ActionButton
+                        type="button"
+                        variant="danger"
+                        onClick={() => setIsUploadModalOpen(false)}
+                        disabled={isUploading}
+                      >
                         Cancelar
                       </ActionButton>
-                      <ActionButton type="submit" variant="success">
-                        Subir Avatar
+                      <ActionButton
+                        type="submit"
+                        variant="success"
+                        disabled={isUploading}
+                      >
+                        {isUploading ? 'Subiendo...' : 'Subir Avatar(es)'}
                       </ActionButton>
                     </ModalActions>
                   </form>
