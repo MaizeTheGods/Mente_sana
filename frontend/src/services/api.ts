@@ -302,9 +302,10 @@ export const tipsAPI = {
 
 // Uploads API
 export const uploadsAPI = {
- uploadAvatar: async (file: File): Promise<{ imageUrl: string; publicId: string }> => {
+ uploadAvatar: async (file: File, category: string): Promise<{ message: string; avatar: any }> => {
    const formData = new FormData();
    formData.append('avatar', file);
+   formData.append('category', category);
 
    const response = await api.post('/uploads/avatar', formData, {
      headers: {
@@ -318,7 +319,7 @@ export const uploadsAPI = {
    await api.delete(`/uploads/avatar/${publicId}`);
  },
 
- getAvatars: async (): Promise<{ avatars: Array<{ publicId: string; url: string; filename: string }> }> => {
+ getAvatars: async (): Promise<{ avatarsByCategory: Record<string, Array<{ _id: string; publicId: string; url: string; filename: string; category: string; uploadedBy?: any; createdAt: string }>> }> => {
    const response = await api.get('/uploads/avatars');
    return response.data;
  },

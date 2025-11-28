@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const { authenticateToken } = require('../middleware/auth');
+const Avatar = require('../models/Avatar');
 
 const router = express.Router();
 
@@ -36,6 +37,8 @@ router.post('/avatar', authenticateToken, upload.single('avatar'), async (req, r
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
+    const { category = 'general' } = req.body;
+
     // Upload to Cloudinary
     const result = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
@@ -56,10 +59,26 @@ router.post('/avatar', authenticateToken, upload.single('avatar'), async (req, r
       uploadStream.end(req.file.buffer);
     });
 
+    // Save to database
+    const avatar = new Avatar({
+      publicId: result.public_id,
+      url: result.secure_url,
+      filename: result.public_id.split('/').pop(),
+      category,
+      uploadedBy: req.user._id
+    });
+
+    await avatar.save();
+
     res.json({
       message: 'Avatar uploaded successfully',
-      imageUrl: result.secure_url,
-      publicId: result.public_id
+      avatar: {
+        _id: avatar._id,
+        publicId: avatar.publicId,
+        url: avatar.url,
+        filename: avatar.filename,
+        category: avatar.category
+      }
     });
 
   } catch (error) {
@@ -68,22 +87,35 @@ router.post('/avatar', authenticateToken, upload.single('avatar'), async (req, r
   }
 });
 
-// @route   DELETE /api/uploads/avatar/:publicId
-// @desc    Delete avatar image from Cloudinary
+// @route   DELETE /api/uploads/avatar/:id
+// @desc    Delete avatar image from Cloudinary and database
 // @access  Private (Admin only)
-router.delete('/avatar/:publicId', authenticateToken, async (req, res) => {
+router.delete('/avatar/:id', authenticateToken, async (req, res) => {
   try {
     // Check if user is admin
     if (req.user.role !== 'admin' && req.user.role !== 'owner') {
       return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
     }
 
-    const { publicId } = req.params;
+    const { id } = req.params;
+
+    // Don't allow deleting the default avatar
+    if (id === 'default') {
+      return res.status(400).json({ error: 'Cannot delete default avatar' });
+    }
+
+    // Find avatar in database
+    const avatar = await Avatar.findById(id);
+    if (!avatar) {
+      return res.status(404).json({ error: 'Avatar not found' });
+    }
 
     // Delete from Cloudinary
-    const result = await cloudinary.uploader.destroy(publicId);
+    const result = await cloudinary.uploader.destroy(avatar.publicId);
 
     if (result.result === 'ok') {
+      // Delete from database
+      await Avatar.findByIdAndDelete(id);
       res.json({ message: 'Avatar deleted successfully' });
     } else {
       res.status(400).json({ error: 'Failed to delete avatar from Cloudinary' });
@@ -96,29 +128,46 @@ router.delete('/avatar/:publicId', authenticateToken, async (req, res) => {
 });
 
 // @route   GET /api/uploads/avatars
-// @desc    Get list of uploaded avatars from Cloudinary
-// @access  Private (Admin only)
+// @desc    Get list of uploaded avatars organized by categories
+// @access  Private
 router.get('/avatars', authenticateToken, async (req, res) => {
   try {
-    // Check if user is admin
-    if (req.user.role !== 'admin' && req.user.role !== 'owner') {
-      return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+    // Get avatars from database, grouped by category
+    const avatars = await Avatar.find({ isActive: true })
+      .populate('uploadedBy', 'firstName lastName')
+      .sort({ createdAt: -1 });
+
+    // Group by category
+    const avatarsByCategory = avatars.reduce((acc, avatar) => {
+      if (!acc[avatar.category]) {
+        acc[avatar.category] = [];
+      }
+      acc[avatar.category].push({
+        _id: avatar._id,
+        publicId: avatar.publicId,
+        url: avatar.url,
+        filename: avatar.filename,
+        category: avatar.category,
+        uploadedBy: avatar.uploadedBy,
+        createdAt: avatar.createdAt
+      });
+      return acc;
+    }, {});
+
+    // Add default avatar option
+    if (!avatarsByCategory['default']) {
+      avatarsByCategory['default'] = [{
+        _id: 'default',
+        publicId: 'default-avatar',
+        url: 'default-avatar.png',
+        filename: 'default-avatar.png',
+        category: 'default',
+        uploadedBy: null,
+        createdAt: new Date()
+      }];
     }
 
-    // Get images from Cloudinary folder
-    const result = await cloudinary.api.resources({
-      type: 'upload',
-      prefix: 'mente-sana/avatars/',
-      max_results: 100
-    });
-
-    const avatars = result.resources.map(resource => ({
-      publicId: resource.public_id,
-      url: resource.secure_url,
-      filename: resource.public_id.split('/').pop()
-    }));
-
-    res.json({ avatars });
+    res.json({ avatarsByCategory });
 
   } catch (error) {
     console.error('Get avatars error:', error);

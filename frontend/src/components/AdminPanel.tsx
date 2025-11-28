@@ -400,8 +400,10 @@ const AdminPanel: React.FC = () => {
   const [tips, setTips] = useState<Tip[]>([]);
   const [exercises, setExercises] = useState<any[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [avatars, setAvatars] = useState<string[]>([]);
+  const [avatars, setAvatars] = useState<any>({});
   const [loading, setLoading] = useState(true);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('general');
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -474,7 +476,7 @@ const AdminPanel: React.FC = () => {
   const loadAvatars = async () => {
     try {
       const response = await uploadsAPI.getAvatars();
-      setAvatars(response.avatars.map(avatar => avatar.url));
+      setAvatars(response.avatarsByCategory);
     } catch (error) {
       console.error('Error loading avatars:', error);
     }
@@ -625,18 +627,38 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const handleFileUpload = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const file = formData.get('avatar') as File;
+
+    if (!file) {
+      alert('Por favor selecciona un archivo');
+      return;
+    }
 
     try {
-      const response = await uploadsAPI.uploadAvatar(file);
+      const response = await uploadsAPI.uploadAvatar(file, selectedCategory);
       // Reload avatars after upload
       loadAvatars();
+      setIsUploadModalOpen(false);
       alert('Avatar subido exitosamente');
     } catch (error) {
       console.error('Error uploading avatar:', error);
       alert('Error al subir el avatar');
+    }
+  };
+
+  const handleDeleteAvatar = async (avatarId: string) => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar este avatar?')) return;
+
+    try {
+      await uploadsAPI.deleteAvatar(avatarId);
+      loadAvatars();
+      alert('Avatar eliminado exitosamente');
+    } catch (error) {
+      console.error('Error deleting avatar:', error);
+      alert('Error al eliminar el avatar');
     }
   };
 
@@ -868,104 +890,154 @@ const AdminPanel: React.FC = () => {
           <>
             <TipsHeader>
               <div style={{ color: '#64748b' }}>Gestiona las imágenes de perfil disponibles para los usuarios</div>
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  style={{ display: 'none' }}
-                  id="avatar-upload"
-                />
-                <AddButton onClick={() => document.getElementById('avatar-upload')?.click()}>
-                  + Subir Avatar
-                </AddButton>
-              </div>
+              <AddButton onClick={() => setIsUploadModalOpen(true)}>
+                + Subir Avatar
+              </AddButton>
             </TipsHeader>
-            <TipsGrid>
-              <TipCard>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-                  <div style={{
-                    width: '80px',
-                    height: '80px',
-                    borderRadius: '50%',
-                    overflow: 'hidden',
-                    border: '3px solid #2e7d32',
-                    background: 'linear-gradient(135deg, #2e7d32, #4caf50)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    fontSize: '32px',
-                    fontWeight: 'bold'
-                  }}>
-                    ?
-                  </div>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>
-                      Avatar Predeterminado
-                    </div>
-                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                      <ActionButton variant="primary" style={{ fontSize: '12px', padding: '6px 12px' }}>
-                        Usado por defecto
-                      </ActionButton>
-                    </div>
-                  </div>
-                </div>
-              </TipCard>
-              {avatars.map((avatarUrl, index) => (
-                <TipCard key={avatarUrl}>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-                    <div style={{
-                      width: '80px',
-                      height: '80px',
-                      borderRadius: '50%',
-                      overflow: 'hidden',
-                      border: '3px solid #2e7d32'
+
+            {Object.entries(avatars).map(([category, categoryAvatars]) => (
+              <div key={category} style={{ marginBottom: '40px' }}>
+                <h3 style={{
+                  color: '#1e293b',
+                  fontSize: '20px',
+                  fontWeight: '600',
+                  marginBottom: '20px',
+                  textTransform: 'capitalize'
+                }}>
+                  {category === 'default' ? 'Predeterminado' : category}
+                </h3>
+
+                <div style={{
+                  display: 'flex',
+                  gap: '16px',
+                  overflowX: 'auto',
+                  paddingBottom: '10px',
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#cbd5e1 transparent'
+                }}>
+                  {(categoryAvatars as any[]).map((avatar: any) => (
+                    <div key={avatar._id} style={{
+                      flex: '0 0 auto',
+                      width: '120px',
+                      textAlign: 'center'
                     }}>
-                      <img
-                        src={avatarUrl}
-                        alt={`Avatar ${index + 1}`}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        onError={(e) => {
-                          const target = e.currentTarget as HTMLImageElement;
-                          target.style.display = 'none';
-                          const placeholder = target.nextElementSibling as HTMLElement;
-                          if (placeholder) {
-                            placeholder.style.display = 'flex';
-                          }
-                        }}
-                      />
                       <div style={{
-                        display: 'none',
-                        width: '100%',
-                        height: '100%',
-                        background: 'linear-gradient(135deg, #2e7d32, #4caf50)',
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: '50%',
+                        overflow: 'hidden',
+                        border: '3px solid #2e7d32',
+                        margin: '0 auto 12px',
+                        background: avatar._id === 'default' ? 'linear-gradient(135deg, #2e7d32, #4caf50)' : 'transparent',
+                        display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        fontSize: '32px',
-                        fontWeight: 'bold'
+                        justifyContent: 'center'
                       }}>
-                        ?
+                        {avatar._id === 'default' ? (
+                          <span style={{ color: 'white', fontSize: '32px', fontWeight: 'bold' }}>?</span>
+                        ) : (
+                          <img
+                            src={avatar.url}
+                            alt={`Avatar ${avatar.filename}`}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={(e) => {
+                              const target = e.currentTarget as HTMLImageElement;
+                              target.style.display = 'none';
+                              const placeholder = target.nextElementSibling as HTMLElement;
+                              if (placeholder) {
+                                placeholder.style.display = 'flex';
+                              }
+                            }}
+                          />
+                        )}
+                        {avatar._id !== 'default' && (
+                          <div style={{
+                            display: 'none',
+                            width: '100%',
+                            height: '100%',
+                            background: 'linear-gradient(135deg, #2e7d32, #4caf50)',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'white',
+                            fontSize: '32px',
+                            fontWeight: 'bold'
+                          }}>
+                            ?
+                          </div>
+                        )}
                       </div>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>
-                        Avatar {index + 1}
+                      <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>
+                        {avatar._id === 'default' ? 'Predeterminado' : avatar.filename}
                       </div>
-                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                        <ActionButton variant="primary" style={{ fontSize: '12px', padding: '6px 12px' }}>
-                          Editar
-                        </ActionButton>
-                        <ActionButton variant="danger" style={{ fontSize: '12px', padding: '6px 12px' }}>
+                      {avatar._id !== 'default' && (
+                        <ActionButton
+                          variant="danger"
+                          style={{ fontSize: '10px', padding: '4px 8px' }}
+                          onClick={() => handleDeleteAvatar(avatar._id)}
+                        >
                           Eliminar
                         </ActionButton>
-                      </div>
+                      )}
                     </div>
-                  </div>
-                </TipCard>
-              ))}
-            </TipsGrid>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {isUploadModalOpen && (
+              <ModalOverlay onClick={() => setIsUploadModalOpen(false)}>
+                <ModalContent onClick={e => e.stopPropagation()}>
+                  <h2 style={{ marginBottom: 20, color: '#1e293b' }}>
+                    Subir Nuevo Avatar
+                  </h2>
+
+                  <form onSubmit={handleFileUpload}>
+                    <FormGroup>
+                      <Label>Categoría</Label>
+                      <Select
+                        value={selectedCategory}
+                        onChange={e => setSelectedCategory(e.target.value)}
+                      >
+                        <option value="general">General</option>
+                        <option value="profesional">Profesional</option>
+                        <option value="divertido">Divertido</option>
+                        <option value="anime">Anime</option>
+                        <option value="animales">Animales</option>
+                        <option value="naturaleza">Naturaleza</option>
+                        <option value="arte">Arte</option>
+                        <option value="deporte">Deporte</option>
+                      </Select>
+                    </FormGroup>
+
+                    <FormGroup>
+                      <Label>Seleccionar Imagen</Label>
+                      <input
+                        type="file"
+                        name="avatar"
+                        accept="image/*"
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          border: '1px solid #cbd5e1',
+                          borderRadius: '8px',
+                          fontSize: '14px'
+                        }}
+                      />
+                    </FormGroup>
+
+                    <ModalActions>
+                      <ActionButton type="button" variant="danger" onClick={() => setIsUploadModalOpen(false)}>
+                        Cancelar
+                      </ActionButton>
+                      <ActionButton type="submit" variant="success">
+                        Subir Avatar
+                      </ActionButton>
+                    </ModalActions>
+                  </form>
+                </ModalContent>
+              </ModalOverlay>
+            )}
           </>
         )}
 
