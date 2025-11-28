@@ -12,6 +12,7 @@ import {
   Tooltip,
   Legend,
   ArcElement,
+  Filler,
 } from 'chart.js';
 import { Line, Doughnut } from 'react-chartjs-2';
 import { tipsAPI, exercisesAPI, uploadsAPI, Tip, Category } from '../services/api';
@@ -24,7 +25,8 @@ ChartJS.register(
   ChartTitle,
   Tooltip,
   Legend,
-  ArcElement
+  ArcElement,
+  Filler
 );
 
 // --- Styled Components ---
@@ -400,7 +402,7 @@ const AdminPanel: React.FC = () => {
   const [tips, setTips] = useState<Tip[]>([]);
   const [exercises, setExercises] = useState<any[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [avatars, setAvatars] = useState<any>({});
+  const [avatars, setAvatars] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(true);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('general');
@@ -895,7 +897,7 @@ const AdminPanel: React.FC = () => {
               </AddButton>
             </TipsHeader>
 
-            {Object.entries(avatars).map(([category, categoryAvatars]) => (
+            {avatars && Object.entries(avatars).map(([category, categoryAvatars]) => (
               <div key={category} style={{ marginBottom: '40px' }}>
                 <h3 style={{
                   color: '#1e293b',
