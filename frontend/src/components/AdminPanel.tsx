@@ -511,10 +511,25 @@ const AdminPanel: React.FC = () => {
 
   const loadAvatars = async () => {
     try {
+      console.log('🔍 Cargando avatares desde API...');
       const response = await uploadsAPI.getAvatars();
+      console.log('📦 Respuesta de avatares:', response);
+      console.log('📂 Avatares por categoría:', response.avatarsByCategory);
+
+      // Log detallado de cada categoría
+      Object.entries(response.avatarsByCategory || {}).forEach(([category, avatars]) => {
+        console.log(`  📁 ${category}: ${Array.isArray(avatars) ? avatars.length : 'N/A'} avatares`);
+        if (Array.isArray(avatars) && avatars.length > 0) {
+          avatars.forEach((avatar: any, index: number) => {
+            console.log(`    ${index + 1}. ${avatar.filename} (ID: ${avatar._id}, URL: ${avatar.url?.substring(0, 50)}...)`);
+          });
+        }
+      });
+
       setAvatars(response.avatarsByCategory);
+      console.log('✅ Avatares cargados y estado actualizado');
     } catch (error) {
-      console.error('Error loading avatars:', error);
+      console.error('❌ Error cargando avatares:', error);
     }
   };
 
@@ -677,7 +692,14 @@ const AdminPanel: React.FC = () => {
     const formData = new FormData(event.currentTarget);
     const files = formData.getAll('avatar') as File[];
 
+    console.log('🚀 Iniciando subida de avatares');
+    console.log('📁 Archivos seleccionados:', files.length);
+    files.forEach((file, index) => {
+      console.log(`  ${index + 1}. ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB, ${file.type})`);
+    });
+
     if (!files || files.length === 0) {
+      console.log('❌ No hay archivos seleccionados');
       alert('Por favor selecciona al menos un archivo');
       return;
     }
@@ -690,6 +712,7 @@ const AdminPanel: React.FC = () => {
     });
 
     if (invalidFiles.length > 0) {
+      console.log('❌ Archivos inválidos encontrados:', invalidFiles.map(f => f.name));
       alert('Algunos archivos no son válidos. Solo se permiten imágenes de hasta 5MB.');
       return;
     }
@@ -698,7 +721,10 @@ const AdminPanel: React.FC = () => {
     const categoryFromForm = formData.get('category') as string;
     const categoryToUse = categoryFromForm || selectedCategory;
 
-    console.log('Uploading to category:', categoryToUse); // Debug log
+    console.log('📂 Categoría seleccionada:', categoryToUse);
+    console.log('📂 Categoría desde form:', categoryFromForm);
+    console.log('📂 Categoría desde estado:', selectedCategory);
+    console.log('📂 Categorías disponibles:', avatarCategories.map(c => `${c.name} (${c.isActive ? 'activa' : 'inactiva'})`));
 
     setIsUploading(true);
     setUploadProgress({ current: 0, total: files.length });
@@ -706,33 +732,52 @@ const AdminPanel: React.FC = () => {
     try {
       let successCount = 0;
       let errorCount = 0;
+      const uploadedAvatars: any[] = [];
+
+      console.log('⏳ Iniciando subida individual de archivos...');
 
       // Upload files one by one to show progress
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        console.log(`📤 Subiendo archivo ${i + 1}/${files.length}: ${file.name}`);
+
         try {
-          await uploadsAPI.uploadAvatar(file, categoryToUse);
+          const result = await uploadsAPI.uploadAvatar(file, categoryToUse);
+          console.log(`✅ Archivo ${file.name} subido exitosamente:`, result);
+
+          if (result && result.avatar) {
+            uploadedAvatars.push(result.avatar);
+          }
+
           successCount++;
           setUploadProgress({ current: i + 1, total: files.length });
         } catch (error) {
-          console.error(`Error uploading ${file.name}:`, error);
+          console.error(`❌ Error subiendo ${file.name}:`, error);
           errorCount++;
           setUploadProgress({ current: i + 1, total: files.length });
         }
       }
 
-      // Reload avatars after all uploads
-      loadAvatars();
+      console.log('🔄 Recargando lista de avatares...');
+      await loadAvatars();
+
+      console.log('📊 Resumen de subida:');
+      console.log(`  ✅ Exitosos: ${successCount}`);
+      console.log(`  ❌ Errores: ${errorCount}`);
+      console.log(`  📂 Categoría: ${categoryToUse}`);
+      console.log('  📸 Avatares subidos:', uploadedAvatars);
 
       if (errorCount === 0) {
+        console.log('🎉 Subida completada exitosamente');
         alert(`${successCount} avatar(es) subido(s) exitosamente a la categoría "${categoryToUse}"`);
       } else {
+        console.log('⚠️ Subida completada con algunos errores');
         alert(`${successCount} avatar(es) subido(s) exitosamente, ${errorCount} error(es) en la categoría "${categoryToUse}"`);
       }
 
       setIsUploadModalOpen(false);
     } catch (error) {
-      console.error('Error uploading avatars:', error);
+      console.error('💥 Error general en subida:', error);
       alert('Error al subir los avatares');
     } finally {
       setIsUploading(false);
@@ -1035,30 +1080,40 @@ const AdminPanel: React.FC = () => {
               </AddButton>
             </TipsHeader>
 
-            {avatarCategories
-              .filter(category => category.isActive)
-              .sort((catA, catB) => {
-                // Ordenar por orden definido, luego alfabéticamente
-                if (catA.order !== undefined && catB.order !== undefined) {
-                  return catA.order - catB.order;
-                }
-                if (catA.order !== undefined) return -1;
-                if (catB.order !== undefined) return 1;
-                return catA.name.localeCompare(catB.name);
-              })
-              .map((category) => {
-                const categoryAvatars = avatars?.[category.name] || [];
-                return (
-                  <div key={category.name} style={{ marginBottom: '40px' }}>
-                    <h3 style={{
-                      color: '#1e293b',
-                      fontSize: '20px',
-                      fontWeight: '600',
-                      marginBottom: '20px',
-                      textTransform: 'capitalize'
-                    }}>
-                      {category.icon} {category.label}
-                    </h3>
+            {(() => {
+              console.log('🎨 Renderizando categorías de avatares');
+              console.log('📂 Estado avatars:', avatars);
+              console.log('📂 Estado avatarCategories:', avatarCategories);
+
+              const activeCategories = avatarCategories.filter(category => category.isActive);
+              console.log('✅ Categorías activas:', activeCategories.map(c => `${c.icon} ${c.label} (${c.name})`));
+
+              return activeCategories
+                .sort((catA, catB) => {
+                  // Ordenar por orden definido, luego alfabéticamente
+                  if (catA.order !== undefined && catB.order !== undefined) {
+                    return catA.order - catB.order;
+                  }
+                  if (catA.order !== undefined) return -1;
+                  if (catB.order !== undefined) return 1;
+                  return catA.name.localeCompare(catB.name);
+                })
+                .map((category) => {
+                  const categoryAvatars = avatars?.[category.name] || [];
+                  console.log(`🎭 Renderizando categoría: ${category.icon} ${category.label} (${category.name})`);
+                  console.log(`  📸 Avatares en esta categoría: ${categoryAvatars.length}`);
+
+                  return (
+                    <div key={category.name} style={{ marginBottom: '40px' }}>
+                      <h3 style={{
+                        color: '#1e293b',
+                        fontSize: '20px',
+                        fontWeight: '600',
+                        marginBottom: '20px',
+                        textTransform: 'capitalize'
+                      }}>
+                        {category.icon} {category.label}
+                      </h3>
 
                     {categoryAvatars.length > 0 ? (
                       <div style={{
@@ -1156,7 +1211,8 @@ const AdminPanel: React.FC = () => {
                     )}
                   </div>
                 );
-              })}
+              });
+            })()}
 
             {isUploadModalOpen && (
               <ModalOverlay onClick={() => setIsUploadModalOpen(false)}>
