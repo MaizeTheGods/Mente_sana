@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
 import { uploadsAPI } from '../services/api';
+import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import {
   PageHeader,
@@ -133,6 +134,7 @@ const Profile: React.FC = () => {
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [availableAvatars, setAvailableAvatars] = useState<Record<string, any[]>>({});
+  const [avatarCategories, setAvatarCategories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -150,20 +152,26 @@ const Profile: React.FC = () => {
   ];
 
   useEffect(() => {
-    const loadAvatars = async () => {
+    const loadData = async () => {
       try {
-        const response = await uploadsAPI.getAvatars();
-        setAvailableAvatars(response.avatarsByCategory);
+        // Load avatars
+        const avatarsResponse = await uploadsAPI.getAvatars();
+        setAvailableAvatars(avatarsResponse.avatarsByCategory);
+
+        // Load categories
+        const categoriesResponse = await api.get('/avatar-categories');
+        setAvatarCategories(categoriesResponse.data.categories);
       } catch (error) {
-        console.error('Error loading avatars:', error);
+        console.error('Error loading data:', error);
         // Fallback to default
         setAvailableAvatars({
           default: [{ _id: 'default', url: 'default-avatar.png', filename: 'default-avatar.png' }]
         });
+        setAvatarCategories([]);
       }
     };
 
-    loadAvatars();
+    loadData();
 
     // Set current selected image
     if (user?.preferences?.profileImage) {
@@ -270,65 +278,69 @@ const Profile: React.FC = () => {
           Selecciona tu imagen de perfil
         </h3>
 
-        {Object.entries(availableAvatars).map(([category, avatars]) => (
-          <div key={category} style={{ marginBottom: '32px' }}>
-            <h4 style={{
-              color: '#1e293b',
-              fontSize: '16px',
-              fontWeight: '600',
-              marginBottom: '16px',
-              textTransform: 'capitalize'
-            }}>
-              {category === 'default' ? 'Predeterminado' : category}
-            </h4>
+        {Object.entries(availableAvatars).map(([category, avatars]) => {
+          const categoryInfo = avatarCategories.find(cat => cat.name === category);
+          return (
+            <div key={category} style={{ marginBottom: '32px' }}>
+              <h4 style={{
+                color: '#1e293b',
+                fontSize: '16px',
+                fontWeight: '600',
+                marginBottom: '16px',
+                textTransform: 'capitalize'
+              }}>
+                {category === 'default' ? '👤 Predeterminado' :
+                 categoryInfo ? `${categoryInfo.icon} ${categoryInfo.label}` : category}
+              </h4>
 
-            <div style={{
-              display: 'flex',
-              gap: '16px',
-              overflowX: 'auto',
-              paddingBottom: '10px',
-              scrollbarWidth: 'thin',
-              scrollbarColor: '#cbd5e1 transparent'
-            }}>
-              {avatars.map((avatar: any) => (
-                <AvatarOption
-                  key={avatar._id}
-                  selected={selectedImage === avatar.url}
-                  onClick={() => handleImageSelect(avatar.url)}
-                  style={{ flex: '0 0 auto' }}
-                >
-                  {avatar._id === 'default' ? (
-                    <AvatarOptionPlaceholder>
-                      {user.firstName[0]}{user.lastName[0]}
-                    </AvatarOptionPlaceholder>
-                  ) : (
-                    <>
-                      <AvatarOptionImage
-                        src={avatar.url}
-                        alt={`Avatar ${avatar.filename}`}
-                        onError={(e) => {
-                          // Fallback to placeholder if image fails to load
-                          const target = e.currentTarget as HTMLImageElement;
-                          target.style.display = 'none';
-                          const placeholder = target.nextElementSibling as HTMLElement;
-                          if (placeholder) {
-                            placeholder.style.display = 'flex';
-                          }
-                        }}
-                      />
-                      <AvatarOptionPlaceholder style={{ display: 'none' }}>
+              <div style={{
+                display: 'flex',
+                gap: '16px',
+                overflowX: 'auto',
+                paddingBottom: '10px',
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#cbd5e1 transparent'
+              }}>
+                {avatars.map((avatar: any) => (
+                  <AvatarOption
+                    key={avatar._id}
+                    selected={selectedImage === avatar.url}
+                    onClick={() => handleImageSelect(avatar.url)}
+                    style={{ flex: '0 0 auto' }}
+                  >
+                    {avatar._id === 'default' ? (
+                      <AvatarOptionPlaceholder>
                         {user.firstName[0]}{user.lastName[0]}
                       </AvatarOptionPlaceholder>
-                    </>
-                  )}
-                  {selectedImage === avatar.url && (
-                    <SelectedIndicator>✓</SelectedIndicator>
-                  )}
-                </AvatarOption>
-              ))}
+                    ) : (
+                      <>
+                        <AvatarOptionImage
+                          src={avatar.url}
+                          alt={`Avatar ${avatar.filename}`}
+                          onError={(e) => {
+                            // Fallback to placeholder if image fails to load
+                            const target = e.currentTarget as HTMLImageElement;
+                            target.style.display = 'none';
+                            const placeholder = target.nextElementSibling as HTMLElement;
+                            if (placeholder) {
+                              placeholder.style.display = 'flex';
+                            }
+                          }}
+                        />
+                        <AvatarOptionPlaceholder style={{ display: 'none' }}>
+                          {user.firstName[0]}{user.lastName[0]}
+                        </AvatarOptionPlaceholder>
+                      </>
+                    )}
+                    {selectedImage === avatar.url && (
+                      <SelectedIndicator>✓</SelectedIndicator>
+                    )}
+                  </AvatarOption>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </Card>
     </ProfileContainer>
   );

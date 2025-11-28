@@ -16,6 +16,31 @@ import {
 } from 'chart.js';
 import { Line, Doughnut } from 'react-chartjs-2';
 import { tipsAPI, exercisesAPI, uploadsAPI, Tip, Category } from '../services/api';
+import { Card } from './SharedStyles';
+import api from '../services/api';
+
+// Avatar Categories API functions
+const avatarCategoriesAPI = {
+  getCategories: async (): Promise<{ categories: any[] }> => {
+    const response = await api.get('/avatar-categories');
+    return response.data;
+  },
+
+  createCategory: async (categoryData: any): Promise<{ message: string; category: any }> => {
+    const response = await api.post('/avatar-categories', categoryData);
+    return response.data;
+  },
+
+  updateCategory: async (id: string, categoryData: any): Promise<{ message: string; category: any }> => {
+    const response = await api.put(`/avatar-categories/${id}`, categoryData);
+    return response.data;
+  },
+
+  deleteCategory: async (id: string): Promise<{ message: string }> => {
+    const response = await api.delete(`/avatar-categories/${id}`);
+    return response.data;
+  }
+};
 
 ChartJS.register(
   CategoryScale,
@@ -396,16 +421,19 @@ const ModalActions = styled.div`
 const AdminPanel: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'tips' | 'exercises' | 'avatars'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'tips' | 'exercises' | 'avatars' | 'categories'>('dashboard');
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [tips, setTips] = useState<Tip[]>([]);
   const [exercises, setExercises] = useState<any[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [avatars, setAvatars] = useState<Record<string, any[]>>({});
+  const [avatarCategories, setAvatarCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('general');
+  const [editingCategory, setEditingCategory] = useState<any | null>(null);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -435,6 +463,9 @@ const AdminPanel: React.FC = () => {
   useEffect(() => {
     if (activeTab === 'avatars' && (user?.role === 'admin' || user?.role === 'owner')) {
       loadAvatars();
+    }
+    if (activeTab === 'categories' && (user?.role === 'admin' || user?.role === 'owner')) {
+      loadCategories();
     }
   }, [activeTab, user]);
 
@@ -481,6 +512,15 @@ const AdminPanel: React.FC = () => {
       setAvatars(response.avatarsByCategory);
     } catch (error) {
       console.error('Error loading avatars:', error);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const response = await avatarCategoriesAPI.getCategories();
+      setAvatarCategories(response.categories);
+    } catch (error) {
+      console.error('Error loading categories:', error);
     }
   };
 
@@ -664,6 +704,37 @@ const AdminPanel: React.FC = () => {
     }
   };
 
+  const handleSaveCategory = async (categoryData: any) => {
+    try {
+      if (editingCategory) {
+        await avatarCategoriesAPI.updateCategory(editingCategory._id, categoryData);
+        alert('Categoría actualizada exitosamente');
+      } else {
+        await avatarCategoriesAPI.createCategory(categoryData);
+        alert('Categoría creada exitosamente');
+      }
+      loadCategories();
+      setIsCategoryModalOpen(false);
+      setEditingCategory(null);
+    } catch (error) {
+      console.error('Error saving category:', error);
+      alert('Error al guardar la categoría');
+    }
+  };
+
+  const handleDeleteCategory = async (categoryId: string) => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar esta categoría? Esto no eliminará los avatares existentes.')) return;
+
+    try {
+      await avatarCategoriesAPI.deleteCategory(categoryId);
+      loadCategories();
+      alert('Categoría eliminada exitosamente');
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      alert('Error al eliminar la categoría');
+    }
+  };
+
   if (!user || (user.role !== 'admin' && user.role !== 'owner')) {
     return <div style={{ padding: 40, textAlign: 'center' }}>Acceso Denegado</div>;
   }
@@ -719,6 +790,9 @@ const AdminPanel: React.FC = () => {
         <NavItem active={activeTab === 'avatars'} onClick={() => setActiveTab('avatars')}>
           👤 Avatares
         </NavItem>
+        <NavItem active={activeTab === 'categories'} onClick={() => setActiveTab('categories')}>
+          📂 Categorías
+        </NavItem>
 
         <div style={{ marginTop: 'auto' }}>
           <NavItem active={false} onClick={() => navigate('/dashboard')}>
@@ -735,6 +809,7 @@ const AdminPanel: React.FC = () => {
             {activeTab === 'tips' && 'Biblioteca de Consejos'}
             {activeTab === 'exercises' && 'Biblioteca de Ejercicios'}
             {activeTab === 'avatars' && 'Gestión de Avatares'}
+            {activeTab === 'categories' && 'Gestión de Categorías'}
           </PageTitle>
           <UserProfile>
             <span>{user.firstName} {user.lastName}</span>
@@ -1000,14 +1075,11 @@ const AdminPanel: React.FC = () => {
                         value={selectedCategory}
                         onChange={e => setSelectedCategory(e.target.value)}
                       >
-                        <option value="general">General</option>
-                        <option value="profesional">Profesional</option>
-                        <option value="divertido">Divertido</option>
-                        <option value="anime">Anime</option>
-                        <option value="animales">Animales</option>
-                        <option value="naturaleza">Naturaleza</option>
-                        <option value="arte">Arte</option>
-                        <option value="deporte">Deporte</option>
+                        {avatarCategories.map(category => (
+                          <option key={category.name} value={category.name}>
+                            {category.icon} {category.label}
+                          </option>
+                        ))}
                       </Select>
                     </FormGroup>
 
@@ -1034,6 +1106,150 @@ const AdminPanel: React.FC = () => {
                       </ActionButton>
                       <ActionButton type="submit" variant="success">
                         Subir Avatar
+                      </ActionButton>
+                    </ModalActions>
+                  </form>
+                </ModalContent>
+              </ModalOverlay>
+            )}
+          </>
+        )}
+
+        {activeTab === 'categories' && (
+          <>
+            <TipsHeader>
+              <div style={{ color: '#64748b' }}>Gestiona las categorías disponibles para organizar los avatares</div>
+              <AddButton onClick={() => {
+                setEditingCategory(null);
+                setIsCategoryModalOpen(true);
+              }}>
+                + Nueva Categoría
+              </AddButton>
+            </TipsHeader>
+
+            <div style={{ display: 'grid', gap: '16px' }}>
+              {avatarCategories.map((category: any) => (
+                <Card key={category._id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '12px',
+                      background: category.color || '#2e7d32',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '24px'
+                    }}>
+                      {category.icon || '📁'}
+                    </div>
+                    <div>
+                      <h3 style={{ margin: '0 0 4px 0', color: '#1e293b', fontSize: '18px' }}>
+                        {category.label}
+                      </h3>
+                      <p style={{ margin: '0', color: '#64748b', fontSize: '14px' }}>
+                        {category.description || 'Sin descripción'}
+                      </p>
+                      <p style={{ margin: '4px 0 0 0', color: '#94a3b8', fontSize: '12px' }}>
+                        Nombre: {category.name}
+                      </p>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <ActionButton
+                      onClick={() => {
+                        setEditingCategory(category);
+                        setIsCategoryModalOpen(true);
+                      }}
+                    >
+                      Editar
+                    </ActionButton>
+                    <ActionButton
+                      variant="danger"
+                      onClick={() => handleDeleteCategory(category._id)}
+                    >
+                      Eliminar
+                    </ActionButton>
+                  </div>
+                </Card>
+              ))}
+            </div>
+
+            {isCategoryModalOpen && (
+              <ModalOverlay onClick={() => setIsCategoryModalOpen(false)}>
+                <ModalContent onClick={e => e.stopPropagation()}>
+                  <h2 style={{ marginBottom: 20, color: '#1e293b' }}>
+                    {editingCategory ? 'Editar Categoría' : 'Nueva Categoría'}
+                  </h2>
+
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.currentTarget);
+                    const categoryData = {
+                      name: formData.get('name'),
+                      label: formData.get('label'),
+                      description: formData.get('description'),
+                      icon: formData.get('icon'),
+                      color: formData.get('color')
+                    };
+                    handleSaveCategory(categoryData);
+                  }}>
+                    <FormGroup>
+                      <Label>Nombre (identificador único)</Label>
+                      <Input
+                        name="name"
+                        required
+                        defaultValue={editingCategory?.name || ''}
+                        placeholder="ej: profesional"
+                        disabled={!!editingCategory} // No permitir cambiar el nombre si ya existe
+                      />
+                    </FormGroup>
+
+                    <FormGroup>
+                      <Label>Etiqueta (nombre visible)</Label>
+                      <Input
+                        name="label"
+                        required
+                        defaultValue={editingCategory?.label || ''}
+                        placeholder="ej: Profesional"
+                      />
+                    </FormGroup>
+
+                    <FormGroup>
+                      <Label>Descripción</Label>
+                      <TextArea
+                        name="description"
+                        defaultValue={editingCategory?.description || ''}
+                        placeholder="Describe la categoría..."
+                        rows={3}
+                      />
+                    </FormGroup>
+
+                    <FormGroup>
+                      <Label>Ícono (emoji)</Label>
+                      <Input
+                        name="icon"
+                        defaultValue={editingCategory?.icon || '📁'}
+                        placeholder="ej: 💼"
+                        maxLength={2}
+                      />
+                    </FormGroup>
+
+                    <FormGroup>
+                      <Label>Color</Label>
+                      <Input
+                        name="color"
+                        type="color"
+                        defaultValue={editingCategory?.color || '#2e7d32'}
+                      />
+                    </FormGroup>
+
+                    <ModalActions>
+                      <ActionButton type="button" variant="danger" onClick={() => setIsCategoryModalOpen(false)}>
+                        Cancelar
+                      </ActionButton>
+                      <ActionButton type="submit" variant="success">
+                        {editingCategory ? 'Actualizar' : 'Crear'} Categoría
                       </ActionButton>
                     </ModalActions>
                   </form>
