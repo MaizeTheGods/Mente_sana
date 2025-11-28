@@ -14,7 +14,7 @@ import {
   ArcElement,
 } from 'chart.js';
 import { Line, Doughnut } from 'react-chartjs-2';
-import { tipsAPI, exercisesAPI, Tip, Category } from '../services/api';
+import { tipsAPI, exercisesAPI, uploadsAPI, Tip, Category } from '../services/api';
 
 ChartJS.register(
   CategoryScale,
@@ -428,6 +428,12 @@ const AdminPanel: React.FC = () => {
     }
   }, [user, activeTab]);
 
+  useEffect(() => {
+    if (activeTab === 'avatars' && (user?.role === 'admin' || user?.role === 'owner')) {
+      loadAvatars();
+    }
+  }, [activeTab, user]);
+
   const loadData = async () => {
     setLoading(true);
     try {
@@ -462,6 +468,15 @@ const AdminPanel: React.FC = () => {
       console.error('Error loading data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadAvatars = async () => {
+    try {
+      const response = await uploadsAPI.getAvatars();
+      setAvatars(response.avatars.map(avatar => avatar.url));
+    } catch (error) {
+      console.error('Error loading avatars:', error);
     }
   };
 
@@ -607,6 +622,21 @@ const AdminPanel: React.FC = () => {
       loadData();
     } catch (error) {
       console.error('Error deleting exercise:', error);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const response = await uploadsAPI.uploadAvatar(file);
+      // Reload avatars after upload
+      loadAvatars();
+      alert('Avatar subido exitosamente');
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      alert('Error al subir el avatar');
     }
   };
 
@@ -838,13 +868,52 @@ const AdminPanel: React.FC = () => {
           <>
             <TipsHeader>
               <div style={{ color: '#64748b' }}>Gestiona las imágenes de perfil disponibles para los usuarios</div>
-              <AddButton>
-                + Subir Avatar
-              </AddButton>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  style={{ display: 'none' }}
+                  id="avatar-upload"
+                />
+                <AddButton onClick={() => document.getElementById('avatar-upload')?.click()}>
+                  + Subir Avatar
+                </AddButton>
+              </div>
             </TipsHeader>
             <TipsGrid>
-              {['default-avatar.png', 'avatar-1.png', 'avatar-2.png', 'avatar-3.png', 'avatar-4.png', 'avatar-5.png', 'avatar-6.png', 'avatar-7.png', 'avatar-8.png'].map((avatar) => (
-                <TipCard key={avatar}>
+              <TipCard>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                  <div style={{
+                    width: '80px',
+                    height: '80px',
+                    borderRadius: '50%',
+                    overflow: 'hidden',
+                    border: '3px solid #2e7d32',
+                    background: 'linear-gradient(135deg, #2e7d32, #4caf50)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontSize: '32px',
+                    fontWeight: 'bold'
+                  }}>
+                    ?
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>
+                      Avatar Predeterminado
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                      <ActionButton variant="primary" style={{ fontSize: '12px', padding: '6px 12px' }}>
+                        Usado por defecto
+                      </ActionButton>
+                    </div>
+                  </div>
+                </div>
+              </TipCard>
+              {avatars.map((avatarUrl, index) => (
+                <TipCard key={avatarUrl}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
                     <div style={{
                       width: '80px',
@@ -853,64 +922,44 @@ const AdminPanel: React.FC = () => {
                       overflow: 'hidden',
                       border: '3px solid #2e7d32'
                     }}>
-                      {avatar === 'default-avatar.png' ? (
-                        <div style={{
-                          width: '100%',
-                          height: '100%',
-                          background: 'linear-gradient(135deg, #2e7d32, #4caf50)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: 'white',
-                          fontSize: '32px',
-                          fontWeight: 'bold'
-                        }}>
-                          ?
-                        </div>
-                      ) : (
-                        <img
-                          src={`/avatars/${avatar}`}
-                          alt={`Avatar ${avatar}`}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                          onError={(e) => {
-                            const target = e.currentTarget as HTMLImageElement;
-                            target.style.display = 'none';
-                            const placeholder = target.nextElementSibling as HTMLElement;
-                            if (placeholder) {
-                              placeholder.style.display = 'flex';
-                            }
-                          }}
-                        />
-                      )}
-                      {avatar !== 'default-avatar.png' && (
-                        <div style={{
-                          display: 'none',
-                          width: '100%',
-                          height: '100%',
-                          background: 'linear-gradient(135deg, #2e7d32, #4caf50)',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: 'white',
-                          fontSize: '32px',
-                          fontWeight: 'bold'
-                        }}>
-                          ?
-                        </div>
-                      )}
+                      <img
+                        src={avatarUrl}
+                        alt={`Avatar ${index + 1}`}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => {
+                          const target = e.currentTarget as HTMLImageElement;
+                          target.style.display = 'none';
+                          const placeholder = target.nextElementSibling as HTMLElement;
+                          if (placeholder) {
+                            placeholder.style.display = 'flex';
+                          }
+                        }}
+                      />
+                      <div style={{
+                        display: 'none',
+                        width: '100%',
+                        height: '100%',
+                        background: 'linear-gradient(135deg, #2e7d32, #4caf50)',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        fontSize: '32px',
+                        fontWeight: 'bold'
+                      }}>
+                        ?
+                      </div>
                     </div>
                     <div style={{ textAlign: 'center' }}>
                       <div style={{ fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>
-                        {avatar === 'default-avatar.png' ? 'Avatar Predeterminado' : `Avatar ${avatar.split('.')[0].split('-')[1]}`}
+                        Avatar {index + 1}
                       </div>
                       <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                         <ActionButton variant="primary" style={{ fontSize: '12px', padding: '6px 12px' }}>
                           Editar
                         </ActionButton>
-                        {avatar !== 'default-avatar.png' && (
-                          <ActionButton variant="danger" style={{ fontSize: '12px', padding: '6px 12px' }}>
-                            Eliminar
-                          </ActionButton>
-                        )}
+                        <ActionButton variant="danger" style={{ fontSize: '12px', padding: '6px 12px' }}>
+                          Eliminar
+                        </ActionButton>
                       </div>
                     </div>
                   </div>

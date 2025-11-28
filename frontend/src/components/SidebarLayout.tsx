@@ -223,7 +223,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
                     <Avatar>
                         {user?.preferences?.profileImage && user.preferences.profileImage !== 'default-avatar.png' ? (
                             <AvatarImage
-                                src={`/avatars/${user.preferences.profileImage}`}
+                                src={user.preferences.profileImage}
                                 alt="Avatar"
                                 onError={(e) => {
                                     // Fallback to initials if image fails to load

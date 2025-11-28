@@ -249,7 +249,7 @@ const ChatRoom: React.FC = () => {
                       <MessageAvatar>
                         {msg.senderId.preferences?.profileImage && msg.senderId.preferences.profileImage !== 'default-avatar.png' ? (
                           <MessageAvatarImage
-                            src={`/avatars/${msg.senderId.preferences.profileImage}`}
+                            src={msg.senderId.preferences.profileImage}
                             alt="Avatar"
                             onError={(e) => {
                               // Fallback to initials if image fails to load

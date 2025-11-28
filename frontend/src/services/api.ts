@@ -300,6 +300,30 @@ export const tipsAPI = {
  },
 };
 
+// Uploads API
+export const uploadsAPI = {
+ uploadAvatar: async (file: File): Promise<{ imageUrl: string; publicId: string }> => {
+   const formData = new FormData();
+   formData.append('avatar', file);
+
+   const response = await api.post('/uploads/avatar', formData, {
+     headers: {
+       'Content-Type': 'multipart/form-data',
+     },
+   });
+   return response.data;
+ },
+
+ deleteAvatar: async (publicId: string): Promise<void> => {
+   await api.delete(`/uploads/avatar/${publicId}`);
+ },
+
+ getAvatars: async (): Promise<{ avatars: Array<{ publicId: string; url: string; filename: string }> }> => {
+   const response = await api.get('/uploads/avatars');
+   return response.data;
+ },
+};
+
 // Chat API
 export const chatAPI = {
  getGroups: async (): Promise<{ groups: ChatGroup[] }> => {

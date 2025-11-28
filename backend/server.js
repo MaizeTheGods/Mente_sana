@@ -6,7 +6,15 @@ const rateLimit = require('express-rate-limit');
 const http = require('http');
 const socketIo = require('socket.io');
 const jwt = require('jsonwebtoken');
+const cloudinary = require('cloudinary').v2;
 require('dotenv').config();
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 const app = express();
 const server = http.createServer(app);
@@ -71,6 +79,7 @@ app.use('/api/questionnaire', require('./routes/questionnaire'));
 app.use('/api/exercises', require('./routes/exercises'));
 app.use('/api/tips', require('./routes/tips'));
 app.use('/api/chat', require('./routes/chat'));
+app.use('/api/uploads', require('./routes/uploads'));
 // TODO: Implement remaining routes
 // app.use('/api/maps', require('./routes/maps'));
 // app.use('/api/feedback', require('./routes/feedback'));

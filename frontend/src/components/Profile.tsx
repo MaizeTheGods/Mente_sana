@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
+import { uploadsAPI } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import {
   PageHeader,
@@ -149,8 +150,20 @@ const Profile: React.FC = () => {
   ];
 
   useEffect(() => {
-    // Load available images
-    setAvailableImages(defaultImages);
+    const loadAvatars = async () => {
+      try {
+        const response = await uploadsAPI.getAvatars();
+        // Add default avatar option
+        setAvailableImages(['default-avatar.png', ...response.avatars.map(avatar => avatar.url)]);
+      } catch (error) {
+        console.error('Error loading avatars:', error);
+        // Fallback to default images
+        setAvailableImages(defaultImages);
+      }
+    };
+
+    loadAvatars();
+
     // Set current selected image
     if (user?.preferences?.profileImage) {
       setSelectedImage(user.preferences.profileImage);
@@ -211,7 +224,7 @@ const Profile: React.FC = () => {
         <CurrentAvatar>
           {selectedImage && selectedImage !== 'default-avatar.png' ? (
             <AvatarImage
-              src={`/avatars/${selectedImage}`}
+              src={selectedImage}
               alt="Avatar actual"
               onError={(e) => {
                 // Fallback to placeholder if image fails to load
@@ -270,7 +283,7 @@ const Profile: React.FC = () => {
               ) : (
                 <>
                   <AvatarOptionImage
-                    src={`/avatars/${imageName}`}
+                    src={imageName}
                     alt={`Avatar ${imageName}`}
                     onError={(e) => {
                       // Fallback to placeholder if image fails to load
