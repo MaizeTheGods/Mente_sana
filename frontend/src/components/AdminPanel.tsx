@@ -840,11 +840,7 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  if (!user || (user.role !== 'admin' && user.role !== 'owner')) {
-    return <div style={{ padding: 40, textAlign: 'center' }}>Acceso Denegado</div>;
-  }
-
-  // Chart Data Preparation
+  // Chart Data Preparation - Must be called before any conditional returns
   const userGrowthData = React.useMemo(() => {
     if (!stats?.userGrowth) {
       return {
@@ -874,6 +870,10 @@ const AdminPanel: React.FC = () => {
       ],
     };
   }, [stats?.userGrowth]);
+
+  if (!user || (user.role !== 'admin' && user.role !== 'owner')) {
+    return <div style={{ padding: 40, textAlign: 'center' }}>Acceso Denegado</div>;
+  }
 
   const userRolesData = {
     labels: ['Usuarios', 'Admins', 'Owners'],
