@@ -94,10 +94,25 @@ router.post('/', authenticateToken, tipValidation, async (req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log('❌ Errores de validación:', errors.array());
+      console.log('❌ Errores de validación encontrados:', errors.array());
+      console.log('❌ Datos recibidos:', {
+        title: req.body.title,
+        titleLength: req.body.title ? req.body.title.length : 0,
+        content: req.body.content,
+        contentLength: req.body.content ? req.body.content.length : 0,
+        category: req.body.category,
+        videoUrl: req.body.media?.videoUrl,
+        videoUrlLength: req.body.media?.videoUrl ? req.body.media.videoUrl.length : 0
+      });
       return res.status(400).json({
         error: 'Validation failed',
-        details: errors.array()
+        details: errors.array(),
+        receivedData: {
+          title: req.body.title,
+          content: req.body.content,
+          category: req.body.category,
+          media: req.body.media
+        }
       });
     }
 
