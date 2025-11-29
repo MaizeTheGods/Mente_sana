@@ -93,8 +93,11 @@ router.get('/:id', async (req, res) => {
 // @access  Private (Admin only)
 router.post('/', authenticateToken, exerciseValidation, async (req, res) => {
   try {
+    console.log('📥 Recibiendo datos para crear ejercicio:', JSON.stringify(req.body, null, 2));
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('❌ Errores de validación:', errors.array());
       return res.status(400).json({
         error: 'Validation failed',
         details: errors.array()
@@ -106,15 +109,23 @@ router.post('/', authenticateToken, exerciseValidation, async (req, res) => {
       createdBy: req.user._id
     });
 
+    console.log('💾 Intentando guardar ejercicio:', exercise);
+
     await exercise.save();
+
+    console.log('✅ Ejercicio creado exitosamente:', exercise._id);
 
     res.status(201).json({
       message: 'Exercise created successfully',
       exercise
     });
   } catch (error) {
-    console.error('Create exercise error:', error);
-    res.status(500).json({ error: 'Failed to create exercise' });
+    console.error('❌ Create exercise error:', error);
+    console.error('Stack trace:', error.stack);
+    res.status(500).json({
+      error: 'Failed to create exercise',
+      details: error.message
+    });
   }
 });
 

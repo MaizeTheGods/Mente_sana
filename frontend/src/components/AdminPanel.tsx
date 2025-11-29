@@ -693,11 +693,17 @@ const AdminPanel: React.FC = () => {
       }
 
       const exerciseData = {
-        ...exerciseFormData,
-        duration: Number(exerciseFormData.duration), // Asegurar que sea número
+        title: exerciseFormData.title.trim(),
+        description: exerciseFormData.description.trim(),
+        category: exerciseFormData.category,
+        duration: Number(exerciseFormData.duration),
         instructions: instructionsArray,
+        difficulty: 'beginner', // Valor por defecto
+        targetDisorders: [], // Array vacío por defecto
         media: exerciseFormData.videoUrl ? { videoUrl: exerciseFormData.videoUrl } : undefined
       };
+
+      console.log('📤 Enviando datos del ejercicio:', exerciseData);
 
       if (editingExercise) {
         await exercisesAPI.updateExercise(editingExercise._id, exerciseData);
