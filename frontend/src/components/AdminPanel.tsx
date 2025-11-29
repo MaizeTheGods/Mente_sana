@@ -655,12 +655,47 @@ const AdminPanel: React.FC = () => {
   const handleSaveExercise = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Validar datos antes de enviar
+      if (!exerciseFormData.title.trim()) {
+        alert('El título es obligatorio');
+        return;
+      }
+      if (!exerciseFormData.description.trim()) {
+        alert('La descripción es obligatoria');
+        return;
+      }
+      if (!exerciseFormData.category) {
+        alert('La categoría es obligatoria');
+        return;
+      }
+      if (!exerciseFormData.duration || isNaN(exerciseFormData.duration) || exerciseFormData.duration < 1 || exerciseFormData.duration > 120) {
+        alert('La duración debe ser un número entre 1 y 120 minutos');
+        return;
+      }
+      if (!exerciseFormData.instructions.trim()) {
+        alert('Las instrucciones son obligatorias');
+        return;
+      }
+
+      // Procesar instrucciones - dividir por líneas y filtrar líneas vacías
+      const instructionsArray = exerciseFormData.instructions
+        .split('\n')
+        .map(text => text.trim())
+        .filter(text => text.length > 0)
+        .map((text, index) => ({
+          step: index + 1,
+          text: text
+        }));
+
+      if (instructionsArray.length === 0) {
+        alert('Debe proporcionar al menos una instrucción');
+        return;
+      }
+
       const exerciseData = {
         ...exerciseFormData,
-        instructions: exerciseFormData.instructions.split('\n\n').map((text, index) => ({
-          step: index + 1,
-          text: text.trim()
-        })),
+        duration: Number(exerciseFormData.duration), // Asegurar que sea número
+        instructions: instructionsArray,
         media: exerciseFormData.videoUrl ? { videoUrl: exerciseFormData.videoUrl } : undefined
       };
 
@@ -671,9 +706,13 @@ const AdminPanel: React.FC = () => {
       }
       setIsModalOpen(false);
       loadData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving exercise:', error);
-      alert('Error al guardar el ejercicio');
+      if (error.response?.status === 400) {
+        alert(`Error de validación: ${error.response.data.error || 'Datos inválidos'}`);
+      } else {
+        alert('Error al guardar el ejercicio');
+      }
     }
   };
 
@@ -1578,18 +1617,28 @@ const AdminPanel: React.FC = () => {
                     type="number"
                     required
                     min="1"
-                    value={exerciseFormData.duration}
-                    onChange={e => setExerciseFormData({ ...exerciseFormData, duration: parseInt(e.target.value) })}
+                    max="120"
+                    value={exerciseFormData.duration || ''}
+                    onChange={e => {
+                      const value = e.target.value;
+                      const numValue = value === '' ? '' : parseInt(value);
+                      if (numValue === '' || (!isNaN(numValue) && numValue >= 1 && numValue <= 120)) {
+                        setExerciseFormData({ ...exerciseFormData, duration: numValue === '' ? 5 : numValue });
+                      }
+                    }}
                   />
                 </FormGroup>
                 <FormGroup>
                   <Label>Instrucciones (una por línea)</Label>
                   <TextArea
                     required
-                    placeholder="Paso 1: Siéntate cómodamente&#10;&#10;Paso 2: Respira profundamente"
+                    placeholder="Siéntate cómodamente en una silla con los pies apoyados en el suelo&#10;&#10;Cierra los ojos y respira profundamente por la nariz&#10;&#10;Exhala lentamente por la boca&#10;&#10;Repite este proceso durante 5 minutos"
                     value={exerciseFormData.instructions}
                     onChange={e => setExerciseFormData({ ...exerciseFormData, instructions: e.target.value })}
                   />
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+                    Cada línea representa un paso del ejercicio. Las líneas vacías separan los pasos.
+                  </div>
                 </FormGroup>
                 <FormGroup>
                   <Label>Video URL (YouTube ID o URL completa)</Label>
