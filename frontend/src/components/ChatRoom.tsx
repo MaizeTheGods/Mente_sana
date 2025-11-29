@@ -244,30 +244,28 @@ const ChatRoom: React.FC = () => {
               const isOwn = msg.senderId._id === user?._id;
               return (
                 <div key={msg._id} style={{ display: 'flex', flexDirection: 'column', alignItems: isOwn ? 'flex-end' : 'flex-start' }}>
-                  {!isOwn && (
-                    <MessageSender>
-                      <MessageAvatar>
-                        {msg.senderId.preferences?.profileImage && msg.senderId.preferences.profileImage !== 'default-avatar.png' ? (
-                          <MessageAvatarImage
-                            src={msg.senderId.preferences.profileImage}
-                            alt="Avatar"
-                            onError={(e) => {
-                              // Fallback to initials if image fails to load
-                              const target = e.currentTarget as HTMLImageElement;
-                              target.style.display = 'none';
-                              const parent = target.parentElement;
-                              if (parent) {
-                                parent.textContent = msg.senderId.firstName[0];
-                              }
-                            }}
-                          />
-                        ) : (
-                          msg.senderId.firstName[0]
-                        )}
-                      </MessageAvatar>
-                      {msg.senderId.firstName} {msg.senderId.lastName}
-                    </MessageSender>
-                  )}
+                  <MessageSender>
+                    <MessageAvatar>
+                      {msg.senderId.preferences?.profileImage && msg.senderId.preferences.profileImage !== 'default-avatar.png' ? (
+                        <MessageAvatarImage
+                          src={msg.senderId.preferences.profileImage}
+                          alt="Avatar"
+                          onError={(e) => {
+                            // Fallback to initials if image fails to load
+                            const target = e.currentTarget as HTMLImageElement;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                              parent.textContent = msg.senderId.firstName[0];
+                            }
+                          }}
+                        />
+                      ) : (
+                        msg.senderId.firstName[0]
+                      )}
+                    </MessageAvatar>
+                    {msg.senderId.firstName} {msg.senderId.lastName}
+                  </MessageSender>
                   <MessageBubble isOwn={isOwn}>
                     {msg.content}
                     <MessageTime isOwn={isOwn}>
