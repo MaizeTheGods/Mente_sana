@@ -161,7 +161,7 @@ router.get('/groups/:id/messages', authenticateToken, async (req, res) => {
     }
 
     const messages = await ChatMessage.find({ groupId: req.params.id, isDeleted: false })
-      .populate('senderId', 'firstName lastName preferences.profileImage')
+      .populate('senderId', 'firstName lastName preferences')
       .sort({ createdAt: -1 })
       .limit(parseInt(limit))
       .skip((parseInt(page) - 1) * parseInt(limit))
@@ -220,7 +220,7 @@ router.post('/groups/:id/messages', authenticateToken, messageValidation, async 
     await message.save();
 
     // Populate sender info for response
-    await message.populate('senderId', 'firstName lastName preferences.profileImage');
+    await message.populate('senderId', 'firstName lastName preferences');
 
     res.status(201).json({
       message: 'Message sent successfully',
