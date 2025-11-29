@@ -530,6 +530,18 @@ Solución: Intenta nuevamente o usa la búsqueda manual de ubicación abajo.`;
     return 'Dirección no disponible';
   };
 
+  // Function to open Google Maps with place name and address
+  const openInGoogleMaps = (service: HealthService) => {
+    // Create a search query with place name and address for better accuracy
+    const searchQuery = encodeURIComponent(`${service.name}, ${service.address}`);
+
+    // Use Google Maps URL that will search for the place
+    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${searchQuery}`;
+
+    // Open in new tab/window
+    window.open(googleMapsUrl, '_blank');
+  };
+
   // Get marker icon based on service type
   const getMarkerIcon = (type: HealthService['type']) => {
     const iconUrls = {
@@ -570,7 +582,8 @@ Solución: Intenta nuevamente o usa la búsqueda manual de ubicación abajo.`;
         <InfoText>
           Esta herramienta te ayuda a encontrar centros de salud mental, hospitales, clínicas y psicólogos
           cerca de tu ubicación. Haz clic en "Buscar Centros de Salud" para encontrar servicios disponibles
-          en un radio de 10 kilómetros.
+          en un radio de 10 kilómetros. Al seleccionar un resultado, se abrirá Google Maps con la ubicación
+          exacta del lugar para que puedas obtener direcciones y navegar hasta allí.
         </InfoText>
       </InfoSection>
 
@@ -714,7 +727,7 @@ Solución: Intenta nuevamente o usa la búsqueda manual de ubicación abajo.`;
             {services
               .filter(s => selectedType === 'all' || s.type === selectedType)
               .map(service => (
-                <ServiceCard key={service.id} onClick={() => setMapCenter([service.latitude, service.longitude])}>
+                <ServiceCard key={service.id} onClick={() => openInGoogleMaps(service)}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                     <ServiceName>{service.name}</ServiceName>
                     <ServiceTypeBadge>{service.type}</ServiceTypeBadge>
@@ -726,6 +739,21 @@ Solución: Intenta nuevamente o usa la búsqueda manual de ubicación abajo.`;
                       {service.description}
                     </p>
                   )}
+                  <div style={{
+                    marginTop: '12px',
+                    padding: '8px 12px',
+                    background: '#f0fdf4',
+                    borderRadius: '6px',
+                    border: '1px solid #bbf7d0',
+                    fontSize: '12px',
+                    color: '#166534',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}>
+                    <span>🗺️</span>
+                    <span>Haz clic para abrir en Google Maps</span>
+                  </div>
                 </ServiceCard>
               ))}
           </ServicesList>
