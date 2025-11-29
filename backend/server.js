@@ -55,13 +55,24 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
+// Request counter
+let requestCount = 0;
+
 // Additional CORS headers for preflight requests
 app.use((req, res, next) => {
+  requestCount++;
+  const timestamp = new Date().toISOString();
+
   const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:3000', 'https://mente-sana.vercel.app', 'https://agoraa.vercel.app'];
   const origin = req.headers.origin;
 
+  console.log(`[${timestamp}] 🚀 Request #${requestCount} - ${req.method} ${req.path} - Origin: ${origin || 'No origin'}`);
+
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
+    console.log(`[${timestamp}] ✅ CORS ALLOWED for origin: ${origin}`);
+  } else if (origin) {
+    console.log(`[${timestamp}] ❌ CORS BLOCKED for origin: ${origin} - Not in allowed origins: ${allowedOrigins.join(', ')}`);
   }
 
   res.header('Access-Control-Allow-Credentials', 'true');
@@ -69,6 +80,7 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
 
   if (req.method === 'OPTIONS') {
+    console.log(`[${timestamp}] 🔄 Preflight request handled for ${req.path}`);
     res.sendStatus(200);
   } else {
     next();
@@ -84,12 +96,14 @@ console.log('Attempting to connect to MongoDB...');
 console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
-  console.log('MongoDB connected successfully');
-  console.log('Connection ready state:', mongoose.connection.readyState);
+  console.log('✅ MongoDB connected successfully');
+  console.log('📊 Connection ready state:', mongoose.connection.readyState);
+  console.log('🚀 Request counter initialized and ready to track requests');
 })
 .catch(err => {
-  console.error('MongoDB connection error:', err);
+  console.error('❌ MongoDB connection error:', err);
   console.error('Connection failed, but continuing...');
+  console.log('⚠️ Database operations will fail gracefully');
   // Don't exit process, let it continue - database operations will fail gracefully
 });
 
@@ -108,18 +122,41 @@ app.use('/api/avatar-categories', require('./routes/avatarCategories'));
 // app.use('/api/feedback', require('./routes/feedback'));
 // app.use('/api/analytics', require('./routes/analytics'));
 
-// Health check endpoint
+// Health check endpoint with request counter
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    totalRequests: requestCount,
+    environment: process.env.NODE_ENV,
+    corsOrigins: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['default']
+  });
+});
+
+// Stats endpoint for request counter
+app.get('/stats', (req, res) => {
+  const uptimeHours = Math.floor(process.uptime() / 3600);
+  const uptimeMinutes = Math.floor((process.uptime() % 3600) / 60);
+  const uptimeSeconds = Math.floor(process.uptime() % 60);
+
+  res.status(200).json({
+    message: 'Backend Statistics',
+    timestamp: new Date().toISOString(),
+    totalRequests: requestCount,
+    uptime: `${uptimeHours}h ${uptimeMinutes}m ${uptimeSeconds}s`,
+    averageRequestsPerHour: requestCount > 0 ? (requestCount / (process.uptime() / 3600)).toFixed(2) : 0,
+    environment: process.env.NODE_ENV,
+    server: 'Mente Sana Backend v2.0'
   });
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  const timestamp = new Date().toISOString();
+  console.error(`[${timestamp}] ❌ Error:`, err.stack);
+  console.log(`[${timestamp}] 📊 Current request count: ${requestCount}`);
+
   res.status(500).json({
     error: 'Something went wrong!',
     message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
@@ -298,6 +335,8 @@ server.listen(PORT, () => {
   console.log(`✅ Server successfully started and listening on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV}`);
   console.log(`CORS_ORIGIN:`, process.env.CORS_ORIGIN);
+  console.log(`🚀 Request counter initialized at 0`);
+  console.log(`📊 Health check available at: http://localhost:${PORT}/health`);
 }).on('error', (err) => {
   console.error('❌ Server failed to start:', err);
   process.exit(1);
