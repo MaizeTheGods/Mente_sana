@@ -8,7 +8,7 @@ const router = express.Router();
 // Validation rules
 const tipValidation = [
   body('title').trim().isLength({ min: 3, max: 100 }).withMessage('Title must be between 3 and 100 characters'),
-  body('content').trim().isLength({ min: 10 }).withMessage('Content must be at least 10 characters'),
+  body('content').trim().isLength({ min: 1 }).withMessage('Content must be at least 1 character'),
   body('category').isIn(['daily_habit', 'coping_strategy', 'lifestyle', 'relationships', 'work_life', 'self_care']).withMessage('Invalid category'),
   body('priority').optional().isIn(['low', 'medium', 'high']).withMessage('Invalid priority level'),
   body('frequency').optional().isIn(['daily', 'weekly', 'monthly', 'as_needed']).withMessage('Invalid frequency'),
