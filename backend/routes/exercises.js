@@ -15,7 +15,7 @@ const exerciseValidation = [
   body('targetDisorders').optional().isArray().withMessage('Target disorders must be an array'),
   body('instructions').optional().isArray().withMessage('Instructions must be an array'),
   body('benefits').optional().isArray().withMessage('Benefits must be an array'),
-  body('media.videoUrl').optional().isURL().withMessage('Video URL must be valid')
+  body('media.videoUrl').optional().isLength({ min: 1, max: 200 }).withMessage('Video URL/ID must be between 1 and 200 characters')
 ];
 
 // @route   GET /api/exercises
