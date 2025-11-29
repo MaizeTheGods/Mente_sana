@@ -176,82 +176,84 @@ const Questionnaire: React.FC = () => {
     );
   }
 
-  // Modal de confirmación
+  // Sección de confirmación integrada
   if (showConfirmationModal) {
     return (
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000,
-        backdropFilter: 'blur(4px)'
-      }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <PageHeader>
+          <div style={{ textAlign: 'center', width: '100%' }}>
+            <PageTitle>Evaluación de Salud Mental</PageTitle>
+          </div>
+        </PageHeader>
+
         <Card style={{
-          maxWidth: '500px',
-          width: '90%',
           textAlign: 'center',
-          padding: '40px',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+          padding: '60px 40px',
+          marginBottom: '32px',
+          border: '1px solid #e2e8f0'
         }}>
-          <div style={{ fontSize: '48px', marginBottom: '20px' }}>📋</div>
+          <div style={{ fontSize: '64px', marginBottom: '24px' }}>📋</div>
           <h2 style={{
             color: '#1e293b',
-            fontSize: '24px',
+            fontSize: '28px',
             fontWeight: '700',
-            marginBottom: '16px'
+            marginBottom: '20px'
           }}>
-            ¿Estás listo para comenzar?
+            ¿Estás listo para comenzar el cuestionario?
           </h2>
           <p style={{
             color: '#64748b',
-            fontSize: '16px',
+            fontSize: '18px',
             lineHeight: '1.6',
-            marginBottom: '32px'
+            marginBottom: '40px',
+            maxWidth: '600px',
+            margin: '0 auto 40px'
           }}>
             Este cuestionario consta de 21 preguntas sobre tu estado emocional durante la semana pasada.
             Toma tu tiempo para responder honestamente. No hay respuestas correctas o incorrectas.
           </p>
+
           <div style={{
             background: '#f0fdf4',
-            padding: '20px',
+            padding: '24px',
             borderRadius: '12px',
-            marginBottom: '32px',
-            borderLeft: '4px solid #2e7d32'
+            marginBottom: '40px',
+            borderLeft: '4px solid #2e7d32',
+            display: 'inline-block',
+            textAlign: 'left'
           }}>
-            <p style={{
-              color: '#1e293b',
-              fontSize: '14px',
-              margin: '0',
-              fontWeight: '500'
-            }}>
-              ⏱️ Duración aproximada: 5-10 minutos
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+              <span style={{ fontSize: '20px' }}>⏱️</span>
+              <span style={{
+                color: '#1e293b',
+                fontSize: '16px',
+                fontWeight: '600'
+              }}>
+                Duración aproximada: 5-10 minutos
+              </span>
+            </div>
             <p style={{
               color: '#64748b',
-              fontSize: '14px',
-              margin: '8px 0 0 0'
+              fontSize: '15px',
+              margin: '0',
+              lineHeight: '1.5'
             }}>
-              Recibirás resultados detallados y recomendaciones personalizadas al finalizar.
+              Recibirás resultados detallados con recomendaciones personalizadas al finalizar.
             </p>
           </div>
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+
+          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', maxWidth: '400px', margin: '0 auto' }}>
             <Button
               variant="outline"
               onClick={handleCancelQuestionnaire}
-              style={{ flex: 1 }}
+              style={{ flex: 1, padding: '14px 24px', fontSize: '16px' }}
             >
               Volver al inicio
             </Button>
             <Button
               variant="primary"
               onClick={handleStartQuestionnaire}
-              style={{ flex: 1 }}
+              style={{ flex: 1, padding: '14px 24px', fontSize: '16px' }}
             >
               Comenzar cuestionario
             </Button>
