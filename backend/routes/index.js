@@ -30,7 +30,7 @@ router.get('/', (req, res) => {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Mente Sana - API Backend</title>
+        <title>Agora - API Backend</title>
         <style>
             * {
                 margin: 0;
@@ -136,7 +136,7 @@ router.get('/', (req, res) => {
     <body>
         <div class="container">
             <div class="logo">🧠</div>
-            <h1>Mente Sana</h1>
+            <h1>Agora</h1>
             <p class="subtitle">API Backend - Salud Mental</p>
 
             <div class="status">

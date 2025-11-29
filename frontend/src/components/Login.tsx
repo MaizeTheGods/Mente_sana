@@ -97,7 +97,7 @@ const Login: React.FC = () => {
   return (
     <CenteredContainer>
       <LoginCard>
-        <LogoImage src="/logo.png" alt="Mente Sana Logo" />
+        <LogoImage src="/logo.png" alt="Agora Logo" />
         <Title>Bienvenido</Title>
         <Subtitle>Ingresa a tu espacio de paz mental</Subtitle>
 

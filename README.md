@@ -1,8 +1,8 @@
-# Mente Sana - Mental Health Platform
+# Agora - Mental Health Platform
 
 ## Descripción del Proyecto
 
-Mente Sana es una plataforma integral de salud mental que combina evaluación psicológica, soporte comunitario, ejercicios terapéuticos y recursos educativos. La aplicación permite a los usuarios realizar cuestionarios de evaluación (DASS-21), participar en chats grupales, acceder a ejercicios personalizados y recibir consejos basados en su estado emocional.
+Agora es una plataforma integral de salud mental que combina evaluación psicológica, soporte comunitario, ejercicios terapéuticos y recursos educativos. La aplicación permite a los usuarios realizar cuestionarios de evaluación (DASS-21), participar en chats grupales, acceder a ejercicios personalizados y recibir consejos basados en su estado emocional.
 
 ## Tecnologías Utilizadas
 
@@ -42,7 +42,7 @@ Mente Sana es una plataforma integral de salud mental que combina evaluación ps
 ### Mapa Mental de Relaciones Funcionales
 
 ```
-Mente Sana Platform
+Agora Platform
 ├── Frontend (React/TypeScript)
 │   ├── Autenticación
 │   │   ├── Login/Register

@@ -1,4 +1,4 @@
-# 🚀 Guía de Despliegue - Mente Sana
+# 🚀 Guía de Despliegue - Agora
 
 ## Resumen
 - **Frontend**: Vercel (GRATIS)

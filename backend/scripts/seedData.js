@@ -589,7 +589,7 @@ async function seedDatabase() {
         username: 'admin',
         email: 'admin@mentesana.com',
         firstName: 'Admin',
-        lastName: 'Mente Sana',
+        lastName: 'Agora',
         role: 'admin',
         questionnaireCompleted: true,
         preferences: { language: 'es', theme: 'light', notifications: true },

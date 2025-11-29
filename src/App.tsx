@@ -122,7 +122,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
-      <h1>¡Bienvenido a Mente Sana, {user?.firstName}!</h1>
+      <h1>¡Bienvenido a Agora, {user?.firstName}!</h1>
       <p>Tu plataforma de apoyo para la salud mental - Desarrollada con ❤️ para ayudar a las personas.</p>
 
       <div style={{ marginTop: '30px' }}>

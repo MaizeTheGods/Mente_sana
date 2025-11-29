@@ -894,7 +894,7 @@ const AdminPanel: React.FC = () => {
     <Layout>
       <Sidebar>
         <Logo onClick={() => navigate('/dashboard')}>
-          🌿 Mente Sana
+          🌿 Agora
         </Logo>
         <NavItem active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')}>
           📊 Dashboard

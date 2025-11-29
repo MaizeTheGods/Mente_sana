@@ -185,7 +185,7 @@ Esta plataforma proporciona evaluaciones preliminares basadas en cuestionarios v
 
 Para soporte técnico o preguntas sobre el proyecto, por favor crear un issue en el repositorio de GitHub.
 =======
-# Mente Sana - Mental Health Assessment Platform
+# Agora - Mental Health Assessment Platform
 
 Una plataforma web completa para evaluación y apoyo en salud mental, diseñada para proporcionar evaluaciones preliminares de salud mental y conectar a los usuarios con recursos de apoyo.
 

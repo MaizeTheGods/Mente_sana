@@ -195,7 +195,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
     return (
         <Layout>
             <MobileHeader>
-                <Logo onClick={() => navigate('/dashboard')}>🌿 Mente Sana</Logo>
+                <Logo onClick={() => navigate('/dashboard')}>🌿 Agora</Logo>
                 <MenuButton onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                     ☰
                 </MenuButton>
@@ -205,7 +205,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
 
             <Sidebar isOpen={isMobileMenuOpen}>
                 <Logo onClick={() => navigate('/dashboard')}>
-                    🌿 Mente Sana
+                    🌿 Agora
                 </Logo>
 
                 {navItems.map(item => (
