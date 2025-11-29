@@ -205,18 +205,21 @@ const HealthServicesMap: React.FC<HealthServicesMapProps> = ({
   }, [userLocation]);
 
   // Function to request user location (requires user gesture for iOS Safari)
-  const requestUserLocation = () => {
+  const requestUserLocation = async () => {
     // Check if it's an iOS device
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
     if (isIOS) {
-      // For iOS devices, automatically set to Acapulco
-      console.log('iOS device detected, setting location to Acapulco');
+      // For iOS devices, automatically set to Acapulco and search services
+      console.log('iOS device detected, setting location to Acapulco and searching services');
       const acapulcoCoords: [number, number] = [16.8531, -99.8237];
       setMapCenter(acapulcoCoords);
       setLocationLoading(false);
       setLocationError('');
       onLocationSelect?.(acapulcoCoords);
+
+      // Automatically search for services in Acapulco
+      await searchNearbyServices();
       return;
     }
 
