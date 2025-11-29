@@ -1581,6 +1581,7 @@ const AdminPanel: React.FC = () => {
                   <Label>Título</Label>
                   <Input
                     required
+                    placeholder="Ej: Técnicas para reducir el estrés diario"
                     value={formData.title}
                     onChange={e => setFormData({ ...formData, title: e.target.value })}
                   />
@@ -1597,12 +1598,17 @@ const AdminPanel: React.FC = () => {
                   </Select>
                 </FormGroup>
                 <FormGroup>
-                  <Label>Contenido</Label>
+                  <Label>Contenido del Consejo</Label>
                   <TextArea
                     required
+                    placeholder="Escribe aquí el contenido completo del consejo. Incluye toda la información necesaria para que sea útil y comprensible para los usuarios."
                     value={formData.content}
                     onChange={e => setFormData({ ...formData, content: e.target.value })}
+                    rows={8}
                   />
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+                    Proporciona información clara, práctica y útil. El contenido debe ser comprensible para todos los usuarios.
+                  </div>
                 </FormGroup>
                 <FormGroup>
                   <Label>Video URL (YouTube ID o URL completa)</Label>
