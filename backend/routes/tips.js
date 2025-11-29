@@ -90,7 +90,7 @@ router.get('/:id', async (req, res) => {
 // @access  Private (Admin only)
 router.post('/', authenticateToken, tipValidation, async (req, res) => {
   try {
-    console.log('📥 Recibiendo datos para crear consejo:', JSON.stringify(req.body, null, 2));
+    console.log('📥 [REDEPLOY TEST] Recibiendo datos para crear consejo:', JSON.stringify(req.body, null, 2));
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
