@@ -703,7 +703,7 @@ const AdminPanel: React.FC = () => {
         media: exerciseFormData.videoUrl ? { videoUrl: exerciseFormData.videoUrl } : undefined
       };
 
-      console.log('📤 Enviando datos del ejercicio:', exerciseData);
+      console.log('📤 Enviando datos del ejercicio:', JSON.stringify(exerciseData, null, 2));
 
       if (editingExercise) {
         await exercisesAPI.updateExercise(editingExercise._id, exerciseData);
