@@ -1592,12 +1592,24 @@ const AdminPanel: React.FC = () => {
                   />
                 </FormGroup>
                 <FormGroup>
-                  <Label>Video URL (YouTube ID)</Label>
+                  <Label>Video URL (YouTube ID o URL completa)</Label>
                   <Input
-                    placeholder="Ej: dQw4w9WgXcQ"
+                    placeholder="Ej: dQw4w9WgXcQ o https://www.youtube.com/watch?v=dQw4w9WgXcQ"
                     value={exerciseFormData.videoUrl}
-                    onChange={e => setExerciseFormData({ ...exerciseFormData, videoUrl: e.target.value })}
+                    onChange={e => {
+                      const value = e.target.value;
+                      // Extraer ID del video si es una URL completa de YouTube
+                      let videoId = value;
+                      if (value.includes('youtube.com/watch?v=') || value.includes('youtu.be/')) {
+                        const url = new URL(value.includes('youtu.be/') ? value.replace('youtu.be/', 'youtube.com/watch?v=') : value);
+                        videoId = url.searchParams.get('v') || value.split('/').pop() || value;
+                      }
+                      setExerciseFormData({ ...exerciseFormData, videoUrl: videoId });
+                    }}
                   />
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+                    Puedes pegar la URL completa de YouTube o solo el ID del video
+                  </div>
                 </FormGroup>
                 <ModalActions>
                   <ActionButton type="button" variant="danger" onClick={() => setIsModalOpen(false)}>

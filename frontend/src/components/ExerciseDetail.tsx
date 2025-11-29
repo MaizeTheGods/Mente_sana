@@ -247,12 +247,34 @@ const ExerciseDetail: React.FC = () => {
               Video Tutorial
             </h3>
             <VideoContainer>
-              <VideoFrame
-                src={`https://www.youtube.com/embed/${exercise.media?.videoUrl || 'dQw4w9WgXcQ'}`}
-                title={`${exercise.title} - Tutorial`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+              {exercise.media?.videoUrl ? (
+                <VideoFrame
+                  src={`https://www.youtube.com/embed/${exercise.media.videoUrl}`}
+                  title={`${exercise.title} - Tutorial`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
+                  color: '#64748b',
+                  fontSize: '16px',
+                  textAlign: 'center',
+                  padding: '20px'
+                }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }}>
+                    🎥
+                  </div>
+                  <p>No hay video tutorial disponible</p>
+                  <p style={{ fontSize: '14px', marginTop: '8px' }}>
+                    Sigue las instrucciones paso a paso
+                  </p>
+                </div>
+              )}
             </VideoContainer>
           </SidebarCard>
 
