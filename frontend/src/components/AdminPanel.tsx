@@ -598,10 +598,39 @@ const AdminPanel: React.FC = () => {
   const handleSaveTip = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Validar datos antes de enviar
+      if (!formData.title.trim()) {
+        alert('El título es obligatorio');
+        return;
+      }
+      if (!formData.content.trim()) {
+        alert('El contenido es obligatorio');
+        return;
+      }
+      if (!formData.category) {
+        alert('La categoría es obligatoria');
+        return;
+      }
+
+      // Procesar URL de YouTube si es necesario
+      let processedVideoUrl = formData.videoUrl;
+      if (formData.videoUrl && (formData.videoUrl.includes('youtube.com/watch?v=') || formData.videoUrl.includes('youtu.be/'))) {
+        try {
+          const url = new URL(formData.videoUrl.includes('youtu.be/') ? formData.videoUrl.replace('youtu.be/', 'youtube.com/watch?v=') : formData.videoUrl);
+          processedVideoUrl = url.searchParams.get('v') || formData.videoUrl.split('/').pop() || formData.videoUrl;
+        } catch (error) {
+          console.warn('Error procesando URL de YouTube, usando valor original:', error);
+        }
+      }
+
       const tipData = {
-        ...formData,
-        media: formData.videoUrl ? { videoUrl: formData.videoUrl } : undefined
+        title: formData.title.trim(),
+        content: formData.content.trim(),
+        category: formData.category,
+        media: processedVideoUrl ? { videoUrl: processedVideoUrl } : undefined
       };
+
+      console.log('📤 Enviando datos del consejo:', JSON.stringify(tipData, null, 2));
 
       if (editingTip) {
         await tipsAPI.updateTip(editingTip._id, tipData);
@@ -610,9 +639,13 @@ const AdminPanel: React.FC = () => {
       }
       setIsModalOpen(false);
       loadData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving tip:', error);
-      alert('Error al guardar el consejo');
+      if (error.response?.status === 400) {
+        alert(`Error de validación: ${error.response.data.error || 'Datos inválidos'}`);
+      } else {
+        alert('Error al guardar el consejo');
+      }
     }
   };
 
@@ -1572,12 +1605,28 @@ const AdminPanel: React.FC = () => {
                   />
                 </FormGroup>
                 <FormGroup>
-                  <Label>Video URL (YouTube ID)</Label>
+                  <Label>Video URL (YouTube ID o URL completa)</Label>
                   <Input
-                    placeholder="Ej: dQw4w9WgXcQ"
+                    placeholder="Ej: dQw4w9WgXcQ o https://www.youtube.com/watch?v=dQw4w9WgXcQ"
                     value={formData.videoUrl}
-                    onChange={e => setFormData({ ...formData, videoUrl: e.target.value })}
+                    onChange={e => {
+                      const value = e.target.value;
+                      // Extraer ID del video si es una URL completa de YouTube
+                      let videoId = value;
+                      if (value.includes('youtube.com/watch?v=') || value.includes('youtu.be/')) {
+                        try {
+                          const url = new URL(value.includes('youtu.be/') ? value.replace('youtu.be/', 'youtube.com/watch?v=') : value);
+                          videoId = url.searchParams.get('v') || value.split('/').pop() || value;
+                        } catch (error) {
+                          console.warn('Error procesando URL de YouTube, usando valor original:', error);
+                        }
+                      }
+                      setFormData({ ...formData, videoUrl: videoId });
+                    }}
                   />
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+                    Puedes pegar la URL completa de YouTube o solo el ID del video
+                  </div>
                 </FormGroup>
                 <ModalActions>
                   <ActionButton type="button" variant="danger" onClick={() => setIsModalOpen(false)}>

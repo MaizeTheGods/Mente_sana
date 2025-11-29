@@ -13,7 +13,7 @@ const tipValidation = [
   body('priority').optional().isIn(['low', 'medium', 'high']).withMessage('Invalid priority level'),
   body('frequency').optional().isIn(['daily', 'weekly', 'monthly', 'as_needed']).withMessage('Invalid frequency'),
   body('targetDisorders').optional().isArray().withMessage('Target disorders must be an array'),
-  body('media.videoUrl').optional().isURL().withMessage('Video URL must be valid')
+  body('media.videoUrl').optional().isLength({ min: 1, max: 200 }).withMessage('Video URL/ID must be between 1 and 200 characters')
 ];
 
 // @route   GET /api/tips
@@ -90,8 +90,11 @@ router.get('/:id', async (req, res) => {
 // @access  Private (Admin only)
 router.post('/', authenticateToken, tipValidation, async (req, res) => {
   try {
+    console.log('📥 Recibiendo datos para crear consejo:', JSON.stringify(req.body, null, 2));
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('❌ Errores de validación:', errors.array());
       return res.status(400).json({
         error: 'Validation failed',
         details: errors.array()
@@ -103,15 +106,23 @@ router.post('/', authenticateToken, tipValidation, async (req, res) => {
       createdBy: req.user._id
     });
 
+    console.log('💾 Intentando guardar consejo:', tip);
+
     await tip.save();
+
+    console.log('✅ Consejo creado exitosamente:', tip._id);
 
     res.status(201).json({
       message: 'Tip created successfully',
       tip
     });
   } catch (error) {
-    console.error('Create tip error:', error);
-    res.status(500).json({ error: 'Failed to create tip' });
+    console.error('❌ Create tip error:', error);
+    console.error('Stack trace:', error.stack);
+    res.status(500).json({
+      error: 'Failed to create tip',
+      details: error.message
+    });
   }
 });
 
