@@ -20,7 +20,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:3000', 'https://mente-sana.vercel.app', 'https://agoraa.vercel.app'],
+    origin: true, // Allow all origins for prototype
     credentials: true
   }
 });
@@ -47,37 +47,32 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// CORS configuration
+// CORS configuration - Permissive for prototype
 app.use(cors({
-  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:3000', 'https://mente-sana.vercel.app', 'https://agoraa.vercel.app'],
+  origin: true, // Allow all origins for prototype
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-Requested-With']
 }));
 
 // Request counter
 let requestCount = 0;
 
-// Additional CORS headers for preflight requests
+// Additional CORS headers for preflight requests - Permissive
 app.use((req, res, next) => {
   requestCount++;
   const timestamp = new Date().toISOString();
-
-  const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:3000', 'https://mente-sana.vercel.app', 'https://agoraa.vercel.app'];
   const origin = req.headers.origin;
 
   console.log(`[${timestamp}] 🚀 Request #${requestCount} - ${req.method} ${req.path} - Origin: ${origin || 'No origin'}`);
 
-  if (allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-    console.log(`[${timestamp}] ✅ CORS ALLOWED for origin: ${origin}`);
-  } else if (origin) {
-    console.log(`[${timestamp}] ❌ CORS BLOCKED for origin: ${origin} - Not in allowed origins: ${allowedOrigins.join(', ')}`);
-  }
+  // Allow all origins for prototype
+  res.header('Access-Control-Allow-Origin', origin || '*');
+  console.log(`[${timestamp}] ✅ CORS ALLOWED for origin: ${origin || 'All origins (prototype mode)'}`);
 
   res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, X-Requested-With');
 
   if (req.method === 'OPTIONS') {
     console.log(`[${timestamp}] 🔄 Preflight request handled for ${req.path}`);
