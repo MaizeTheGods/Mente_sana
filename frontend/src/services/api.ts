@@ -382,9 +382,22 @@ export interface ChatGroup {
   name: string;
   description: string;
   category: 'anxiety' | 'depression' | 'stress' | 'general' | 'recovery' | 'family';
-  members: string[];
+  currentMembers: Array<{
+    userId: {
+      _id: string;
+      firstName: string;
+      lastName: string;
+    };
+    role: string;
+    joinedAt: string;
+    isActive: boolean;
+  }>;
   isMember?: boolean;
-  createdBy: string;
+  createdBy: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+  };
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

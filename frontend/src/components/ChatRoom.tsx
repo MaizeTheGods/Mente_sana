@@ -232,7 +232,7 @@ const ChatRoom: React.FC = () => {
           </Button>
           <div>
             <PageTitle>{group.name}</PageTitle>
-            <PageSubtitle>{group.category} • {group.members.length} miembros</PageSubtitle>
+            <PageSubtitle>{group.category} • {group.currentMembers?.filter(m => m.isActive).length || 0} miembros</PageSubtitle>
           </div>
         </div>
       </PageHeader>
