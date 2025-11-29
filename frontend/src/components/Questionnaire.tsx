@@ -6,11 +6,9 @@ import {
   PageHeader,
   PageTitle,
   Card,
-  Button,
-  CubeLoader,
-  CubeSquare,
-  LoadingText
+  Button
 } from './SharedStyles';
+import Loader from './Loader';
 
 const ProgressBarContainer = styled.div`
   width: 100%;
@@ -80,16 +78,19 @@ const Questionnaire: React.FC = () => {
   const [questions, setQuestions] = useState<string[]>([]);
   const [responses, setResponses] = useState<{ [key: string]: number }>({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [scale, setScale] = useState<{ [key: number]: string }>({});
+  const [showConfirmationModal, setShowConfirmationModal] = useState(true);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadQuestionnaire();
-  }, []);
+    if (!showConfirmationModal) {
+      loadQuestionnaire();
+    }
+  }, [showConfirmationModal]);
 
   const loadQuestionnaire = async () => {
     setIsLoadingData(true);
@@ -103,6 +104,14 @@ const Questionnaire: React.FC = () => {
       setIsLoading(false);
       setIsLoadingData(false);
     }
+  };
+
+  const handleStartQuestionnaire = () => {
+    setShowConfirmationModal(false);
+  };
+
+  const handleCancelQuestionnaire = () => {
+    navigate('/dashboard');
   };
 
   const handleResponseChange = (questionIndex: number, value: number) => {
@@ -159,17 +168,95 @@ const Questionnaire: React.FC = () => {
   if (isLoading || isLoadingData) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px' }}>
-        <CubeLoader>
-          <CubeSquare delay={0} />
-          <CubeSquare delay={1} />
-          <CubeSquare delay={2} />
-          <CubeSquare delay={3} />
-          <CubeSquare delay={4} />
-          <CubeSquare delay={5} />
-          <CubeSquare delay={6} />
-          <CubeSquare delay={7} />
-        </CubeLoader>
-        <LoadingText>Cargando cuestionario...</LoadingText>
+        <Loader />
+        <div style={{ color: '#64748b', fontSize: '16px', fontWeight: '500', marginTop: '20px' }}>
+          Cargando cuestionario...
+        </div>
+      </div>
+    );
+  }
+
+  // Modal de confirmación
+  if (showConfirmationModal) {
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000,
+        backdropFilter: 'blur(4px)'
+      }}>
+        <Card style={{
+          maxWidth: '500px',
+          width: '90%',
+          textAlign: 'center',
+          padding: '40px',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '20px' }}>📋</div>
+          <h2 style={{
+            color: '#1e293b',
+            fontSize: '24px',
+            fontWeight: '700',
+            marginBottom: '16px'
+          }}>
+            ¿Estás listo para comenzar?
+          </h2>
+          <p style={{
+            color: '#64748b',
+            fontSize: '16px',
+            lineHeight: '1.6',
+            marginBottom: '32px'
+          }}>
+            Este cuestionario consta de 21 preguntas sobre tu estado emocional durante la semana pasada.
+            Toma tu tiempo para responder honestamente. No hay respuestas correctas o incorrectas.
+          </p>
+          <div style={{
+            background: '#f0fdf4',
+            padding: '20px',
+            borderRadius: '12px',
+            marginBottom: '32px',
+            borderLeft: '4px solid #2e7d32'
+          }}>
+            <p style={{
+              color: '#1e293b',
+              fontSize: '14px',
+              margin: '0',
+              fontWeight: '500'
+            }}>
+              ⏱️ Duración aproximada: 5-10 minutos
+            </p>
+            <p style={{
+              color: '#64748b',
+              fontSize: '14px',
+              margin: '8px 0 0 0'
+            }}>
+              Recibirás resultados detallados y recomendaciones personalizadas al finalizar.
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+            <Button
+              variant="outline"
+              onClick={handleCancelQuestionnaire}
+              style={{ flex: 1 }}
+            >
+              Volver al inicio
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleStartQuestionnaire}
+              style={{ flex: 1 }}
+            >
+              Comenzar cuestionario
+            </Button>
+          </div>
+        </Card>
       </div>
     );
   }
