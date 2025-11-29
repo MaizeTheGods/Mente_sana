@@ -845,19 +845,35 @@ const AdminPanel: React.FC = () => {
   }
 
   // Chart Data Preparation
-  const userGrowthData = {
-    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'], // Mock data for now, ideally calculate from users creation date
-    datasets: [
-      {
-        label: 'Nuevos Usuarios',
-        data: [12, 19, 3, 5, 2, 3], // Mock data
-        borderColor: '#2e7d32',
-        backgroundColor: 'rgba(46, 125, 50, 0.1)',
-        tension: 0.4,
-        fill: true,
-      },
-    ],
-  };
+  const userGrowthData = React.useMemo(() => {
+    if (!stats?.userGrowth) {
+      return {
+        labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Nuevos Usuarios',
+          data: [0, 0, 0, 0, 0, 0],
+          borderColor: '#2e7d32',
+          backgroundColor: 'rgba(46, 125, 50, 0.1)',
+          tension: 0.4,
+          fill: true,
+        }],
+      };
+    }
+
+    return {
+      labels: stats.userGrowth.map((item: { month: string; count: number }) => item.month),
+      datasets: [
+        {
+          label: 'Nuevos Usuarios',
+          data: stats.userGrowth.map((item: { month: string; count: number }) => item.count),
+          borderColor: '#2e7d32',
+          backgroundColor: 'rgba(46, 125, 50, 0.1)',
+          tension: 0.4,
+          fill: true,
+        },
+      ],
+    };
+  }, [stats?.userGrowth]);
 
   const userRolesData = {
     labels: ['Usuarios', 'Admins', 'Owners'],

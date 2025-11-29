@@ -182,7 +182,8 @@ router.get('/stats', async (req, res) => {
       adminUsers,
       totalExercises,
       totalTips,
-      recentUsers
+      recentUsers,
+      userGrowthData
     ] = await Promise.all([
       User.countDocuments(),
       User.countDocuments({ isActive: true }),
@@ -192,8 +193,51 @@ router.get('/stats', async (req, res) => {
       User.find({})
         .select('username email role createdAt')
         .sort({ createdAt: -1 })
-        .limit(5)
+        .limit(5),
+      // Get user growth data by month for the last 6 months
+      User.aggregate([
+        {
+          $match: {
+            createdAt: {
+              $gte: new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000) // Last 6 months
+            }
+          }
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: '$createdAt' },
+              month: { $month: '$createdAt' }
+            },
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $sort: { '_id.year': 1, '_id.month': 1 }
+        }
+      ])
     ]);
+
+    // Format user growth data for the chart
+    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const currentDate = new Date();
+    const growthData = [];
+
+    // Generate data for last 6 months
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1; // MongoDB months are 1-indexed
+
+      const monthData = userGrowthData.find(item =>
+        item._id.year === year && item._id.month === month
+      );
+
+      growthData.push({
+        month: months[date.getMonth()],
+        count: monthData ? monthData.count : 0
+      });
+    }
 
     res.json({
       stats: {
@@ -203,7 +247,8 @@ router.get('/stats', async (req, res) => {
         totalExercises,
         totalTips
       },
-      recentUsers
+      recentUsers,
+      userGrowth: growthData
     });
   } catch (error) {
     console.error('Get admin stats error:', error);
