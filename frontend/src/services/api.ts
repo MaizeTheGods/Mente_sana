@@ -167,6 +167,21 @@ export interface Song {
   createdAt: string;
 }
 
+export interface Reel {
+  _id: string;
+  title: string;
+  description: string;
+  videoUrl: string;
+  isActive: boolean;
+  createdBy: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ApiError {
   error: string;
   message?: string;
@@ -376,6 +391,36 @@ export const songsAPI = {
   reorderSongs: async (songOrders: Array<{ _id: string; order: number }>): Promise<{ message: string }> => {
     const response = await api.put('/songs/reorder', { songOrders });
     return response.data;
+  },
+};
+
+// Reels API
+export const reelsAPI = {
+  getReels: async (params?: {
+    limit?: number;
+    page?: number;
+  }): Promise<{ reels: Reel[]; pagination: any }> => {
+    const response = await api.get('/reels', { params });
+    return response.data;
+  },
+
+  getReel: async (id: string): Promise<{ reel: Reel }> => {
+    const response = await api.get(`/reels/${id}`);
+    return response.data;
+  },
+
+  createReel: async (reelData: Partial<Reel>): Promise<{ reel: Reel }> => {
+    const response = await api.post('/reels', reelData);
+    return response.data;
+  },
+
+  updateReel: async (id: string, reelData: Partial<Reel>): Promise<{ reel: Reel }> => {
+    const response = await api.put(`/reels/${id}`, reelData);
+    return response.data;
+  },
+
+  deleteReel: async (id: string): Promise<void> => {
+    await api.delete(`/reels/${id}`);
   },
 };
 

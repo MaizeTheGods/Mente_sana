@@ -17,6 +17,7 @@ import AdminPanel from './components/AdminPanel';
 import SidebarLayout from './components/SidebarLayout';
 import Profile from './components/Profile';
 import Blog from './components/Blog';
+import Reels from './components/Reels';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Card, CubeLoader, CubeSquare, LoadingText, PageHeader, PageTitle, PageSubtitle } from './components/SharedStyles';
 import { Line, Bar } from 'react-chartjs-2';
@@ -198,6 +199,11 @@ const AppRoutes: React.FC = () => {
             <TipDetail />
           </ProtectedRoute>
         } />
+        <Route path="/reels" element={
+          <ProtectedRoute>
+            <Reels />
+          </ProtectedRoute>
+        } />
         <Route path="/blog" element={
           <ProtectedRoute>
             <Blog />
@@ -375,6 +381,15 @@ const Dashboard: React.FC = () => {
       bg: '#fef3c7',
       color: '#d97706',
       action: () => navigate('/tips')
+    },
+    {
+      id: 'reels',
+      title: 'Reels',
+      description: 'Disfruta de videos inspiradores y contenido motivacional',
+      icon: '🎥',
+      bg: '#f3e8ff',
+      color: '#8b5cf6',
+      action: () => navigate('/reels')
     },
     {
       id: 'blog',

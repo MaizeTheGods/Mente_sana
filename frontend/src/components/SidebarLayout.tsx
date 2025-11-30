@@ -178,6 +178,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
     { path: '/questionnaire', label: 'Cuestionario', icon: '📝' },
     { path: '/exercises', label: 'Ejercicios', icon: '🧘' },
     { path: '/tips', label: 'Consejos', icon: '💡' },
+    { path: '/reels', label: 'Reels', icon: '🎥' },
     { path: '/blog', label: 'Blog', icon: '📖' },
     { path: '/chat', label: 'Comunidad', icon: '👥' },
     { path: '/maps', label: 'Ayuda Profesional', icon: '🗺️' },

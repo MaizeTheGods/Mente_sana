@@ -15,7 +15,7 @@ import {
   Filler,
 } from 'chart.js';
 import { Line, Doughnut } from 'react-chartjs-2';
-import { tipsAPI, exercisesAPI, uploadsAPI, songsAPI, Tip, Category, Song } from '../services/api';
+import { tipsAPI, exercisesAPI, uploadsAPI, songsAPI, reelsAPI, Tip, Category, Song, Reel } from '../services/api';
 import { Card } from './SharedStyles';
 import api from '../services/api';
 
@@ -485,13 +485,14 @@ const ModalActions = styled.div`
 const AdminPanel: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'tips' | 'exercises' | 'avatars' | 'categories' | 'songs'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'tips' | 'exercises' | 'avatars' | 'categories' | 'songs' | 'reels'>('dashboard');
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [tips, setTips] = useState<Tip[]>([]);
   const [exercises, setExercises] = useState<any[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [songs, setSongs] = useState<Song[]>([]);
+  const [reels, setReels] = useState<Reel[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [avatars, setAvatars] = useState<Record<string, any[]>>({});
   const [avatarCategories, setAvatarCategories] = useState<any[]>([]);
@@ -499,6 +500,8 @@ const AdminPanel: React.FC = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isSongModalOpen, setIsSongModalOpen] = useState(false);
+  const [isReelModalOpen, setIsReelModalOpen] = useState(false);
+  const [editingReel, setEditingReel] = useState<Reel | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [editingCategory, setEditingCategory] = useState<any | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -506,6 +509,12 @@ const AdminPanel: React.FC = () => {
   const [songFormData, setSongFormData] = useState({
     files: [] as File[],
     titles: [] as string[]
+  });
+
+  const [reelFormData, setReelFormData] = useState({
+    title: '',
+    description: '',
+    videoUrl: ''
   });
 
   // Modal State
@@ -575,6 +584,9 @@ const AdminPanel: React.FC = () => {
       } else if (activeTab === 'songs') {
         const songsRes = await songsAPI.getSongs();
         setSongs(songsRes.songs);
+      } else if (activeTab === 'reels') {
+        const reelsRes = await reelsAPI.getReels({ limit: 100 });
+        setReels(reelsRes.reels);
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -1031,6 +1043,71 @@ const AdminPanel: React.FC = () => {
     }
   };
 
+  // --- Reel Actions ---
+  const handleOpenReelModal = (reel?: Reel) => {
+    if (reel) {
+      setEditingReel(reel);
+      setReelFormData({
+        title: reel.title,
+        description: reel.description,
+        videoUrl: reel.videoUrl
+      });
+    } else {
+      setEditingReel(null);
+      setReelFormData({
+        title: '',
+        description: '',
+        videoUrl: ''
+      });
+    }
+    setIsReelModalOpen(true);
+  };
+
+  const handleSaveReel = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (!reelFormData.title.trim()) {
+        alert('El título es obligatorio');
+        return;
+      }
+      if (!reelFormData.description.trim()) {
+        alert('La descripción es obligatoria');
+        return;
+      }
+      if (!reelFormData.videoUrl.trim()) {
+        alert('La URL del video es obligatoria');
+        return;
+      }
+
+      if (editingReel) {
+        await reelsAPI.updateReel(editingReel._id, reelFormData);
+      } else {
+        await reelsAPI.createReel(reelFormData);
+      }
+      setIsReelModalOpen(false);
+      loadData();
+    } catch (error: any) {
+      console.error('Error saving reel:', error);
+      if (error.response?.status === 400) {
+        alert(`Error de validación: ${error.response.data.error || 'Datos inválidos'}`);
+      } else {
+        alert('Error al guardar el reel');
+      }
+    }
+  };
+
+  const handleDeleteReel = async (reelId: string) => {
+    if (!window.confirm('¿Eliminar reel?')) return;
+    try {
+      await reelsAPI.deleteReel(reelId);
+      loadData();
+      alert('Reel eliminado exitosamente');
+    } catch (error) {
+      console.error('Error deleting reel:', error);
+      alert('Error al eliminar el reel');
+    }
+  };
+
   // Chart Data Preparation - Must be called before any conditional returns
   const userGrowthData = React.useMemo(() => {
     if (!stats?.userGrowth) {
@@ -1118,6 +1195,9 @@ const AdminPanel: React.FC = () => {
         <NavItem active={activeTab === 'songs'} onClick={() => { setActiveTab('songs'); setIsMobileMenuOpen(false); }}>
           🎵 Música
         </NavItem>
+        <NavItem active={activeTab === 'reels'} onClick={() => { setActiveTab('reels'); setIsMobileMenuOpen(false); }}>
+          🎥 Reels
+        </NavItem>
 
         <div style={{ marginTop: 'auto' }}>
           <NavItem active={false} onClick={() => navigate('/dashboard')}>
@@ -1136,6 +1216,7 @@ const AdminPanel: React.FC = () => {
             {activeTab === 'avatars' && 'Gestión de Avatares'}
             {activeTab === 'categories' && 'Gestión de Categorías'}
             {activeTab === 'songs' && 'Biblioteca de Música'}
+            {activeTab === 'reels' && 'Biblioteca de Reels'}
           </PageTitle >
           <UserProfile>
             <span>{user.firstName} {user.lastName}</span>
@@ -1747,6 +1828,50 @@ const AdminPanel: React.FC = () => {
           )
         }
 
+        {
+          activeTab === 'reels' && (
+            <>
+              <TipsHeader>
+                <div style={{ color: '#64748b' }}>Gestiona los reels para el contenido de video</div>
+                <AddButton onClick={() => handleOpenReelModal()}>
+                  + Nuevo Reel
+                </AddButton>
+              </TipsHeader>
+              <TipsGrid>
+                {reels.map(reel => (
+                  <TipCard key={reel._id}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <Badge bg="#e0f2fe" color="#0284c7">Reel</Badge>
+                      <span>🎥</span>
+                    </div>
+                    <TipTitle>{reel.title}</TipTitle>
+                    <TipContent>{reel.description}</TipContent>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                      <span style={{ color: '#64748b', fontSize: '14px' }}>
+                        Por {reel.createdBy.firstName} {reel.createdBy.lastName}
+                      </span>
+                      <span style={{ color: '#64748b', fontSize: '14px' }}>
+                        {new Date(reel.createdAt).toLocaleDateString('es-ES')}
+                      </span>
+                    </div>
+                    <TipFooter>
+                      <ActionButton onClick={() => window.open(reel.videoUrl, '_blank')}>
+                        Ver Video
+                      </ActionButton>
+                      <ActionButton onClick={() => handleOpenReelModal(reel)}>
+                        Editar
+                      </ActionButton>
+                      <ActionButton variant="danger" onClick={() => handleDeleteReel(reel._id)}>
+                        Eliminar
+                      </ActionButton>
+                    </TipFooter>
+                  </TipCard>
+                ))}
+              </TipsGrid>
+            </>
+          )
+        }
+
       </MainContent >
       {isModalOpen && (
         <ModalOverlay onClick={() => setIsModalOpen(false)}>
@@ -1978,6 +2103,62 @@ const AdminPanel: React.FC = () => {
                 </ActionButton>
                 <ActionButton type="submit" variant="success">
                   Subir {songFormData.files.length} Canción(es)
+                </ActionButton>
+              </ModalActions>
+            </form>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+
+      {isReelModalOpen && (
+        <ModalOverlay onClick={() => setIsReelModalOpen(false)}>
+          <ModalContent onClick={e => e.stopPropagation()}>
+            <h2 style={{ marginBottom: 20, color: '#1e293b' }}>
+              {editingReel ? 'Editar Reel' : 'Nuevo Reel'}
+            </h2>
+
+            <form onSubmit={handleSaveReel}>
+              <FormGroup>
+                <Label>Título</Label>
+                <Input
+                  required
+                  placeholder="Título del reel"
+                  value={reelFormData.title}
+                  onChange={e => setReelFormData({ ...reelFormData, title: e.target.value })}
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Label>Descripción</Label>
+                <TextArea
+                  required
+                  placeholder="Descripción del contenido del reel"
+                  value={reelFormData.description}
+                  onChange={e => setReelFormData({ ...reelFormData, description: e.target.value })}
+                  rows={4}
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Label>URL del Video</Label>
+                <Input
+                  required
+                  type="url"
+                  placeholder="https://example.com/video.mp4"
+                  value={reelFormData.videoUrl}
+                  onChange={e => setReelFormData({ ...reelFormData, videoUrl: e.target.value })}
+                />
+                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+                  URL directa al archivo de video (MP4, WebM, etc.)
+                </div>
+              </FormGroup>
+
+              <ModalActions>
+                <ActionButton type="button" variant="danger" onClick={() => setIsReelModalOpen(false)}>
+                  Cancelar
+                </ActionButton>
+                <ActionButton type="submit" variant="success">
+                  {editingReel ? 'Actualizar' : 'Crear'} Reel
                 </ActionButton>
               </ModalActions>
             </form>
