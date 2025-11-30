@@ -6,11 +6,17 @@ import { PageHeader, PageTitle, PageSubtitle } from './SharedStyles';
 const ReelsContainer = styled.div`
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: calc(100vh - 120px); /* Account for header and padding */
   background: #000;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+  @media (max-width: 768px) {
+    height: calc(100vh - 140px); /* Adjust for mobile header and padding */
+  }
 `;
 
 const VideoWrapper = styled.div`
@@ -152,7 +158,7 @@ const ErrorContainer = styled.div`
 
 const LogContainer = styled.div`
   position: fixed;
-  top: 20px;
+  top: 80px; /* Moved down to avoid covering header */
   right: 20px;
   background: rgba(0, 0, 0, 0.8);
   color: white;
@@ -164,6 +170,7 @@ const LogContainer = styled.div`
   opacity: 0;
   transform: translateY(-10px);
   transition: all 0.3s ease;
+  pointer-events: none; /* Prevent blocking clicks */
 
   &.visible {
     opacity: 1;
@@ -354,7 +361,7 @@ const Reels: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          height: '100vh',
+          height: '100%',
           color: 'white',
           textAlign: 'center',
           padding: '20px'
