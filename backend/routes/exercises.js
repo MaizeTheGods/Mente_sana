@@ -22,13 +22,20 @@ const exerciseValidation = [
 // @desc    Get all exercises
 // @access  Public
 router.get('/', async (req, res) => {
+  const requestId = `EXERCISES_GET_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
   try {
+    console.log(`🏃 [${requestId}] EXERCISES ROUTE - Get exercises request`);
+
     const { category, difficulty, limit = 50, page = 1 } = req.query;
+    console.log(`🏃 [${requestId}] EXERCISES ROUTE - Query params: category=${category}, difficulty=${difficulty}, limit=${limit}, page=${page}`);
 
     let query = { isActive: true };
 
     if (category) query.category = category;
     if (difficulty) query.difficulty = difficulty;
+
+    console.log(`🏃 [${requestId}] EXERCISES ROUTE - Database query:`, query);
 
     const exercises = await Exercise.find(query)
       .sort({ createdAt: -1 })
@@ -37,6 +44,8 @@ router.get('/', async (req, res) => {
       .select('-__v');
 
     const total = await Exercise.countDocuments(query);
+
+    console.log(`🏃 [${requestId}] EXERCISES ROUTE - Found ${exercises.length} exercises, total: ${total}`);
 
     res.json({
       exercises,
@@ -47,9 +56,22 @@ router.get('/', async (req, res) => {
         pages: Math.ceil(total / parseInt(limit))
       }
     });
+
   } catch (error) {
-    console.error('Get exercises error:', error);
-    res.status(500).json({ error: 'Failed to fetch exercises' });
+    console.error(`🏃 [${requestId}] EXERCISES ROUTE - ❌ Get exercises error:`, error);
+
+    // Don't crash server - return error response with fallback
+    res.status(500).json({
+      error: 'Failed to fetch exercises',
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      exercises: [],
+      pagination: {
+        page: 1,
+        limit: 50,
+        total: 0,
+        pages: 0
+      }
+    });
   }
 });
 

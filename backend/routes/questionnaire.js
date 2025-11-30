@@ -171,7 +171,13 @@ router.get('/questions', (req, res) => {
 // @desc    Get user's questionnaire results
 // @access  Private
 router.get('/results', authenticateToken, async (req, res) => {
+  const requestId = `QUESTIONNAIRE_RESULTS_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
   try {
+    console.log(`📊 [${requestId}] QUESTIONNAIRE ROUTE - Get results request by user:`, req.user._id);
+
+    console.log(`📊 [${requestId}] QUESTIONNAIRE ROUTE - Fetching questionnaire results from database...`);
+
     const results = await QuestionnaireResult.find({
       userId: req.user._id,
       isActive: true
@@ -179,13 +185,23 @@ router.get('/results', authenticateToken, async (req, res) => {
     .sort({ createdAt: -1 })
     .select('-responses'); // Don't send raw responses back
 
+    console.log(`📊 [${requestId}] QUESTIONNAIRE ROUTE - Found ${results.length} questionnaire results`);
+
     res.json({
       results,
       count: results.length
     });
+
   } catch (error) {
-    console.error('Results fetch error:', error);
-    res.status(500).json({ error: 'Failed to fetch results' });
+    console.error(`📊 [${requestId}] QUESTIONNAIRE ROUTE - ❌ Results fetch error:`, error);
+
+    // Don't crash server - return error response with fallback
+    res.status(500).json({
+      error: 'Failed to fetch results',
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      results: [],
+      count: 0
+    });
   }
 });
 

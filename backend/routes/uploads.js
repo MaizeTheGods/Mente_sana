@@ -131,28 +131,43 @@ router.delete('/avatar/:id', authenticateToken, async (req, res) => {
 // @desc    Get list of uploaded avatars organized by categories
 // @access  Private
 router.get('/avatars', authenticateToken, async (req, res) => {
+  const requestId = `AVATARS_GET_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
   try {
+    console.log(`🖼️ [${requestId}] AVATARS ROUTE - Get avatars request by user:`, req.user._id);
+
+    console.log(`🖼️ [${requestId}] AVATARS ROUTE - Fetching avatars from database...`);
+
     // Get avatars from database, grouped by category
     const avatars = await Avatar.find({ isActive: true })
       .populate('uploadedBy', 'firstName lastName')
       .sort({ createdAt: -1 });
 
-    // Group by category
-    const avatarsByCategory = avatars.reduce((acc, avatar) => {
-      if (!acc[avatar.category]) {
-        acc[avatar.category] = [];
-      }
-      acc[avatar.category].push({
-        _id: avatar._id,
-        publicId: avatar.publicId,
-        url: avatar.url,
-        filename: avatar.filename,
-        category: avatar.category,
-        uploadedBy: avatar.uploadedBy,
-        createdAt: avatar.createdAt
-      });
-      return acc;
-    }, {});
+    console.log(`🖼️ [${requestId}] AVATARS ROUTE - Found ${avatars.length} avatars`);
+
+    // Group by category with error handling
+    let avatarsByCategory;
+    try {
+      avatarsByCategory = avatars.reduce((acc, avatar) => {
+        if (!acc[avatar.category]) {
+          acc[avatar.category] = [];
+        }
+        acc[avatar.category].push({
+          _id: avatar._id,
+          publicId: avatar.publicId,
+          url: avatar.url,
+          filename: avatar.filename,
+          category: avatar.category,
+          uploadedBy: avatar.uploadedBy,
+          createdAt: avatar.createdAt
+        });
+        return acc;
+      }, {});
+    } catch (groupingError) {
+      console.error(`🖼️ [${requestId}] AVATARS ROUTE - Error grouping avatars:`, groupingError);
+      // Return empty object if grouping fails
+      avatarsByCategory = {};
+    }
 
     // Add default avatar option
     if (!avatarsByCategory['default']) {
@@ -167,11 +182,28 @@ router.get('/avatars', authenticateToken, async (req, res) => {
       }];
     }
 
+    console.log(`🖼️ [${requestId}] AVATARS ROUTE - Returning ${Object.keys(avatarsByCategory).length} categories`);
     res.json({ avatarsByCategory });
 
   } catch (error) {
-    console.error('Get avatars error:', error);
-    res.status(500).json({ error: 'Failed to get avatars' });
+    console.error(`🖼️ [${requestId}] AVATARS ROUTE - ❌ Get avatars error:`, error);
+
+    // Don't crash server - return error response with fallback
+    res.status(500).json({
+      error: 'Failed to get avatars',
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      avatarsByCategory: {
+        default: [{
+          _id: 'default',
+          publicId: 'default-avatar',
+          url: 'default-avatar.png',
+          filename: 'default-avatar.png',
+          category: 'default',
+          uploadedBy: null,
+          createdAt: new Date()
+        }]
+      }
+    });
   }
 });
 
