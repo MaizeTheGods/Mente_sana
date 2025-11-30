@@ -203,11 +203,10 @@ if (!process.env.MONGODB_URI) {
 }
 
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/mente-sana', {
-  // Add connection options for better stability
+  // Connection options compatible with Render's MongoDB version
   serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
   socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-  bufferCommands: false, // Disable mongoose buffering
-  bufferMaxEntries: 0, // Disable mongoose buffering
+  // Remove deprecated buffer options that cause errors
 })
   .then(() => {
     console.log('✅ MongoDB connected successfully');
