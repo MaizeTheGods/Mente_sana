@@ -40,6 +40,7 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
   const [volume, setVolumeState] = useState(0.5);
   const [isIOS, setIsIOS] = useState(false);
   const [shouldShowMusic, setShouldShowMusic] = useState(false);
+  const [isLoadingSongs, setIsLoadingSongs] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -87,31 +88,30 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
 
   // Load songs
   const loadSongs = async () => {
+    // Prevent multiple simultaneous loads
+    if (isLoadingSongs || songs.length > 0) return;
+
+    setIsLoadingSongs(true);
     try {
-      console.log('🎵 Loading songs from server...');
       const response = await songsAPI.getSongs();
       console.log('🎵 Found', response.songs.length, 'songs');
-  
+
       if (response.songs.length === 0) {
         setSongs([]);
         return;
       }
-  
+
       setSongs(response.songs);
-  
+
       if (response.songs.length > 0 && !currentSong) {
         setCurrentSong(response.songs[0]);
       }
-  
-      // Log status after loading songs
+
       setTimeout(logMusicStatus, 100);
     } catch (error) {
-      console.error('🎵 MUSIC SYSTEM - ❌ Failed to load songs:', error);
-      console.log('🎵 MUSIC SYSTEM - Possible reasons:');
-      console.log('   - Backend server not responding');
-      console.log('   - CORS issues');
-      console.log('   - Network connectivity problems');
-      console.log('   - Authentication token expired');
+      console.error('🎵 Failed to load songs:', error instanceof Error ? error.message : String(error));
+    } finally {
+      setIsLoadingSongs(false);
     }
   };
 
@@ -221,12 +221,12 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
     setVolumeState(Math.max(0, Math.min(1, newVolume)));
   };
 
-  // Auto-start music on mount if not iOS and songs available
+  // Auto-load songs on mount if not iOS
   useEffect(() => {
-    if (shouldShowMusic && songs.length > 0 && !currentSong) {
+    if (shouldShowMusic && songs.length === 0 && !isLoadingSongs) {
       loadSongs();
     }
-  }, [shouldShowMusic, songs.length, currentSong]);
+  }, [shouldShowMusic]);
 
   const value: MusicContextType = {
     songs,
