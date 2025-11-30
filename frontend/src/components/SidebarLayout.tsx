@@ -85,7 +85,8 @@ const MainContent = styled.div`
   @media (max-width: 768px) {
     margin-left: 0;
     padding: 20px;
-    padding-top: 80px; 
+    /* Ensure content starts below the fixed mobile header (with safe-area support) */
+    padding-top: max(96px, calc(64px + env(safe-area-inset-top)));
   }
 `;
 
@@ -103,6 +104,7 @@ const MobileHeader = styled.div`
     right: 0;
     z-index: 80;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    height: 64px; /* stabilize header height for consistent content offset */
   }
 `;
 
