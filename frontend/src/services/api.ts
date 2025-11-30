@@ -172,6 +172,10 @@ export interface Reel {
   title: string;
   description: string;
   videoUrl: string;
+  publicId: string;
+  filename: string;
+  fileSize: number;
+  duration: number;
   isActive: boolean;
   createdBy: {
     _id: string;
@@ -396,6 +400,20 @@ export const songsAPI = {
 
 // Reels API
 export const reelsAPI = {
+  uploadReel: async (file: File, title: string, description: string): Promise<{ message: string; reel: Reel }> => {
+    const formData = new FormData();
+    formData.append('video', file);
+    formData.append('title', title);
+    formData.append('description', description);
+
+    const response = await api.post('/reels', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
   getReels: async (params?: {
     limit?: number;
     page?: number;
@@ -406,11 +424,6 @@ export const reelsAPI = {
 
   getReel: async (id: string): Promise<{ reel: Reel }> => {
     const response = await api.get(`/reels/${id}`);
-    return response.data;
-  },
-
-  createReel: async (reelData: Partial<Reel>): Promise<{ reel: Reel }> => {
-    const response = await api.post('/reels', reelData);
     return response.data;
   },
 

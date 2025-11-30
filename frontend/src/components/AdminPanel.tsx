@@ -514,7 +514,7 @@ const AdminPanel: React.FC = () => {
   const [reelFormData, setReelFormData] = useState({
     title: '',
     description: '',
-    videoUrl: ''
+    videoFile: null as File | null
   });
 
   // Modal State
@@ -1050,14 +1050,14 @@ const AdminPanel: React.FC = () => {
       setReelFormData({
         title: reel.title,
         description: reel.description,
-        videoUrl: reel.videoUrl
+        videoFile: null
       });
     } else {
       setEditingReel(null);
       setReelFormData({
         title: '',
         description: '',
-        videoUrl: ''
+        videoFile: null
       });
     }
     setIsReelModalOpen(true);
@@ -1074,15 +1074,20 @@ const AdminPanel: React.FC = () => {
         alert('La descripción es obligatoria');
         return;
       }
-      if (!reelFormData.videoUrl.trim()) {
-        alert('La URL del video es obligatoria');
+      if (!reelFormData.videoFile && !editingReel) {
+        alert('Debe seleccionar un archivo de video');
         return;
       }
 
       if (editingReel) {
-        await reelsAPI.updateReel(editingReel._id, reelFormData);
+        // For editing, we don't allow changing the video file
+        await reelsAPI.updateReel(editingReel._id, {
+          title: reelFormData.title,
+          description: reelFormData.description
+        });
       } else {
-        await reelsAPI.createReel(reelFormData);
+        // For new reels, upload the file
+        await reelsAPI.uploadReel(reelFormData.videoFile!, reelFormData.title, reelFormData.description);
       }
       setIsReelModalOpen(false);
       loadData();
@@ -2139,26 +2144,48 @@ const AdminPanel: React.FC = () => {
                 />
               </FormGroup>
 
-              <FormGroup>
-                <Label>URL del Video</Label>
-                <Input
-                  required
-                  type="url"
-                  placeholder="https://example.com/video.mp4"
-                  value={reelFormData.videoUrl}
-                  onChange={e => setReelFormData({ ...reelFormData, videoUrl: e.target.value })}
-                />
-                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
-                  URL directa al archivo de video (MP4, WebM, etc.)
+              {!editingReel && (
+                <FormGroup>
+                  <Label>Archivo de Video</Label>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    required={!editingReel}
+                    onChange={e => {
+                      const file = e.target.files?.[0] || null;
+                      setReelFormData({ ...reelFormData, videoFile: file });
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '8px',
+                      fontSize: '14px'
+                    }}
+                  />
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+                    Formatos soportados: MP4, WebM, AVI, MOV, etc. Máximo 100MB.
+                  </div>
+                  {reelFormData.videoFile && (
+                    <div style={{ fontSize: '12px', color: '#2e7d32', marginTop: '4px' }}>
+                      Archivo seleccionado: {reelFormData.videoFile.name} ({(reelFormData.videoFile.size / 1024 / 1024).toFixed(2)} MB)
+                    </div>
+                  )}
+                </FormGroup>
+              )}
+
+              {editingReel && (
+                <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px' }}>
+                  Nota: Para cambiar el video, elimina este reel y crea uno nuevo.
                 </div>
-              </FormGroup>
+              )}
 
               <ModalActions>
                 <ActionButton type="button" variant="danger" onClick={() => setIsReelModalOpen(false)}>
                   Cancelar
                 </ActionButton>
                 <ActionButton type="submit" variant="success">
-                  {editingReel ? 'Actualizar' : 'Crear'} Reel
+                  {editingReel ? 'Actualizar' : 'Subir'} Reel
                 </ActionButton>
               </ModalActions>
             </form>

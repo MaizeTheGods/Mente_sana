@@ -66,6 +66,8 @@ const ReelMeta = styled.div`
   align-items: center;
   font-size: 12px;
   color: #94a3b8;
+  flex-wrap: wrap;
+  gap: 8px;
 `;
 
 const LoadingContainer = styled.div`
@@ -174,7 +176,13 @@ const Reels: React.FC = () => {
                 <ReelDescription>{reel.description}</ReelDescription>
                 <ReelMeta>
                   <span>Por {reel.createdBy.firstName} {reel.createdBy.lastName}</span>
-                  <span>{formatDate(reel.createdAt)}</span>
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    <span>{(reel.fileSize / 1024 / 1024).toFixed(1)} MB</span>
+                    {reel.duration > 0 && (
+                      <span>{Math.floor(reel.duration / 60)}:{(reel.duration % 60).toString().padStart(2, '0')}</span>
+                    )}
+                    <span>{formatDate(reel.createdAt)}</span>
+                  </div>
                 </ReelMeta>
               </ReelContent>
             </ReelCard>

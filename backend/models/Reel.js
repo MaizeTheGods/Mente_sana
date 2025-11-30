@@ -15,6 +15,22 @@ const reelSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  publicId: {
+    type: String,
+    required: true
+  },
+  filename: {
+    type: String,
+    required: true
+  },
+  fileSize: {
+    type: Number,
+    required: true
+  },
+  duration: {
+    type: Number,
+    default: 0
+  },
   isActive: {
     type: Boolean,
     default: true
