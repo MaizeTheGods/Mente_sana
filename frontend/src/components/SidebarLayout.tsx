@@ -78,6 +78,7 @@ const MainContent = styled.div`
   flex: 1;
   margin-left: 260px;
   padding: 30px;
+  padding-top: 30px;
   overflow-y: auto;
   min-height: 100vh;
 
@@ -160,114 +161,114 @@ const UserRole = styled.span`
 `;
 
 interface SidebarLayoutProps {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 
 const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
-    const location = useLocation();
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    const navItems = [
-        { path: '/dashboard', label: 'Dashboard', icon: '📊' },
-        { path: '/profile', label: 'Perfil', icon: '👤' },
-        { path: '/questionnaire', label: 'Cuestionario', icon: '📝' },
-        { path: '/exercises', label: 'Ejercicios', icon: '🧘' },
-        { path: '/tips', label: 'Consejos', icon: '💡' },
-        { path: '/chat', label: 'Comunidad', icon: '👥' },
-        { path: '/maps', label: 'Ayuda Profesional', icon: '🗺️' },
-    ];
+  const navItems = [
+    { path: '/dashboard', label: 'Dashboard', icon: '📊' },
+    { path: '/profile', label: 'Perfil', icon: '👤' },
+    { path: '/questionnaire', label: 'Cuestionario', icon: '📝' },
+    { path: '/exercises', label: 'Ejercicios', icon: '🧘' },
+    { path: '/tips', label: 'Consejos', icon: '💡' },
+    { path: '/chat', label: 'Comunidad', icon: '👥' },
+    { path: '/maps', label: 'Ayuda Profesional', icon: '🗺️' },
+  ];
 
-    if (user?.role === 'admin' || user?.role === 'owner') {
-        navItems.push({ path: '/admin', label: 'Panel Admin', icon: '⚙️' });
-    }
+  if (user?.role === 'admin' || user?.role === 'owner') {
+    navItems.push({ path: '/admin', label: 'Panel Admin', icon: '⚙️' });
+  }
 
-    const handleNavClick = (path: string) => {
-        navigate(path);
-        setIsMobileMenuOpen(false);
-    };
+  const handleNavClick = (path: string) => {
+    navigate(path);
+    setIsMobileMenuOpen(false);
+  };
 
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
-    };
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
-    return (
-        <Layout>
-            <MobileHeader>
-                <Logo onClick={() => navigate('/dashboard')}>🌿 Agora</Logo>
-                <MenuButton onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-                    ☰
-                </MenuButton>
-            </MobileHeader>
+  return (
+    <Layout>
+      <MobileHeader>
+        <Logo onClick={() => navigate('/dashboard')}>🌿 Agora</Logo>
+        <MenuButton onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+          ☰
+        </MenuButton>
+      </MobileHeader>
 
-            <Overlay isOpen={isMobileMenuOpen} onClick={() => setIsMobileMenuOpen(false)} />
+      <Overlay isOpen={isMobileMenuOpen} onClick={() => setIsMobileMenuOpen(false)} />
 
-            <Sidebar isOpen={isMobileMenuOpen}>
-                <Logo onClick={() => navigate('/dashboard')}>
-                    🌿 Agora
-                </Logo>
+      <Sidebar isOpen={isMobileMenuOpen}>
+        <Logo onClick={() => navigate('/dashboard')}>
+          🌿 Agora
+        </Logo>
 
-                {navItems.map(item => (
-                    <NavItem
-                        key={item.path}
-                        active={location.pathname === item.path}
-                        onClick={() => handleNavClick(item.path)}
-                    >
-                        <span>{item.icon}</span>
-                        {item.label}
-                    </NavItem>
-                ))}
+        {navItems.map(item => (
+          <NavItem
+            key={item.path}
+            active={location.pathname === item.path}
+            onClick={() => handleNavClick(item.path)}
+          >
+            <span>{item.icon}</span>
+            {item.label}
+          </NavItem>
+        ))}
 
-                <UserProfile>
-                    <Avatar>
-                        {user?.preferences?.profileImage && user.preferences.profileImage !== 'default-avatar.png' ? (
-                            <AvatarImage
-                                src={user.preferences.profileImage}
-                                alt="Avatar"
-                                onError={(e) => {
-                                    // Fallback to initials if image fails to load
-                                    const target = e.currentTarget as HTMLImageElement;
-                                    target.style.display = 'none';
-                                    const parent = target.parentElement;
-                                    if (parent) {
-                                        parent.textContent = user?.firstName?.[0] || '';
-                                    }
-                                }}
-                            />
-                        ) : (
-                            user?.firstName?.[0]
-                        )}
-                    </Avatar>
-                    <UserInfo>
-                        <UserName>{user?.firstName} {user?.lastName}</UserName>
-                        <UserRole>{user?.role === 'user' ? 'Miembro' : user?.role}</UserRole>
-                    </UserInfo>
-                    <button
-                        onClick={handleLogout}
-                        style={{
-                            marginLeft: 'auto',
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                            color: '#ef4444',
-                            fontSize: '18px'
-                        }}
-                        title="Cerrar Sesión"
-                    >
-                        ↪️
-                    </button>
-                </UserProfile>
-            </Sidebar>
+        <UserProfile>
+          <Avatar>
+            {user?.preferences?.profileImage && user.preferences.profileImage !== 'default-avatar.png' ? (
+              <AvatarImage
+                src={user.preferences.profileImage}
+                alt="Avatar"
+                onError={(e) => {
+                  // Fallback to initials if image fails to load
+                  const target = e.currentTarget as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.textContent = user?.firstName?.[0] || '';
+                  }
+                }}
+              />
+            ) : (
+              user?.firstName?.[0]
+            )}
+          </Avatar>
+          <UserInfo>
+            <UserName>{user?.firstName} {user?.lastName}</UserName>
+            <UserRole>{user?.role === 'user' ? 'Miembro' : user?.role}</UserRole>
+          </UserInfo>
+          <button
+            onClick={handleLogout}
+            style={{
+              marginLeft: 'auto',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: '#ef4444',
+              fontSize: '18px'
+            }}
+            title="Cerrar Sesión"
+          >
+            ↪️
+          </button>
+        </UserProfile>
+      </Sidebar>
 
-            <MainContent>
-                {children}
-            </MainContent>
+      <MainContent>
+        {children}
+      </MainContent>
 
-            <MusicPlayer />
-        </Layout>
-    );
+      <MusicPlayer />
+    </Layout>
+  );
 };
 
 export default SidebarLayout;

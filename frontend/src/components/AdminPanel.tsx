@@ -153,12 +153,13 @@ const MainContent = styled.div`
   flex: 1;
   margin-left: 260px;
   padding: 30px;
+  padding-top: 100px;
   overflow-y: auto;
 
   @media (max-width: 768px) {
     margin-left: 0;
     padding: 20px;
-    padding-top: 80px;
+    padding-top: 140px;
   }
 `;
 
@@ -167,6 +168,20 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 260px;
+  background: white;
+  padding: 20px 30px;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+  @media (max-width: 768px) {
+    left: 0;
+    top: 60px;
+    padding: 15px 20px;
+  }
 `;
 
 const PageTitle = styled.h1`
