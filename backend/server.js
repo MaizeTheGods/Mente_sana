@@ -66,11 +66,11 @@ app.use((req, res, next) => {
 
   console.log(`[${timestamp}] 🚀 Request #${requestCount} - ${req.method} ${req.path} - Origin: ${origin || 'No origin'}`);
 
-  // Allow all origins
-  res.header('Access-Control-Allow-Origin', origin || '*');
+  // Allow all origins explicitly
+  res.header('Access-Control-Allow-Origin', '*');
   console.log(`[${timestamp}] ✅ CORS ALLOWED for origin: ${origin || 'All origins'}`);
 
-  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Credentials', 'false'); // Set to false when using *
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, X-Requested-With');
 
