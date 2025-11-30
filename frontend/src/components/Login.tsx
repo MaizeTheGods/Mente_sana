@@ -70,11 +70,42 @@ const Label = styled.label`
   color: #475569;
 `;
 
+const PasswordInputContainer = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
+const PasswordToggleButton = styled.button`
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: color 0.2s;
+
+  &:hover {
+    color: #475569;
+  }
+
+  &:focus {
+    outline: none;
+    color: #2e7d32;
+  }
+`;
+
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -116,15 +147,25 @@ const Login: React.FC = () => {
 
           <FormGroup>
             <Label htmlFor="password">Contraseña</Label>
-            <StyledInput
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="••••••••"
-              autoComplete="current-password"
-            />
+            <PasswordInputContainer>
+              <StyledInput
+                type={showPassword ? "text" : "password"}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+                autoComplete="current-password"
+                style={{ paddingRight: '50px' }}
+              />
+              <PasswordToggleButton
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </PasswordToggleButton>
+            </PasswordInputContainer>
           </FormGroup>
 
           <Button type="submit" disabled={isLoading} variant="primary" style={{ marginTop: '10px' }}>

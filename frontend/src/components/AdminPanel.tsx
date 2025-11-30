@@ -63,7 +63,7 @@ const Layout = styled.div`
   font-family: 'Inter', sans-serif;
 `;
 
-const Sidebar = styled.div`
+const Sidebar = styled.div<{ isOpen: boolean }>`
   width: 260px;
   background: #ffffff;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
@@ -73,6 +73,50 @@ const Sidebar = styled.div`
   position: fixed;
   height: 100vh;
   z-index: 100;
+  transition: transform 0.3s ease;
+
+  @media (max-width: 768px) {
+    transform: translateX(${props => props.isOpen ? '0' : '-100%'});
+  }
+`;
+
+const Overlay = styled.div<{ isOpen: boolean }>`
+  display: none;
+  @media (max-width: 768px) {
+    display: ${props => props.isOpen ? 'block' : 'none'};
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 90;
+  }
+`;
+
+const MobileHeader = styled.div`
+  display: none;
+  @media (max-width: 768px) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    background: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 80;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+`;
+
+const MenuButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #1e293b;
 `;
 
 const Logo = styled.div`
@@ -110,6 +154,12 @@ const MainContent = styled.div`
   margin-left: 260px;
   padding: 30px;
   overflow-y: auto;
+
+  @media (max-width: 768px) {
+    margin-left: 0;
+    padding: 20px;
+    padding-top: 80px;
+  }
 `;
 
 const Header = styled.div`
@@ -417,7 +467,6 @@ const ModalActions = styled.div`
   margin-top: 30px;
 `;
 
-
 const AdminPanel: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -427,6 +476,7 @@ const AdminPanel: React.FC = () => {
   const [tips, setTips] = useState<Tip[]>([]);
   const [exercises, setExercises] = useState<any[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [avatars, setAvatars] = useState<Record<string, any[]>>({});
   const [avatarCategories, setAvatarCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -476,15 +526,15 @@ const AdminPanel: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const headers = { 'Authorization': `Bearer ${token}` };
+      const headers = { 'Authorization': `Bearer ${token} ` };
       const backendUrl = 'https://mente-sana-backend.onrender.com';
 
       if (activeTab === 'dashboard') {
-        const statsRes = await fetch(`${backendUrl}/api/admin/stats`, { headers });
+        const statsRes = await fetch(`${backendUrl} /api/admin / stats`, { headers });
         const statsData = await statsRes.json();
         setStats(statsData);
       } else if (activeTab === 'users') {
-        const usersRes = await fetch(`${backendUrl}/api/admin/users`, { headers });
+        const usersRes = await fetch(`${backendUrl} /api/admin / users`, { headers });
         const usersData = await usersRes.json();
         setUsers(usersData.users);
       } else if (activeTab === 'tips') {
@@ -546,14 +596,14 @@ const AdminPanel: React.FC = () => {
   const handleUserAction = async (userId: string, action: 'toggleStatus' | 'delete' | 'changeRole', value?: any) => {
     const token = localStorage.getItem('token');
     const headers = {
-      'Authorization': `Bearer ${token}`,
+      'Authorization': `Bearer ${token} `,
       'Content-Type': 'application/json'
     };
     const backendUrl = 'https://mente-sana-backend.onrender.com';
 
     try {
       if (action === 'toggleStatus') {
-        await fetch(`${backendUrl}/api/admin/users/${userId}/status`, {
+        await fetch(`${backendUrl} /api/admin / users / ${userId}/status`, {
           method: 'PUT',
           headers,
           body: JSON.stringify({ isActive: value })
@@ -970,26 +1020,38 @@ const AdminPanel: React.FC = () => {
 
   return (
     <Layout>
-      <Sidebar>
+      <MobileHeader>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <MenuButton onClick={() => setIsMobileMenuOpen(true)}>☰</MenuButton>
+          <Logo style={{ marginBottom: 0, fontSize: '20px' }}>🌿 Agora</Logo>
+        </div>
+        <UserProfile>
+          <Avatar>{user.firstName[0]}</Avatar>
+        </UserProfile>
+      </MobileHeader>
+
+      <Overlay isOpen={isMobileMenuOpen} onClick={() => setIsMobileMenuOpen(false)} />
+
+      <Sidebar isOpen={isMobileMenuOpen}>
         <Logo onClick={() => navigate('/dashboard')}>
           🌿 Agora
         </Logo>
-        <NavItem active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')}>
+        <NavItem active={activeTab === 'dashboard'} onClick={() => { setActiveTab('dashboard'); setIsMobileMenuOpen(false); }}>
           📊 Dashboard
         </NavItem>
-        <NavItem active={activeTab === 'users'} onClick={() => setActiveTab('users')}>
+        <NavItem active={activeTab === 'users'} onClick={() => { setActiveTab('users'); setIsMobileMenuOpen(false); }}>
           👥 Usuarios
         </NavItem>
-        <NavItem active={activeTab === 'tips'} onClick={() => setActiveTab('tips')}>
+        <NavItem active={activeTab === 'tips'} onClick={() => { setActiveTab('tips'); setIsMobileMenuOpen(false); }}>
           💡 Consejos
         </NavItem>
-        <NavItem active={activeTab === 'exercises'} onClick={() => setActiveTab('exercises')}>
+        <NavItem active={activeTab === 'exercises'} onClick={() => { setActiveTab('exercises'); setIsMobileMenuOpen(false); }}>
           🧘 Ejercicios
         </NavItem>
-        <NavItem active={activeTab === 'avatars'} onClick={() => setActiveTab('avatars')}>
+        <NavItem active={activeTab === 'avatars'} onClick={() => { setActiveTab('avatars'); setIsMobileMenuOpen(false); }}>
           👤 Avatares
         </NavItem>
-        <NavItem active={activeTab === 'categories'} onClick={() => setActiveTab('categories')}>
+        <NavItem active={activeTab === 'categories'} onClick={() => { setActiveTab('categories'); setIsMobileMenuOpen(false); }}>
           📂 Categorías
         </NavItem>
 
@@ -1009,12 +1071,12 @@ const AdminPanel: React.FC = () => {
             {activeTab === 'exercises' && 'Biblioteca de Ejercicios'}
             {activeTab === 'avatars' && 'Gestión de Avatares'}
             {activeTab === 'categories' && 'Gestión de Categorías'}
-          </PageTitle>
+          </PageTitle >
           <UserProfile>
             <span>{user.firstName} {user.lastName}</span>
             <Avatar>{user.firstName[0]}</Avatar>
           </UserProfile>
-        </Header>
+        </Header >
 
         {activeTab === 'dashboard' && stats && (
           <>
@@ -1054,521 +1116,531 @@ const AdminPanel: React.FC = () => {
           </>
         )}
 
-        {activeTab === 'users' && (
-          <TableContainer>
-            <TableHeader>
-              <div>Usuario</div>
-              <div>Email</div>
-              <div>Rol</div>
-              <div>Estado</div>
-              <div>Acciones</div>
-            </TableHeader>
-            {users.map(u => (
-              <TableRow key={u._id}>
-                <div style={{ fontWeight: 500 }}>{u.firstName} {u.lastName}</div>
-                <div style={{ color: '#64748b' }}>{u.email}</div>
-                <div>
-                  <select
-                    value={u.role}
-                    onChange={(e) => handleUserAction(u._id, 'changeRole', e.target.value)}
-                    disabled={u.role === 'owner'}
-                    style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #e2e8f0' }}
-                  >
-                    <option value="user">Usuario</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </div>
-                <div>
-                  <Badge
-                    bg={u.isActive ? '#dcfce7' : '#fee2e2'}
-                    color={u.isActive ? '#16a34a' : '#dc2626'}
-                  >
-                    {u.isActive ? 'Activo' : 'Inactivo'}
-                  </Badge>
-                </div>
-                <div>
-                  <ActionButton
-                    variant={u.isActive ? 'danger' : 'success'}
-                    onClick={() => handleUserAction(u._id, 'toggleStatus', !u.isActive)}
-                    disabled={u.role === 'owner'}
-                  >
-                    {u.isActive ? 'Desactivar' : 'Activar'}
-                  </ActionButton>
-                  {u.role !== 'owner' && (
-                    <ActionButton variant="danger" onClick={() => handleUserAction(u._id, 'delete')}>
-                      Eliminar
+        {
+          activeTab === 'users' && (
+            <TableContainer>
+              <TableHeader>
+                <div>Usuario</div>
+                <div>Email</div>
+                <div>Rol</div>
+                <div>Estado</div>
+                <div>Acciones</div>
+              </TableHeader>
+              {users.map(u => (
+                <TableRow key={u._id}>
+                  <div style={{ fontWeight: 500 }}>{u.firstName} {u.lastName}</div>
+                  <div style={{ color: '#64748b' }}>{u.email}</div>
+                  <div>
+                    <select
+                      value={u.role}
+                      onChange={(e) => handleUserAction(u._id, 'changeRole', e.target.value)}
+                      disabled={u.role === 'owner'}
+                      style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #e2e8f0' }}
+                    >
+                      <option value="user">Usuario</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Badge
+                      bg={u.isActive ? '#dcfce7' : '#fee2e2'}
+                      color={u.isActive ? '#16a34a' : '#dc2626'}
+                    >
+                      {u.isActive ? 'Activo' : 'Inactivo'}
+                    </Badge>
+                  </div>
+                  <div>
+                    <ActionButton
+                      variant={u.isActive ? 'danger' : 'success'}
+                      onClick={() => handleUserAction(u._id, 'toggleStatus', !u.isActive)}
+                      disabled={u.role === 'owner'}
+                    >
+                      {u.isActive ? 'Desactivar' : 'Activar'}
                     </ActionButton>
-                  )}
-                </div>
-              </TableRow>
-            ))}
-          </TableContainer>
-        )}
-
-        {activeTab === 'tips' && (
-          <>
-            <TipsHeader>
-              <div style={{ color: '#64748b' }}>Gestiona el contenido de bienestar</div>
-              <AddButton onClick={() => handleOpenModal()}>
-                + Nuevo Consejo
-              </AddButton>
-            </TipsHeader>
-            <TipsGrid>
-              {tips.map(tip => (
-                <TipCard key={tip._id}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                    <Badge bg="#e0f2fe" color="#0284c7">{tip.category}</Badge>
-                    {tip.media?.videoUrl && <span>🎥</span>}
-                  </div>
-                  <TipTitle>{tip.title}</TipTitle>
-                  <TipContent>{tip.content}</TipContent>
-                  <TipFooter>
-                    <ActionButton onClick={() => handleOpenModal(tip)}>Editar</ActionButton>
-                    <ActionButton variant="danger" onClick={() => handleDeleteTip(tip._id)}>Eliminar</ActionButton>
-                  </TipFooter>
-                </TipCard>
-              ))}
-            </TipsGrid>
-          </>
-        )}
-
-        {activeTab === 'exercises' && (
-          <>
-            <TipsHeader>
-              <div style={{ color: '#64748b' }}>Gestiona los ejercicios de meditación y relajación</div>
-              <AddButton onClick={() => handleOpenExerciseModal()}>
-                + Nuevo Ejercicio
-              </AddButton>
-            </TipsHeader>
-            <TipsGrid>
-              {exercises.map(exercise => (
-                <TipCard key={exercise._id}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                    <Badge bg="#e0f2fe" color="#0284c7">{exercise.category}</Badge>
-                    {exercise.media?.videoUrl && <span>🎥</span>}
-                  </div>
-                  <TipTitle>{exercise.title}</TipTitle>
-                  <TipContent>{exercise.description}</TipContent>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                    <span style={{ color: '#64748b', fontSize: '14px' }}>Duración: {exercise.duration} min</span>
-                  </div>
-                  <TipFooter>
-                    <ActionButton onClick={() => handleOpenExerciseModal(exercise)}>Editar</ActionButton>
-                    <ActionButton variant="danger" onClick={() => handleDeleteExercise(exercise._id)}>Eliminar</ActionButton>
-                  </TipFooter>
-                </TipCard>
-              ))}
-            </TipsGrid>
-          </>
-        )}
-
-        {activeTab === 'avatars' && (
-          <>
-            <TipsHeader>
-              <div style={{ color: '#64748b' }}>Gestiona las imágenes de perfil disponibles para los usuarios</div>
-              <AddButton onClick={() => {
-                loadCategories(); // Asegurar que las categorías estén cargadas
-                setIsUploadModalOpen(true);
-              }}>
-                + Subir Avatares
-              </AddButton>
-            </TipsHeader>
-
-            {(() => {
-              console.log('🎨 Renderizando categorías de avatares');
-              console.log('📂 Estado avatars:', avatars);
-              console.log('📂 Estado avatarCategories:', avatarCategories);
-
-              const activeCategories = avatarCategories.filter(category => category.isActive);
-              console.log('✅ Categorías activas:', activeCategories.map(c => `${c.icon} ${c.label} (${c.name})`));
-
-              return activeCategories
-                .sort((catA, catB) => {
-                  // Ordenar por orden definido, luego alfabéticamente
-                  if (catA.order !== undefined && catB.order !== undefined) {
-                    return catA.order - catB.order;
-                  }
-                  if (catA.order !== undefined) return -1;
-                  if (catB.order !== undefined) return 1;
-                  return catA.name.localeCompare(catB.name);
-                })
-                .map((category) => {
-                  const categoryAvatars = avatars?.[category.name] || [];
-                  console.log(`🎭 Renderizando categoría: ${category.icon} ${category.label} (${category.name})`);
-                  console.log(`  📸 Avatares en esta categoría: ${categoryAvatars.length}`);
-
-                  return (
-                    <div key={category.name} style={{ marginBottom: '40px' }}>
-                      <h3 style={{
-                        color: '#1e293b',
-                        fontSize: '20px',
-                        fontWeight: '600',
-                        marginBottom: '20px',
-                        textTransform: 'capitalize'
-                      }}>
-                        {category.icon} {category.label}
-                      </h3>
-
-                    {categoryAvatars.length > 0 ? (
-                      <div style={{
-                        display: 'flex',
-                        gap: '16px',
-                        overflowX: 'auto',
-                        paddingBottom: '10px',
-                        scrollbarWidth: 'thin',
-                        scrollbarColor: '#cbd5e1 transparent'
-                      }}>
-                        {categoryAvatars.map((avatar: any) => (
-                          <div key={avatar._id} style={{
-                            flex: '0 0 auto',
-                            width: '120px',
-                            textAlign: 'center'
-                          }}>
-                            <div style={{
-                              width: '80px',
-                              height: '80px',
-                              borderRadius: '50%',
-                              overflow: 'hidden',
-                              border: '3px solid #2e7d32',
-                              margin: '0 auto 12px',
-                              background: avatar._id === 'default' ? 'linear-gradient(135deg, #2e7d32, #4caf50)' : 'transparent',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center'
-                            }}>
-                              {avatar._id === 'default' ? (
-                                <span style={{ color: 'white', fontSize: '32px', fontWeight: 'bold' }}>?</span>
-                              ) : (
-                                <img
-                                  src={avatar.url}
-                                  alt={`Avatar ${avatar.filename}`}
-                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                  onError={(e) => {
-                                    const target = e.currentTarget as HTMLImageElement;
-                                    target.style.display = 'none';
-                                    const placeholder = target.nextElementSibling as HTMLElement;
-                                    if (placeholder) {
-                                      placeholder.style.display = 'flex';
-                                    }
-                                  }}
-                                />
-                              )}
-                              {avatar._id !== 'default' && (
-                                <div style={{
-                                  display: 'none',
-                                  width: '100%',
-                                  height: '100%',
-                                  background: 'linear-gradient(135deg, #2e7d32, #4caf50)',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  color: 'white',
-                                  fontSize: '32px',
-                                  fontWeight: 'bold'
-                                }}>
-                                  ?
-                                </div>
-                              )}
-                            </div>
-                            <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>
-                              {avatar._id === 'default' ? 'Predeterminado' : avatar.filename}
-                            </div>
-                            {avatar._id !== 'default' && (
-                              <ActionButton
-                                variant="danger"
-                                style={{ fontSize: '10px', padding: '4px 8px' }}
-                                onClick={() => handleDeleteAvatar(avatar._id)}
-                              >
-                                Eliminar
-                              </ActionButton>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div style={{
-                        padding: '40px',
-                        textAlign: 'center',
-                        background: '#f8fafc',
-                        borderRadius: '12px',
-                        border: '2px dashed #cbd5e1'
-                      }}>
-                        <div style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }}>
-                          {category.icon}
-                        </div>
-                        <p style={{ color: '#64748b', margin: '0' }}>
-                          No hay avatares en esta categoría aún
-                        </p>
-                        <p style={{ color: '#94a3b8', fontSize: '14px', margin: '8px 0 0 0' }}>
-                          Sube algunos avatares para comenzar
-                        </p>
-                      </div>
+                    {u.role !== 'owner' && (
+                      <ActionButton variant="danger" onClick={() => handleUserAction(u._id, 'delete')}>
+                        Eliminar
+                      </ActionButton>
                     )}
                   </div>
-                );
-              });
-            })()}
+                </TableRow>
+              ))}
+            </TableContainer>
+          )
+        }
 
-            {isUploadModalOpen && (
-              <ModalOverlay onClick={() => setIsUploadModalOpen(false)}>
-                <ModalContent onClick={e => e.stopPropagation()}>
-                  <h2 style={{ marginBottom: 20, color: '#1e293b' }}>
-                    Subir Nuevos Avatares
-                  </h2>
-
-                  <form onSubmit={handleFileUpload}>
-                    <FormGroup>
-                      <Label>Categoría</Label>
-                      <Select
-                        name="category"
-                        value={selectedCategory || avatarCategories.filter(category => category.isActive)[0]?.name || ''}
-                        onChange={e => setSelectedCategory(e.target.value)}
-                        disabled={isUploading}
-                      >
-                        {avatarCategories.filter(category => category.isActive).map(category => (
-                          <option key={category.name} value={category.name}>
-                            {category.icon} {category.label}
-                          </option>
-                        ))}
-                      </Select>
-                    </FormGroup>
-
-                    <FormGroup>
-                      <Label>Seleccionar Imágenes (máximo 5MB por imagen)</Label>
-                      <input
-                        type="file"
-                        name="avatar"
-                        accept="image/*"
-                        multiple
-                        required
-                        disabled={isUploading}
-                        style={{
-                          width: '100%',
-                          padding: '10px',
-                          border: '1px solid #cbd5e1',
-                          borderRadius: '8px',
-                          fontSize: '14px',
-                          backgroundColor: isUploading ? '#f8fafc' : 'white'
-                        }}
-                      />
-                      <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
-                        Puedes seleccionar múltiples imágenes a la vez
-                      </div>
-                    </FormGroup>
-
-                    {isUploading && (
-                      <div style={{ marginBottom: '20px', textAlign: 'center' }}>
-                        <div style={{ color: '#2e7d32', fontWeight: '600', marginBottom: '8px' }}>
-                          Subiendo {uploadProgress.current} de {uploadProgress.total} imagen(es)...
-                        </div>
-                        <div style={{
-                          width: '100%',
-                          height: '8px',
-                          background: '#e2e8f0',
-                          borderRadius: '4px',
-                          overflow: 'hidden'
-                        }}>
-                          <div style={{
-                            width: `${(uploadProgress.current / uploadProgress.total) * 100}%`,
-                            height: '100%',
-                            background: '#2e7d32',
-                            transition: 'width 0.3s ease'
-                          }} />
-                        </div>
-                      </div>
-                    )}
-
-                    <ModalActions>
-                      <ActionButton
-                        type="button"
-                        variant="danger"
-                        onClick={() => setIsUploadModalOpen(false)}
-                        disabled={isUploading}
-                      >
-                        Cancelar
-                      </ActionButton>
-                      <ActionButton
-                        type="submit"
-                        variant="success"
-                        disabled={isUploading}
-                      >
-                        {isUploading ? 'Subiendo...' : 'Subir Avatar(es)'}
-                      </ActionButton>
-                    </ModalActions>
-                  </form>
-                </ModalContent>
-              </ModalOverlay>
-            )}
-          </>
-        )}
-
-        {activeTab === 'categories' && (
-          <>
-            <TipsHeader>
-              <div style={{ color: '#64748b' }}>Gestiona todas las categorías de avatares (activas e inactivas)</div>
-              <AddButton onClick={() => {
-                setEditingCategory(null);
-                setIsCategoryModalOpen(true);
-              }}>
-                + Nueva Categoría
-              </AddButton>
-            </TipsHeader>
-
-            <div style={{ display: 'grid', gap: '16px' }}>
-              {avatarCategories.map((category: any) => (
-                <Card key={category._id} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  opacity: category.isActive ? 1 : 0.6,
-                  background: category.isActive ? 'white' : '#f8fafc'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div style={{
-                      width: '48px',
-                      height: '48px',
-                      borderRadius: '12px',
-                      background: category.color || '#2e7d32',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '24px',
-                      opacity: category.isActive ? 1 : 0.5
-                    }}>
-                      {category.icon || '📁'}
+        {
+          activeTab === 'tips' && (
+            <>
+              <TipsHeader>
+                <div style={{ color: '#64748b' }}>Gestiona el contenido de bienestar</div>
+                <AddButton onClick={() => handleOpenModal()}>
+                  + Nuevo Consejo
+                </AddButton>
+              </TipsHeader>
+              <TipsGrid>
+                {tips.map(tip => (
+                  <TipCard key={tip._id}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <Badge bg="#e0f2fe" color="#0284c7">{tip.category}</Badge>
+                      {tip.media?.videoUrl && <span>🎥</span>}
                     </div>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <h3 style={{ margin: '0 0 4px 0', color: '#1e293b', fontSize: '18px' }}>
-                          {category.label}
+                    <TipTitle>{tip.title}</TipTitle>
+                    <TipContent>{tip.content}</TipContent>
+                    <TipFooter>
+                      <ActionButton onClick={() => handleOpenModal(tip)}>Editar</ActionButton>
+                      <ActionButton variant="danger" onClick={() => handleDeleteTip(tip._id)}>Eliminar</ActionButton>
+                    </TipFooter>
+                  </TipCard>
+                ))}
+              </TipsGrid>
+            </>
+          )
+        }
+
+        {
+          activeTab === 'exercises' && (
+            <>
+              <TipsHeader>
+                <div style={{ color: '#64748b' }}>Gestiona los ejercicios de meditación y relajación</div>
+                <AddButton onClick={() => handleOpenExerciseModal()}>
+                  + Nuevo Ejercicio
+                </AddButton>
+              </TipsHeader>
+              <TipsGrid>
+                {exercises.map(exercise => (
+                  <TipCard key={exercise._id}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <Badge bg="#e0f2fe" color="#0284c7">{exercise.category}</Badge>
+                      {exercise.media?.videoUrl && <span>🎥</span>}
+                    </div>
+                    <TipTitle>{exercise.title}</TipTitle>
+                    <TipContent>{exercise.description}</TipContent>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                      <span style={{ color: '#64748b', fontSize: '14px' }}>Duración: {exercise.duration} min</span>
+                    </div>
+                    <TipFooter>
+                      <ActionButton onClick={() => handleOpenExerciseModal(exercise)}>Editar</ActionButton>
+                      <ActionButton variant="danger" onClick={() => handleDeleteExercise(exercise._id)}>Eliminar</ActionButton>
+                    </TipFooter>
+                  </TipCard>
+                ))}
+              </TipsGrid>
+            </>
+          )
+        }
+
+        {
+          activeTab === 'avatars' && (
+            <>
+              <TipsHeader>
+                <div style={{ color: '#64748b' }}>Gestiona las imágenes de perfil disponibles para los usuarios</div>
+                <AddButton onClick={() => {
+                  loadCategories(); // Asegurar que las categorías estén cargadas
+                  setIsUploadModalOpen(true);
+                }}>
+                  + Subir Avatares
+                </AddButton>
+              </TipsHeader>
+
+              {(() => {
+                console.log('🎨 Renderizando categorías de avatares');
+                console.log('📂 Estado avatars:', avatars);
+                console.log('📂 Estado avatarCategories:', avatarCategories);
+
+                const activeCategories = avatarCategories.filter(category => category.isActive);
+                console.log('✅ Categorías activas:', activeCategories.map(c => `${c.icon} ${c.label} (${c.name})`));
+
+                return activeCategories
+                  .sort((catA, catB) => {
+                    // Ordenar por orden definido, luego alfabéticamente
+                    if (catA.order !== undefined && catB.order !== undefined) {
+                      return catA.order - catB.order;
+                    }
+                    if (catA.order !== undefined) return -1;
+                    if (catB.order !== undefined) return 1;
+                    return catA.name.localeCompare(catB.name);
+                  })
+                  .map((category) => {
+                    const categoryAvatars = avatars?.[category.name] || [];
+                    console.log(`🎭 Renderizando categoría: ${category.icon} ${category.label} (${category.name})`);
+                    console.log(`  📸 Avatares en esta categoría: ${categoryAvatars.length}`);
+
+                    return (
+                      <div key={category.name} style={{ marginBottom: '40px' }}>
+                        <h3 style={{
+                          color: '#1e293b',
+                          fontSize: '20px',
+                          fontWeight: '600',
+                          marginBottom: '20px',
+                          textTransform: 'capitalize'
+                        }}>
+                          {category.icon} {category.label}
                         </h3>
-                        {!category.isActive && (
-                          <Badge bg="#fee2e2" color="#dc2626" style={{ fontSize: '10px' }}>
-                            Inactiva
-                          </Badge>
+
+                        {categoryAvatars.length > 0 ? (
+                          <div style={{
+                            display: 'flex',
+                            gap: '16px',
+                            overflowX: 'auto',
+                            paddingBottom: '10px',
+                            scrollbarWidth: 'thin',
+                            scrollbarColor: '#cbd5e1 transparent'
+                          }}>
+                            {categoryAvatars.map((avatar: any) => (
+                              <div key={avatar._id} style={{
+                                flex: '0 0 auto',
+                                width: '120px',
+                                textAlign: 'center'
+                              }}>
+                                <div style={{
+                                  width: '80px',
+                                  height: '80px',
+                                  borderRadius: '50%',
+                                  overflow: 'hidden',
+                                  border: '3px solid #2e7d32',
+                                  margin: '0 auto 12px',
+                                  background: avatar._id === 'default' ? 'linear-gradient(135deg, #2e7d32, #4caf50)' : 'transparent',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                                }}>
+                                  {avatar._id === 'default' ? (
+                                    <span style={{ color: 'white', fontSize: '32px', fontWeight: 'bold' }}>?</span>
+                                  ) : (
+                                    <img
+                                      src={avatar.url}
+                                      alt={`Avatar ${avatar.filename}`}
+                                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                      onError={(e) => {
+                                        const target = e.currentTarget as HTMLImageElement;
+                                        target.style.display = 'none';
+                                        const placeholder = target.nextElementSibling as HTMLElement;
+                                        if (placeholder) {
+                                          placeholder.style.display = 'flex';
+                                        }
+                                      }}
+                                    />
+                                  )}
+                                  {avatar._id !== 'default' && (
+                                    <div style={{
+                                      display: 'none',
+                                      width: '100%',
+                                      height: '100%',
+                                      background: 'linear-gradient(135deg, #2e7d32, #4caf50)',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      color: 'white',
+                                      fontSize: '32px',
+                                      fontWeight: 'bold'
+                                    }}>
+                                      ?
+                                    </div>
+                                  )}
+                                </div>
+                                <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>
+                                  {avatar._id === 'default' ? 'Predeterminado' : avatar.filename}
+                                </div>
+                                {avatar._id !== 'default' && (
+                                  <ActionButton
+                                    variant="danger"
+                                    style={{ fontSize: '10px', padding: '4px 8px' }}
+                                    onClick={() => handleDeleteAvatar(avatar._id)}
+                                  >
+                                    Eliminar
+                                  </ActionButton>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div style={{
+                            padding: '40px',
+                            textAlign: 'center',
+                            background: '#f8fafc',
+                            borderRadius: '12px',
+                            border: '2px dashed #cbd5e1'
+                          }}>
+                            <div style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }}>
+                              {category.icon}
+                            </div>
+                            <p style={{ color: '#64748b', margin: '0' }}>
+                              No hay avatares en esta categoría aún
+                            </p>
+                            <p style={{ color: '#94a3b8', fontSize: '14px', margin: '8px 0 0 0' }}>
+                              Sube algunos avatares para comenzar
+                            </p>
+                          </div>
                         )}
                       </div>
-                      <p style={{ margin: '0', color: '#64748b', fontSize: '14px' }}>
-                        {category.description || 'Sin descripción'}
-                      </p>
-                      <p style={{ margin: '4px 0 0 0', color: '#94a3b8', fontSize: '12px' }}>
-                        Nombre: {category.name}
-                      </p>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <ActionButton
-                      onClick={() => {
-                        setEditingCategory(category);
-                        setIsCategoryModalOpen(true);
-                      }}
-                    >
-                      Editar
-                    </ActionButton>
-                    {category.isActive ? (
-                      <ActionButton
-                        variant="danger"
-                        onClick={() => handleDeleteCategory(category._id)}
-                      >
-                        Desactivar
-                      </ActionButton>
-                    ) : (
-                      <ActionButton
-                        variant="success"
-                        onClick={() => handleRestoreCategory(category._id)}
-                      >
-                        Activar
-                      </ActionButton>
-                    )}
-                  </div>
-                </Card>
-              ))}
-            </div>
+                    );
+                  });
+              })()}
 
-            {isCategoryModalOpen && (
-              <ModalOverlay onClick={() => setIsCategoryModalOpen(false)}>
-                <ModalContent onClick={e => e.stopPropagation()}>
-                  <h2 style={{ marginBottom: 20, color: '#1e293b' }}>
-                    {editingCategory ? 'Editar Categoría' : 'Nueva Categoría'}
-                  </h2>
+              {isUploadModalOpen && (
+                <ModalOverlay onClick={() => setIsUploadModalOpen(false)}>
+                  <ModalContent onClick={e => e.stopPropagation()}>
+                    <h2 style={{ marginBottom: 20, color: '#1e293b' }}>
+                      Subir Nuevos Avatares
+                    </h2>
 
-                  <form onSubmit={(e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.currentTarget);
-                    const categoryData = {
-                      name: formData.get('name'),
-                      label: formData.get('label'),
-                      description: formData.get('description'),
-                      icon: formData.get('icon'),
-                      color: formData.get('color')
-                    };
-                    handleSaveCategory(categoryData);
+                    <form onSubmit={handleFileUpload}>
+                      <FormGroup>
+                        <Label>Categoría</Label>
+                        <Select
+                          name="category"
+                          value={selectedCategory || avatarCategories.filter(category => category.isActive)[0]?.name || ''}
+                          onChange={e => setSelectedCategory(e.target.value)}
+                          disabled={isUploading}
+                        >
+                          {avatarCategories.filter(category => category.isActive).map(category => (
+                            <option key={category.name} value={category.name}>
+                              {category.icon} {category.label}
+                            </option>
+                          ))}
+                        </Select>
+                      </FormGroup>
+
+                      <FormGroup>
+                        <Label>Seleccionar Imágenes (máximo 5MB por imagen)</Label>
+                        <input
+                          type="file"
+                          name="avatar"
+                          accept="image/*"
+                          multiple
+                          required
+                          disabled={isUploading}
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #cbd5e1',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            backgroundColor: isUploading ? '#f8fafc' : 'white'
+                          }}
+                        />
+                        <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+                          Puedes seleccionar múltiples imágenes a la vez
+                        </div>
+                      </FormGroup>
+
+                      {isUploading && (
+                        <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+                          <div style={{ color: '#2e7d32', fontWeight: '600', marginBottom: '8px' }}>
+                            Subiendo {uploadProgress.current} de {uploadProgress.total} imagen(es)...
+                          </div>
+                          <div style={{
+                            width: '100%',
+                            height: '8px',
+                            background: '#e2e8f0',
+                            borderRadius: '4px',
+                            overflow: 'hidden'
+                          }}>
+                            <div style={{
+                              width: `${(uploadProgress.current / uploadProgress.total) * 100}%`,
+                              height: '100%',
+                              background: '#2e7d32',
+                              transition: 'width 0.3s ease'
+                            }} />
+                          </div>
+                        </div>
+                      )}
+
+                      <ModalActions>
+                        <ActionButton
+                          type="button"
+                          variant="danger"
+                          onClick={() => setIsUploadModalOpen(false)}
+                          disabled={isUploading}
+                        >
+                          Cancelar
+                        </ActionButton>
+                        <ActionButton
+                          type="submit"
+                          variant="success"
+                          disabled={isUploading}
+                        >
+                          {isUploading ? 'Subiendo...' : 'Subir Avatar(es)'}
+                        </ActionButton>
+                      </ModalActions>
+                    </form>
+                  </ModalContent>
+                </ModalOverlay>
+              )}
+            </>
+          )
+        }
+
+        {
+          activeTab === 'categories' && (
+            <>
+              <TipsHeader>
+                <div style={{ color: '#64748b' }}>Gestiona todas las categorías de avatares (activas e inactivas)</div>
+                <AddButton onClick={() => {
+                  setEditingCategory(null);
+                  setIsCategoryModalOpen(true);
+                }}>
+                  + Nueva Categoría
+                </AddButton>
+              </TipsHeader>
+
+              <div style={{ display: 'grid', gap: '16px' }}>
+                {avatarCategories.map((category: any) => (
+                  <Card key={category._id} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    opacity: category.isActive ? 1 : 0.6,
+                    background: category.isActive ? 'white' : '#f8fafc'
                   }}>
-                    <FormGroup>
-                      <Label>Nombre (identificador único)</Label>
-                      <Input
-                        name="name"
-                        required
-                        defaultValue={editingCategory?.name || ''}
-                        placeholder="ej: profesional"
-                        disabled={!!editingCategory} // No permitir cambiar el nombre si ya existe
-                      />
-                    </FormGroup>
-
-                    <FormGroup>
-                      <Label>Etiqueta (nombre visible)</Label>
-                      <Input
-                        name="label"
-                        required
-                        defaultValue={editingCategory?.label || ''}
-                        placeholder="ej: Profesional"
-                      />
-                    </FormGroup>
-
-                    <FormGroup>
-                      <Label>Descripción</Label>
-                      <TextArea
-                        name="description"
-                        defaultValue={editingCategory?.description || ''}
-                        placeholder="Describe la categoría..."
-                        rows={3}
-                      />
-                    </FormGroup>
-
-                    <FormGroup>
-                      <Label>Ícono (emoji)</Label>
-                      <Input
-                        name="icon"
-                        defaultValue={editingCategory?.icon || '📁'}
-                        placeholder="ej: 💼"
-                        maxLength={2}
-                      />
-                    </FormGroup>
-
-                    <FormGroup>
-                      <Label>Color</Label>
-                      <Input
-                        name="color"
-                        type="color"
-                        defaultValue={editingCategory?.color || '#2e7d32'}
-                      />
-                    </FormGroup>
-
-                    <ModalActions>
-                      <ActionButton type="button" variant="danger" onClick={() => setIsCategoryModalOpen(false)}>
-                        Cancelar
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <div style={{
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: '12px',
+                        background: category.color || '#2e7d32',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '24px',
+                        opacity: category.isActive ? 1 : 0.5
+                      }}>
+                        {category.icon || '📁'}
+                      </div>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <h3 style={{ margin: '0 0 4px 0', color: '#1e293b', fontSize: '18px' }}>
+                            {category.label}
+                          </h3>
+                          {!category.isActive && (
+                            <Badge bg="#fee2e2" color="#dc2626" style={{ fontSize: '10px' }}>
+                              Inactiva
+                            </Badge>
+                          )}
+                        </div>
+                        <p style={{ margin: '0', color: '#64748b', fontSize: '14px' }}>
+                          {category.description || 'Sin descripción'}
+                        </p>
+                        <p style={{ margin: '4px 0 0 0', color: '#94a3b8', fontSize: '12px' }}>
+                          Nombre: {category.name}
+                        </p>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <ActionButton
+                        onClick={() => {
+                          setEditingCategory(category);
+                          setIsCategoryModalOpen(true);
+                        }}
+                      >
+                        Editar
                       </ActionButton>
-                      <ActionButton type="submit" variant="success">
-                        {editingCategory ? 'Actualizar' : 'Crear'} Categoría
-                      </ActionButton>
-                    </ModalActions>
-                  </form>
-                </ModalContent>
-              </ModalOverlay>
-            )}
-          </>
-        )}
+                      {category.isActive ? (
+                        <ActionButton
+                          variant="danger"
+                          onClick={() => handleDeleteCategory(category._id)}
+                        >
+                          Desactivar
+                        </ActionButton>
+                      ) : (
+                        <ActionButton
+                          variant="success"
+                          onClick={() => handleRestoreCategory(category._id)}
+                        >
+                          Activar
+                        </ActionButton>
+                      )}
+                    </div>
+                  </Card>
+                ))}
+              </div>
 
-      </MainContent>
+              {isCategoryModalOpen && (
+                <ModalOverlay onClick={() => setIsCategoryModalOpen(false)}>
+                  <ModalContent onClick={e => e.stopPropagation()}>
+                    <h2 style={{ marginBottom: 20, color: '#1e293b' }}>
+                      {editingCategory ? 'Editar Categoría' : 'Nueva Categoría'}
+                    </h2>
+
+                    <form onSubmit={(e) => {
+                      e.preventDefault();
+                      const formData = new FormData(e.currentTarget);
+                      const categoryData = {
+                        name: formData.get('name'),
+                        label: formData.get('label'),
+                        description: formData.get('description'),
+                        icon: formData.get('icon'),
+                        color: formData.get('color')
+                      };
+                      handleSaveCategory(categoryData);
+                    }}>
+                      <FormGroup>
+                        <Label>Nombre (identificador único)</Label>
+                        <Input
+                          name="name"
+                          required
+                          defaultValue={editingCategory?.name || ''}
+                          placeholder="ej: profesional"
+                          disabled={!!editingCategory} // No permitir cambiar el nombre si ya existe
+                        />
+                      </FormGroup>
+
+                      <FormGroup>
+                        <Label>Etiqueta (nombre visible)</Label>
+                        <Input
+                          name="label"
+                          required
+                          defaultValue={editingCategory?.label || ''}
+                          placeholder="ej: Profesional"
+                        />
+                      </FormGroup>
+
+                      <FormGroup>
+                        <Label>Descripción</Label>
+                        <TextArea
+                          name="description"
+                          defaultValue={editingCategory?.description || ''}
+                          placeholder="Describe la categoría..."
+                          rows={3}
+                        />
+                      </FormGroup>
+
+                      <FormGroup>
+                        <Label>Ícono (emoji)</Label>
+                        <Input
+                          name="icon"
+                          defaultValue={editingCategory?.icon || '📁'}
+                          placeholder="ej: 💼"
+                          maxLength={2}
+                        />
+                      </FormGroup>
+
+                      <FormGroup>
+                        <Label>Color</Label>
+                        <Input
+                          name="color"
+                          type="color"
+                          defaultValue={editingCategory?.color || '#2e7d32'}
+                        />
+                      </FormGroup>
+
+                      <ModalActions>
+                        <ActionButton type="button" variant="danger" onClick={() => setIsCategoryModalOpen(false)}>
+                          Cancelar
+                        </ActionButton>
+                        <ActionButton type="submit" variant="success">
+                          {editingCategory ? 'Actualizar' : 'Crear'} Categoría
+                        </ActionButton>
+                      </ModalActions>
+                    </form>
+                  </ModalContent>
+                </ModalOverlay>
+              )}
+            </>
+          )
+        }
+
+      </MainContent >
       {isModalOpen && (
         <ModalOverlay onClick={() => setIsModalOpen(false)}>
           <ModalContent onClick={e => e.stopPropagation()}>
@@ -1734,7 +1806,7 @@ const AdminPanel: React.FC = () => {
           </ModalContent>
         </ModalOverlay>
       )}
-    </Layout>
+    </Layout >
   );
 };
 
