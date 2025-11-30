@@ -171,6 +171,44 @@ const LogContainer = styled.div`
   }
 `;
 
+const PlayPauseButton = styled.button`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 15;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.8);
+
+  &.visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+
+  @media (max-width: 768px) {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+`;
+
 const Reels: React.FC = () => {
   const [reels, setReels] = useState<Reel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -178,6 +216,8 @@ const Reels: React.FC = () => {
   const [currentReelIndex, setCurrentReelIndex] = useState(0);
   const [logMessage, setLogMessage] = useState<string>('');
   const [showLog, setShowLog] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [showPlayButton, setShowPlayButton] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -186,7 +226,7 @@ const Reels: React.FC = () => {
 
   useEffect(() => {
     // Auto-play when reels are loaded and current index changes
-    if (reels.length > 0 && videoRef.current) {
+    if (reels.length > 0 && videoRef.current && isPlaying) {
       const playVideo = async () => {
         try {
           await videoRef.current!.play();
@@ -197,7 +237,17 @@ const Reels: React.FC = () => {
       };
       playVideo();
     }
-  }, [currentReelIndex, reels]);
+  }, [currentReelIndex, reels, isPlaying]);
+
+  // Hide play button after 3 seconds when paused
+  useEffect(() => {
+    if (showPlayButton) {
+      const timer = setTimeout(() => {
+        setShowPlayButton(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showPlayButton]);
 
   const loadReels = async () => {
     try {
@@ -227,6 +277,8 @@ const Reels: React.FC = () => {
 
     const nextIndex = (currentReelIndex + 1) % reels.length;
     setCurrentReelIndex(nextIndex);
+    setIsPlaying(true); // Auto-play next video
+    setShowPlayButton(false);
     showLogMessage(`⏭️ Siguiente: ${reels[nextIndex].title}`);
   };
 
@@ -235,12 +287,40 @@ const Reels: React.FC = () => {
 
     const prevIndex = currentReelIndex === 0 ? reels.length - 1 : currentReelIndex - 1;
     setCurrentReelIndex(prevIndex);
+    setIsPlaying(true); // Auto-play previous video
+    setShowPlayButton(false);
     showLogMessage(`⏮️ Anterior: ${reels[prevIndex].title}`);
   };
 
   const handleVideoEnded = () => {
-    showLogMessage(`🏁 Terminó: ${reels[currentReelIndex].title}`);
-    nextReel();
+    if (isPlaying) {
+      showLogMessage(`🏁 Terminó: ${reels[currentReelIndex].title}`);
+      nextReel();
+    }
+  };
+
+  const togglePlayPause = async () => {
+    if (!videoRef.current) return;
+
+    if (isPlaying) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+      setShowPlayButton(true);
+      showLogMessage(`⏸️ Pausado: ${reels[currentReelIndex].title}`);
+    } else {
+      try {
+        await videoRef.current.play();
+        setIsPlaying(true);
+        setShowPlayButton(false);
+        showLogMessage(`▶️ Reanudado: ${reels[currentReelIndex].title}`);
+      } catch (err) {
+        console.log('Play failed:', err);
+      }
+    }
+  };
+
+  const handleVideoClick = () => {
+    togglePlayPause();
   };
 
   const formatDate = (dateString: string) => {
@@ -308,10 +388,17 @@ const Reels: React.FC = () => {
           ref={videoRef}
           src={currentReel.videoUrl}
           onEnded={handleVideoEnded}
+          onClick={handleVideoClick}
           playsInline
           muted={false}
           autoPlay
         />
+        <PlayPauseButton
+          className={showPlayButton ? 'visible' : ''}
+          onClick={togglePlayPause}
+        >
+          {isPlaying ? '⏸️' : '▶️'}
+        </PlayPauseButton>
         <VideoOverlay>
           <ReelTitle>{currentReel.title}</ReelTitle>
           <ReelDescription>{currentReel.description}</ReelDescription>
