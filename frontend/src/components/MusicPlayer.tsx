@@ -221,16 +221,8 @@ const MusicPlayer: React.FC = () => {
     }
   }, [shouldShowMusic, loadSongs]);
 
-  // Auto-start music when songs are loaded and user is logged in
-  useEffect(() => {
-    if (shouldShowMusic && songs.length > 0 && !isPlaying) {
-      // Small delay to ensure audio element is ready
-      const timer = setTimeout(() => {
-        play();
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [shouldShowMusic, songs.length, isPlaying, play]);
+  // Music does NOT auto-start - only starts when user clicks the button
+  // This prevents unwanted audio playback on login
 
   // Don't render anything on iOS
   if (!shouldShowMusic) {
@@ -242,16 +234,24 @@ const MusicPlayer: React.FC = () => {
       <GlobalKeyframes />
       <MusicButtonContainer>
         <Tooltip show={showTooltip}>
-          {isMuted ? 'Activar música' : 'Silenciar música'}
+          {!isPlaying ? 'Reproducir música' : (isMuted ? 'Activar música' : 'Silenciar música')}
         </Tooltip>
 
         <MuteButton
           isMuted={isMuted}
           isPlaying={isPlaying}
-          onClick={toggleMute}
+          onClick={() => {
+            // If not playing, start playing first
+            if (!isPlaying && songs.length > 0) {
+              play();
+            } else {
+              // If already playing, toggle mute
+              toggleMute();
+            }
+          }}
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
-          title={isMuted ? 'Activar música' : 'Silenciar música'}
+          title={!isPlaying ? 'Reproducir música' : (isMuted ? 'Activar música' : 'Silenciar música')}
         >
           <SoundWaves isPlaying={isPlaying} isMuted={isMuted}>
             <WaveBar />
