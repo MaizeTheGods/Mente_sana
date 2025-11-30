@@ -343,10 +343,18 @@ export const uploadsAPI = {
 
 // Songs API
 export const songsAPI = {
-  uploadSong: async (file: File, title: string): Promise<{ message: string; song: Song }> => {
+  uploadSongs: async (files: File[], titles?: string[]): Promise<{ message: string; songs: Song[]; errors?: any[] }> => {
     const formData = new FormData();
-    formData.append('song', file);
-    formData.append('title', title);
+
+    files.forEach((file, index) => {
+      formData.append('songs', file);
+    });
+
+    if (titles && titles.length > 0) {
+      titles.forEach(title => {
+        formData.append('titles', title);
+      });
+    }
 
     const response = await api.post('/songs', formData, {
       headers: {

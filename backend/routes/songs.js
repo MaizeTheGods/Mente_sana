@@ -24,74 +24,115 @@ const upload = multer({
 });
 
 // @route   POST /api/songs
-// @desc    Upload song to Cloudinary
+// @desc    Upload multiple songs to Cloudinary
 // @access  Private (Admin only)
-router.post('/', authenticateToken, upload.single('song'), async (req, res) => {
+router.post('/', authenticateToken, upload.array('songs', 20), async (req, res) => {
   try {
     // Check if user is admin
     if (req.user.role !== 'admin' && req.user.role !== 'owner') {
       return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
     }
 
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'No files uploaded' });
     }
 
-    const { title } = req.body;
-    if (!title || !title.trim()) {
-      return res.status(400).json({ error: 'Song title is required' });
+    const files = req.files;
+    const { titles } = req.body; // Array of titles or single title
+
+    // Handle titles - can be array or single string
+    let titleArray = [];
+    if (Array.isArray(titles)) {
+      titleArray = titles;
+    } else if (titles) {
+      // If single title provided, use filename for others
+      titleArray = files.map((file, index) => index === 0 ? titles : file.originalname.replace(/\.[^/.]+$/, ""));
+    } else {
+      // Use filenames if no titles provided
+      titleArray = files.map(file => file.originalname.replace(/\.[^/.]+$/, ""));
     }
 
     // Get next order number
     const lastSong = await Song.findOne().sort({ order: -1 });
-    const nextOrder = lastSong ? lastSong.order + 1 : 1;
+    let nextOrder = lastSong ? lastSong.order + 1 : 1;
 
-    // Upload to Cloudinary
-    const result = await new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        {
-          folder: 'mente-sana/songs',
-          public_id: `song-${Date.now()}`,
-          resource_type: 'auto' // Allow audio/video
-        },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
+    const uploadedSongs = [];
+    const errors = [];
 
-      uploadStream.end(req.file.buffer);
-    });
+    // Upload files one by one
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const title = titleArray[i] || file.originalname.replace(/\.[^/.]+$/, "");
 
-    // Save to database
-    const song = new Song({
-      title: title.trim(),
-      url: result.secure_url,
-      publicId: result.public_id,
-      filename: result.public_id.split('/').pop(),
-      order: nextOrder,
-      duration: result.duration || 0,
-      fileSize: req.file.size,
-      uploadedBy: req.user._id
-    });
+      try {
+        // Upload to Cloudinary
+        const result = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            {
+              folder: 'mente-sana/songs',
+              public_id: `song-${Date.now()}-${i}`,
+              resource_type: 'auto' // Allow audio/video
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
 
-    await song.save();
+          uploadStream.end(file.buffer);
+        });
+
+        // Save to database
+        const song = new Song({
+          title: title.trim(),
+          url: result.secure_url,
+          publicId: result.public_id,
+          filename: result.public_id.split('/').pop(),
+          order: nextOrder++,
+          duration: result.duration || 0,
+          fileSize: file.size,
+          uploadedBy: req.user._id
+        });
+
+        await song.save();
+
+        uploadedSongs.push({
+          _id: song._id,
+          title: song.title,
+          url: song.url,
+          order: song.order,
+          duration: song.duration,
+          filename: song.filename
+        });
+
+      } catch (error) {
+        console.error(`Error uploading ${file.originalname}:`, error);
+        errors.push({
+          file: file.originalname,
+          error: error.message
+        });
+      }
+    }
+
+    const successCount = uploadedSongs.length;
+    const errorCount = errors.length;
+
+    if (successCount === 0) {
+      return res.status(500).json({
+        error: 'Failed to upload any songs',
+        errors
+      });
+    }
 
     res.json({
-      message: 'Song uploaded successfully',
-      song: {
-        _id: song._id,
-        title: song.title,
-        url: song.url,
-        order: song.order,
-        duration: song.duration,
-        filename: song.filename
-      }
+      message: `${successCount} song(s) uploaded successfully${errorCount > 0 ? `, ${errorCount} failed` : ''}`,
+      songs: uploadedSongs,
+      errors: errorCount > 0 ? errors : undefined
     });
 
   } catch (error) {
     console.error('Song upload error:', error);
-    res.status(500).json({ error: 'Failed to upload song' });
+    res.status(500).json({ error: 'Failed to upload songs' });
   }
 });
 

@@ -489,8 +489,8 @@ const AdminPanel: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
   const [songFormData, setSongFormData] = useState({
-    title: '',
-    file: null as File | null
+    files: [] as File[],
+    titles: [] as string[]
   });
 
   // Modal State
@@ -979,20 +979,28 @@ const AdminPanel: React.FC = () => {
 
   const handleSongUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!songFormData.title.trim() || !songFormData.file) {
-      alert('Título y archivo son obligatorios');
+    if (songFormData.files.length === 0) {
+      alert('Selecciona al menos un archivo');
       return;
     }
 
     try {
-      await songsAPI.uploadSong(songFormData.file, songFormData.title.trim());
+      const result = await songsAPI.uploadSongs(songFormData.files, songFormData.titles);
       setIsSongModalOpen(false);
-      setSongFormData({ title: '', file: null });
+      setSongFormData({ files: [], titles: [] });
       loadData();
-      alert('Canción subida exitosamente');
+
+      const successCount = result.songs?.length || 0;
+      const errorCount = result.errors?.length || 0;
+
+      if (errorCount === 0) {
+        alert(`${successCount} canción(es) subida(s) exitosamente`);
+      } else {
+        alert(`${successCount} canción(es) subida(s) exitosamente, ${errorCount} error(es)`);
+      }
     } catch (error) {
-      console.error('Error uploading song:', error);
-      alert('Error al subir la canción');
+      console.error('Error uploading songs:', error);
+      alert('Error al subir las canciones');
     }
   };
 
@@ -1895,29 +1903,24 @@ const AdminPanel: React.FC = () => {
         <ModalOverlay onClick={() => setIsSongModalOpen(false)}>
           <ModalContent onClick={e => e.stopPropagation()}>
             <h2 style={{ marginBottom: 20, color: '#1e293b' }}>
-              Subir Nueva Canción
+              Subir Canciones
             </h2>
 
             <form onSubmit={handleSongUpload}>
               <FormGroup>
-                <Label>Título de la Canción</Label>
-                <Input
-                  required
-                  placeholder="Ej: Canción de Relajación 1"
-                  value={songFormData.title}
-                  onChange={e => setSongFormData({ ...songFormData, title: e.target.value })}
-                />
-              </FormGroup>
-
-              <FormGroup>
-                <Label>Archivo de Audio (MP3/MP4)</Label>
+                <Label>Archivos de Audio (MP3/MP4)</Label>
                 <input
                   type="file"
                   accept="audio/*,video/mp4"
+                  multiple
                   required
                   onChange={e => {
-                    const file = e.target.files?.[0] || null;
-                    setSongFormData({ ...songFormData, file });
+                    const files = Array.from(e.target.files || []);
+                    setSongFormData({
+                      ...songFormData,
+                      files,
+                      titles: files.map(file => file.name.replace(/\.[^/.]+$/, "")) // Default titles from filenames
+                    });
                   }}
                   style={{
                     width: '100%',
@@ -1928,16 +1931,38 @@ const AdminPanel: React.FC = () => {
                   }}
                 />
                 <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
-                  Máximo 50MB. Formatos soportados: MP3, MP4, WAV, etc.
+                  Selecciona múltiples archivos. Máximo 50MB por archivo. Formatos: MP3, MP4, WAV, etc.
                 </div>
               </FormGroup>
+
+              {songFormData.files.length > 0 && (
+                <FormGroup>
+                  <Label>Títulos (opcional - se usará el nombre del archivo si está vacío)</Label>
+                  {songFormData.files.map((file, index) => (
+                    <div key={index} style={{ marginBottom: '8px' }}>
+                      <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>
+                        {file.name}
+                      </div>
+                      <Input
+                        placeholder={`Título para ${file.name.replace(/\.[^/.]+$/, "")}`}
+                        value={songFormData.titles[index] || ''}
+                        onChange={e => {
+                          const newTitles = [...songFormData.titles];
+                          newTitles[index] = e.target.value;
+                          setSongFormData({ ...songFormData, titles: newTitles });
+                        }}
+                      />
+                    </div>
+                  ))}
+                </FormGroup>
+              )}
 
               <ModalActions>
                 <ActionButton type="button" variant="danger" onClick={() => setIsSongModalOpen(false)}>
                   Cancelar
                 </ActionButton>
                 <ActionButton type="submit" variant="success">
-                  Subir Canción
+                  Subir {songFormData.files.length} Canción(es)
                 </ActionButton>
               </ModalActions>
             </form>
