@@ -28,6 +28,33 @@ const wave = keyframes`
   }
 `;
 
+// Add keyframes to CSS
+const GlobalKeyframes = styled.div`
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(46, 125, 50, 0.5);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+    }
+  }
+
+  @keyframes wave {
+    0%, 100% {
+      transform: scaleY(1);
+    }
+    50% {
+      transform: scaleY(1.5);
+    }
+  }
+`;
+
 const MusicButtonContainer = styled.div`
   position: fixed;
   bottom: 20px;
@@ -88,7 +115,7 @@ const MuteButton = styled.button<{ isMuted: boolean; isPlaying: boolean }>`
   }
 
   ${props => props.isPlaying && !props.isMuted && `
-    animation: ${pulse} 2s infinite;
+    animation: pulse 2s infinite;
   `}
 
   @media (max-width: 768px) {
@@ -211,28 +238,31 @@ const MusicPlayer: React.FC = () => {
   }
 
   return (
-    <MusicButtonContainer>
-      <Tooltip show={showTooltip}>
-        {isMuted ? 'Activar música' : 'Silenciar música'}
-      </Tooltip>
+    <>
+      <GlobalKeyframes />
+      <MusicButtonContainer>
+        <Tooltip show={showTooltip}>
+          {isMuted ? 'Activar música' : 'Silenciar música'}
+        </Tooltip>
 
-      <MuteButton
-        isMuted={isMuted}
-        isPlaying={isPlaying}
-        onClick={toggleMute}
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-        title={isMuted ? 'Activar música' : 'Silenciar música'}
-      >
-        <SoundWaves isPlaying={isPlaying} isMuted={isMuted}>
-          <WaveBar />
-          <WaveBar />
-          <WaveBar />
-          <WaveBar />
-        </SoundWaves>
-        {isMuted ? '🔇' : '🔊'}
-      </MuteButton>
-    </MusicButtonContainer>
+        <MuteButton
+          isMuted={isMuted}
+          isPlaying={isPlaying}
+          onClick={toggleMute}
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          title={isMuted ? 'Activar música' : 'Silenciar música'}
+        >
+          <SoundWaves isPlaying={isPlaying} isMuted={isMuted}>
+            <WaveBar />
+            <WaveBar />
+            <WaveBar />
+            <WaveBar />
+          </SoundWaves>
+          {isMuted ? '🔇' : '🔊'}
+        </MuteButton>
+      </MusicButtonContainer>
+    </>
   );
 };
 

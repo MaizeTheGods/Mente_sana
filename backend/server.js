@@ -174,77 +174,154 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-  // Socket.io middleware for authentication
-  io.use(async (socket, next) => {
-    const token = socket.handshake.auth.token;
-    if (!token) {
-      return next(new Error('Authentication error'));
+// Socket.io middleware for authentication
+io.use(async (socket, next) => {
+  const token = socket.handshake.auth.token;
+  if (!token) {
+    return next(new Error('Authentication error'));
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Socket auth: decoded._id =', decoded._id);
+    socket.userId = decoded._id;
+
+    // Get full user data from database
+    const User = require('./models/User');
+    const user = await User.findById(decoded._id);
+    console.log('Socket auth: user found =', !!user);
+    if (!user) {
+      return next(new Error('User not found'));
     }
 
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log('Socket auth: decoded._id =', decoded._id);
-      socket.userId = decoded._id;
+    socket.user = {
+      _id: decoded._id,
+      firstName: user.firstName,
+      lastName: user.lastName
+    };
 
-      // Get full user data from database
-      const User = require('./models/User');
-      const user = await User.findById(decoded._id);
-      console.log('Socket auth: user found =', !!user);
-      if (!user) {
-        return next(new Error('User not found'));
-      }
+    next();
+  } catch (error) {
+    next(new Error('Authentication error'));
+  }
+});
 
-      socket.user = {
-        _id: decoded._id,
-        firstName: user.firstName,
-        lastName: user.lastName
-      };
+// Socket.io chat functionality
+const usersTyping = new Map(); // groupId -> Set of userIds typing
 
-      next();
-    } catch (error) {
-      next(new Error('Authentication error'));
-    }
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.userId);
+
+  // Join chat group room
+  socket.on('join-group', (groupId) => {
+    socket.join(`group-${groupId}`);
+    console.log(`User ${socket.userId} joined group ${groupId}`);
   });
 
-  // Socket.io chat functionality
-  const usersTyping = new Map(); // groupId -> Set of userIds typing
+  // Leave chat group room
+  socket.on('leave-group', (groupId) => {
+    socket.leave(`group-${groupId}`);
+    console.log(`User ${socket.userId} left group ${groupId}`);
+  });
 
-  io.on('connection', (socket) => {
-    console.log('User connected:', socket.userId);
+  // Handle typing indicator
+  socket.on('typing-start', (groupId) => {
+    if (!usersTyping.has(groupId)) {
+      usersTyping.set(groupId, new Set());
+    }
+    usersTyping.get(groupId).add(socket.userId);
 
-    // Join chat group room
-    socket.on('join-group', (groupId) => {
-      socket.join(`group-${groupId}`);
-      console.log(`User ${socket.userId} joined group ${groupId}`);
+    // Send typing indicator to other users in the group
+    socket.to(`group-${groupId}`).emit('user-typing', {
+      userId: socket.userId,
+      firstName: socket.user.firstName,
+      lastName: socket.user.lastName,
+      isTyping: true
     });
+  });
 
-    // Leave chat group room
-    socket.on('leave-group', (groupId) => {
-      socket.leave(`group-${groupId}`);
-      console.log(`User ${socket.userId} left group ${groupId}`);
-    });
+  socket.on('typing-stop', (groupId) => {
+    if (usersTyping.has(groupId)) {
+      usersTyping.get(groupId).delete(socket.userId);
 
-    // Handle typing indicator
-    socket.on('typing-start', (groupId) => {
-      if (!usersTyping.has(groupId)) {
-        usersTyping.set(groupId, new Set());
-      }
-      usersTyping.get(groupId).add(socket.userId);
-
-      // Send typing indicator to other users in the group
+      // Send typing stop indicator to other users in the group
       socket.to(`group-${groupId}`).emit('user-typing', {
         userId: socket.userId,
         firstName: socket.user.firstName,
         lastName: socket.user.lastName,
-        isTyping: true
+        isTyping: false
       });
-    });
+    }
+  });
 
-    socket.on('typing-stop', (groupId) => {
-      if (usersTyping.has(groupId)) {
-        usersTyping.get(groupId).delete(socket.userId);
+  // Handle new messages
+  socket.on('send-message', async (data) => {
+    try {
+      const { groupId, content } = data;
 
-        // Send typing stop indicator to other users in the group
+      // Verify user is member of the group
+      const ChatGroup = require('./models/ChatGroup');
+      const group = await ChatGroup.findById(groupId);
+      if (!group) {
+        return;
+      }
+
+      const isMember = group.currentMembers.some(
+        member => member.userId.toString() === socket.userId.toString() && member.isActive
+      );
+      if (!isMember) {
+        return;
+      }
+
+      // Create message
+      const ChatMessage = require('./models/ChatMessage');
+      const message = new ChatMessage({
+        groupId,
+        senderId: socket.userId,
+        content,
+        messageType: 'text'
+      });
+
+      await message.save();
+      await message.populate('senderId', 'firstName lastName');
+
+      // Send message to all users in the group (including sender)
+      io.to(`group-${groupId}`).emit('new-message', message);
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+  });
+
+  // Handle message deletion
+  socket.on('delete-message', async (data) => {
+    try {
+      const { groupId, messageId } = data;
+
+      const ChatMessage = require('./models/ChatMessage');
+      const message = await ChatMessage.findById(messageId);
+
+      if (!message || message.senderId.toString() !== socket.userId.toString()) {
+        return;
+      }
+
+      message.isDeleted = true;
+      message.deletedAt = new Date();
+      await message.save();
+
+      // Notify all users in the group about the deletion
+      io.to(`group-${groupId}`).emit('message-deleted', messageId);
+    } catch (error) {
+      console.error('Error deleting message:', error);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.userId);
+
+    // Remove user from all typing indicators
+    usersTyping.forEach((users, groupId) => {
+      if (users.has(socket.userId)) {
+        users.delete(socket.userId);
         socket.to(`group-${groupId}`).emit('user-typing', {
           userId: socket.userId,
           firstName: socket.user.firstName,
@@ -253,99 +330,22 @@ app.use((req, res) => {
         });
       }
     });
-
-    // Handle new messages
-    socket.on('send-message', async (data) => {
-      try {
-        const { groupId, content } = data;
-
-        // Verify user is member of the group
-        const ChatGroup = require('./models/ChatGroup');
-        const group = await ChatGroup.findById(groupId);
-        if (!group) {
-          return;
-        }
-
-        const isMember = group.currentMembers.some(
-          member => member.userId.toString() === socket.userId.toString() && member.isActive
-        );
-        if (!isMember) {
-          return;
-        }
-
-        // Create message
-        const ChatMessage = require('./models/ChatMessage');
-        const message = new ChatMessage({
-          groupId,
-          senderId: socket.userId,
-          content,
-          messageType: 'text'
-        });
-
-        await message.save();
-        await message.populate('senderId', 'firstName lastName');
-
-        // Send message to all users in the group (including sender)
-        io.to(`group-${groupId}`).emit('new-message', message);
-      } catch (error) {
-        console.error('Error sending message:', error);
-      }
-    });
-
-    // Handle message deletion
-    socket.on('delete-message', async (data) => {
-      try {
-        const { groupId, messageId } = data;
-
-        const ChatMessage = require('./models/ChatMessage');
-        const message = await ChatMessage.findById(messageId);
-
-        if (!message || message.senderId.toString() !== socket.userId.toString()) {
-          return;
-        }
-
-        message.isDeleted = true;
-        message.deletedAt = new Date();
-        await message.save();
-
-        // Notify all users in the group about the deletion
-        io.to(`group-${groupId}`).emit('message-deleted', messageId);
-      } catch (error) {
-        console.error('Error deleting message:', error);
-      }
-    });
-
-    socket.on('disconnect', () => {
-      console.log('User disconnected:', socket.userId);
-
-      // Remove user from all typing indicators
-      usersTyping.forEach((users, groupId) => {
-        if (users.has(socket.userId)) {
-          users.delete(socket.userId);
-          socket.to(`group-${groupId}`).emit('user-typing', {
-            userId: socket.userId,
-            firstName: socket.user.firstName,
-            lastName: socket.user.lastName,
-            isTyping: false
-          });
-        }
-      });
-    });
   });
+});
 
-  const PORT = process.env.PORT || 5000;
-  console.log(`Starting server on port ${PORT}...`);
-  console.log(`PORT environment variable:`, process.env.PORT);
+const PORT = process.env.PORT || 5000;
+console.log(`Starting server on port ${PORT}...`);
+console.log(`PORT environment variable:`, process.env.PORT);
 
-  server.listen(PORT, () => {
-    console.log(`✅ Server successfully started and listening on port ${PORT}`);
-    console.log(`Environment: ${process.env.NODE_ENV}`);
-    console.log(`CORS_ORIGIN:`, process.env.CORS_ORIGIN);
-    console.log(`🚀 Request counter initialized at 0`);
-    console.log(`📊 Health check available at: http://localhost:${PORT}/health`);
-  }).on('error', (err) => {
-    console.error('❌ Server failed to start:', err);
-    process.exit(1);
-  });
+server.listen(PORT, () => {
+  console.log(`✅ Server successfully started and listening on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV}`);
+  console.log(`CORS_ORIGIN:`, process.env.CORS_ORIGIN);
+  console.log(`🚀 Request counter initialized at 0`);
+  console.log(`📊 Health check available at: http://localhost:${PORT}/health`);
+}).on('error', (err) => {
+  console.error('❌ Server failed to start:', err);
+  process.exit(1);
+});
 
-  module.exports = app;
+module.exports = app;
