@@ -39,57 +39,154 @@ app.use(helmet({
   }
 }));
 
-// Rate limiting
+// ===== RATE LIMITING - PREVENT 429 ERRORS =====
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW) * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS), // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.'
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1000, // Increased limit for API calls
+  message: {
+    error: 'Too Many Requests',
+    message: 'Rate limit exceeded. Please try again later.',
+    retryAfter: '900' // seconds
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  // Skip rate limiting for health checks and OPTIONS requests
+  skip: (req) => {
+    return req.path === '/health' || req.method === 'OPTIONS';
+  },
+  // Use IP address for rate limiting
+  keyGenerator: (req) => {
+    return req.ip || req.connection.remoteAddress || 'unknown';
+  }
 });
 app.use(limiter);
 
-// CORS configuration - Allow all origins with credentials
+// ===== ADDITIONAL RATE LIMITING FOR SENSITIVE ENDPOINTS =====
+const strictLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // Stricter limit for auth endpoints
+  message: {
+    error: 'Too Many Authentication Attempts',
+    message: 'Too many authentication requests. Please try again later.',
+    retryAfter: '900'
+  },
+  skip: (req) => req.method === 'OPTIONS'
+});
+
+// Apply strict rate limiting to auth routes
+app.use('/api/auth', strictLimiter);
+
+// ===== ULTRA-COMPREHENSIVE CORS CONFIGURATION =====
+// This handles ALL possible CORS scenarios including:
+// - Browser requests with origins
+// - Server-to-server requests (no origin)
+// - Mobile app requests
+// - API clients
+// - Development and production environments
+
+// CORS configuration - Maximum permissiveness
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    // Allow all origins
-    return callback(null, true);
+    // Log for debugging
+    console.log('🔍 CORS Origin Check:', origin || 'NO_ORIGIN');
+
+    // Allow ALL origins - no restrictions
+    callback(null, true);
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-Requested-With']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'X-Requested-With',
+    'X-CSRF-Token',
+    'X-Auth-Token',
+    'Accept-Encoding',
+    'Accept-Language',
+    'Cache-Control',
+    'Connection',
+    'Host',
+    'Pragma',
+    'Referer',
+    'User-Agent',
+    'X-Forwarded-For',
+    'X-Real-IP'
+  ],
+  exposedHeaders: ['X-Total-Count', 'X-Rate-Limit-Remaining'],
+  optionsSuccessStatus: 200, // Some legacy browsers choke on 204
+  preflightContinue: false,
+  maxAge: 86400 // Cache preflight for 24 hours
 }));
 
 // Request counter
 let requestCount = 0;
 
-// Additional CORS headers for preflight requests - Allow all origins with credentials
+// ===== ADDITIONAL CORS HEADERS - MAXIMUM COVERAGE =====
 app.use((req, res, next) => {
   requestCount++;
   const timestamp = new Date().toISOString();
   const origin = req.headers.origin;
+  const userAgent = req.headers['user-agent'] || 'Unknown';
+  const method = req.method;
+  const path = req.path;
 
-  console.log(`[${timestamp}] 🚀 Request #${requestCount} - ${req.method} ${req.path} - Origin: ${origin || 'No origin'}`);
+  console.log(`[${timestamp}] 🚀 Request #${requestCount} - ${method} ${path}`);
+  console.log(`   Origin: ${origin || 'NO_ORIGIN'}`);
+  console.log(`   User-Agent: ${userAgent.substring(0, 50)}...`);
 
-  // Allow the requesting origin
+  // ===== CORS HEADERS - EVERY POSSIBLE SCENARIO =====
+
+  // 1. Handle origin-based requests (browsers)
   if (origin) {
     res.header('Access-Control-Allow-Origin', origin);
-    console.log(`[${timestamp}] ✅ CORS ALLOWED for origin: ${origin}`);
+    console.log(`   ✅ CORS: Origin-based (${origin})`);
   } else {
+    // 2. Handle requests without origin (servers, mobile apps, API clients)
     res.header('Access-Control-Allow-Origin', '*');
-    console.log(`[${timestamp}] ✅ CORS ALLOWED for no origin (server/mobile request)`);
+    console.log(`   ✅ CORS: No-origin request (*)`);
   }
 
+  // 3. Essential CORS headers
   res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, X-Requested-With');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD');
+  res.header('Access-Control-Allow-Headers',
+    'Content-Type, Authorization, X-Requested-With, Accept, Origin, ' +
+    'X-Requested-With, X-CSRF-Token, X-Auth-Token, Accept-Encoding, ' +
+    'Accept-Language, Cache-Control, Connection, Host, Pragma, Referer, User-Agent'
+  );
+  res.header('Access-Control-Expose-Headers', 'X-Total-Count, X-Rate-Limit-Remaining');
+  res.header('Access-Control-Max-Age', '86400'); // 24 hours
 
-  if (req.method === 'OPTIONS') {
-    console.log(`[${timestamp}] 🔄 Preflight request handled for ${req.path}`);
+  // 4. Additional security headers that don't interfere with CORS
+  res.header('X-Content-Type-Options', 'nosniff');
+  res.header('X-Frame-Options', 'DENY');
+  res.header('X-XSS-Protection', '1; mode=block');
+
+  // 5. Handle preflight requests
+  if (method === 'OPTIONS') {
+    console.log(`   🔄 Preflight request handled for ${path}`);
     res.sendStatus(200);
-  } else {
-    next();
+    return; // Don't continue to next middleware
   }
+
+  console.log(`   ➡️  Continuing to next middleware`);
+  next();
+});
+
+// ===== CORS ERROR HANDLING =====
+app.use((err, req, res, next) => {
+  if (err.message && err.message.includes('CORS')) {
+    console.error('🚨 CORS Error:', err);
+    return res.status(403).json({
+      error: 'CORS Error',
+      message: 'Cross-origin request blocked',
+      details: process.env.NODE_ENV === 'development' ? err.message : 'Contact administrator'
+    });
+  }
+  next(err);
 });
 
 // Body parsing middleware
@@ -137,6 +234,42 @@ app.get('/health', (req, res) => {
     totalRequests: requestCount,
     environment: process.env.NODE_ENV,
     corsOrigins: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['default']
+  });
+});
+
+// ===== CORS TEST ENDPOINT =====
+app.get('/cors-test', (req, res) => {
+  const origin = req.headers.origin;
+  const userAgent = req.headers['user-agent'];
+  const forwardedFor = req.headers['x-forwarded-for'];
+  const realIP = req.headers['x-real-ip'];
+
+  res.status(200).json({
+    message: 'CORS Test Successful! 🎉',
+    timestamp: new Date().toISOString(),
+    requestDetails: {
+      origin: origin || 'NO_ORIGIN',
+      userAgent: userAgent ? userAgent.substring(0, 100) : 'NO_UA',
+      forwardedFor: forwardedFor || 'NO_XFF',
+      realIP: realIP || 'NO_REAL_IP',
+      method: req.method,
+      path: req.path,
+      protocol: req.protocol,
+      secure: req.secure,
+      ip: req.ip
+    },
+    corsHeaders: {
+      'Access-Control-Allow-Origin': res.get('Access-Control-Allow-Origin'),
+      'Access-Control-Allow-Credentials': res.get('Access-Control-Allow-Credentials'),
+      'Access-Control-Allow-Methods': res.get('Access-Control-Allow-Methods'),
+      'Access-Control-Allow-Headers': res.get('Access-Control-Allow-Headers')
+    },
+    serverInfo: {
+      nodeVersion: process.version,
+      platform: process.platform,
+      environment: process.env.NODE_ENV,
+      uptime: process.uptime()
+    }
   });
 });
 
