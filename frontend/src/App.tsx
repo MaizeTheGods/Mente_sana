@@ -18,6 +18,7 @@ import SidebarLayout from './components/SidebarLayout';
 import Profile from './components/Profile';
 import Blog from './components/Blog';
 import Reels from './components/Reels';
+import Diary from './components/Diary';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Card, CubeLoader, CubeSquare, LoadingText, PageHeader, PageTitle, PageSubtitle } from './components/SharedStyles';
 import { Line, Bar } from 'react-chartjs-2';
@@ -204,6 +205,11 @@ const AppRoutes: React.FC = () => {
             <Reels />
           </ProtectedRoute>
         } />
+        <Route path="/diary" element={
+          <ProtectedRoute>
+            <Diary />
+          </ProtectedRoute>
+        } />
         <Route path="/blog" element={
           <ProtectedRoute>
             <Blog />
@@ -363,6 +369,15 @@ const Dashboard: React.FC = () => {
       bg: '#e8f5e9',
       color: '#2e7d32',
       action: () => navigate('/questionnaire')
+    },
+    {
+      id: 'diary',
+      title: 'Diario',
+      description: 'Escribe tus pensamientos y regístralos por día',
+      icon: '📔',
+      bg: '#fff7ed',
+      color: '#d97706',
+      action: () => navigate('/diary')
     },
     {
       id: 'exercises',

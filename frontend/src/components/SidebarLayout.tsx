@@ -176,6 +176,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
     { path: '/dashboard', label: 'Dashboard', icon: '📊' },
     { path: '/profile', label: 'Perfil', icon: '👤' },
     { path: '/questionnaire', label: 'Cuestionario', icon: '📝' },
+    { path: '/diary', label: 'Diario', icon: '📔' },
     { path: '/exercises', label: 'Ejercicios', icon: '🧘' },
     { path: '/tips', label: 'Consejos', icon: '💡' },
     { path: '/reels', label: 'Reels', icon: '🎥' },
