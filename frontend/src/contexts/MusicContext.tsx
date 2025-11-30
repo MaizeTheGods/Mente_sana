@@ -43,29 +43,24 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Status logging function
-  const logMusicStatus = () => {
-    console.log('🎵 MUSIC SYSTEM - 📊 Current Status:');
-    console.log('   OS: iOS =', isIOS, '| Should show music =', shouldShowMusic);
-    console.log('   Songs loaded:', songs.length);
-    console.log('   Current song:', currentSong ? currentSong.title : 'None');
-    console.log('   Is playing:', isPlaying);
-    console.log('   Is muted:', isMuted);
-    console.log('   Volume:', volume);
-    console.log('   Audio element exists:', !!audioRef.current);
+  // Track last logged status to avoid spam
+  const lastLoggedStatus = useRef<any>(null);
 
-    if (!shouldShowMusic) {
-      console.log('   ❌ MUSIC DISABLED: iOS device detected');
-    } else if (songs.length === 0) {
-      console.log('   ❌ MUSIC DISABLED: No songs available');
-    } else if (!currentSong) {
-      console.log('   ❌ MUSIC DISABLED: No current song selected');
-    } else if (!isPlaying) {
-      console.log('   ⏸️  MUSIC PAUSED: User has not started playback yet');
-    } else if (isMuted) {
-      console.log('   🔇 MUSIC MUTED: Audio is playing but volume is 0');
-    } else {
-      console.log('   ✅ MUSIC PLAYING: All systems go!');
+  // Status logging function - reduced verbosity
+  const logMusicStatus = () => {
+    // Only log status changes, not every time
+    const status = {
+      songs: songs.length,
+      currentSong: currentSong?.title || 'None',
+      isPlaying,
+      isMuted,
+      volume
+    };
+
+    // Log only if status actually changed
+    if (JSON.stringify(status) !== JSON.stringify(lastLoggedStatus.current)) {
+      console.log('🎵 MUSIC STATUS:', status);
+      lastLoggedStatus.current = { ...status };
     }
   };
 
@@ -93,26 +88,21 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
   // Load songs
   const loadSongs = async () => {
     try {
-      console.log('🎵 MUSIC SYSTEM - Loading songs from server...');
+      console.log('🎵 Loading songs from server...');
       const response = await songsAPI.getSongs();
-      console.log('🎵 MUSIC SYSTEM - Songs loaded:', response.songs.length, 'songs found');
-
+      console.log('🎵 Found', response.songs.length, 'songs');
+  
       if (response.songs.length === 0) {
-        console.log('🎵 MUSIC SYSTEM - ❌ No songs available on server');
         setSongs([]);
         return;
       }
-
+  
       setSongs(response.songs);
-      console.log('🎵 MUSIC SYSTEM - Song list updated:', response.songs.map(s => s.title));
-
+  
       if (response.songs.length > 0 && !currentSong) {
         setCurrentSong(response.songs[0]);
-        console.log('🎵 MUSIC SYSTEM - ✅ Set first song as current:', response.songs[0].title);
-      } else if (currentSong) {
-        console.log('🎵 MUSIC SYSTEM - Current song already set:', currentSong.title);
       }
-
+  
       // Log status after loading songs
       setTimeout(logMusicStatus, 100);
     } catch (error) {
@@ -139,29 +129,13 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
 
       // Handle song end - play next
       audioRef.current.addEventListener('ended', () => {
-        console.log('🎵 MUSIC SYSTEM - 📻 Song ended, playing next...');
         next();
       });
 
       // Handle errors
       audioRef.current.addEventListener('error', (e) => {
-        console.error('🎵 MUSIC SYSTEM - ❌ Audio error:', e);
-        console.log('🎵 MUSIC SYSTEM - Skipping to next song...');
-        next(); // Skip to next song on error
-      });
-
-      // Handle successful load
-      audioRef.current.addEventListener('loadeddata', () => {
-        console.log('🎵 MUSIC SYSTEM - ✅ Audio file loaded successfully');
-      });
-
-      // Handle play/pause events
-      audioRef.current.addEventListener('play', () => {
-        console.log('🎵 MUSIC SYSTEM - ▶️  Audio started playing');
-      });
-
-      audioRef.current.addEventListener('pause', () => {
-        console.log('🎵 MUSIC SYSTEM - ⏸️  Audio paused');
+        console.error('🎵 Audio error, skipping to next');
+        next();
       });
     }
 
@@ -177,23 +151,13 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
   // Update audio source when current song changes
   useEffect(() => {
     if (audioRef.current && currentSong) {
-      console.log('🎵 MUSIC SYSTEM - 🔄 Changing song...');
-      console.log('   New song:', currentSong.title);
-      console.log('   URL:', currentSong.url.substring(0, 50) + '...');
-
       audioRef.current.src = currentSong.url;
 
       if (isPlaying) {
-        console.log('🎵 MUSIC SYSTEM - ▶️  Auto-playing new song...');
         audioRef.current.play().catch(e => {
-          console.error('🎵 MUSIC SYSTEM - ❌ Auto-play failed:', e);
-          console.log('🎵 MUSIC SYSTEM - This is normal - user must interact first');
+          // Auto-play failed - normal, user must interact first
         });
-      } else {
-        console.log('🎵 MUSIC SYSTEM - ⏸️  Song loaded but not playing (user paused)');
       }
-    } else if (!currentSong) {
-      console.log('🎵 MUSIC SYSTEM - ⚠️  No current song to load');
     }
   }, [currentSong, isPlaying]);
 
@@ -202,63 +166,34 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
     if (audioRef.current) {
       const actualVolume = isMuted ? 0 : volume;
       audioRef.current.volume = actualVolume;
-      console.log('🎵 MUSIC SYSTEM - 🔊 Volume updated:');
-      console.log('   Volume level:', volume);
-      console.log('   Is muted:', isMuted);
-      console.log('   Actual volume applied:', actualVolume);
     }
   }, [volume, isMuted]);
 
   const play = () => {
-    console.log('🎵 MUSIC SYSTEM - Attempting to play music...');
-
-    if (!shouldShowMusic) {
-      console.log('🎵 MUSIC SYSTEM - ❌ Cannot play: Music disabled (iOS or unsupported device)');
+    if (!shouldShowMusic || !currentSong || !audioRef.current) {
+      console.log('🎵 Cannot play: conditions not met');
       return;
     }
-
-    if (!currentSong) {
-      console.log('🎵 MUSIC SYSTEM - ❌ Cannot play: No current song selected');
-      console.log('   Available songs:', songs.length);
-      return;
-    }
-
-    if (!audioRef.current) {
-      console.log('🎵 MUSIC SYSTEM - ❌ Cannot play: Audio element not initialized');
-      return;
-    }
-
-    console.log('🎵 MUSIC SYSTEM - ✅ All conditions met, starting playback...');
-    console.log('   Song:', currentSong.title);
-    console.log('   URL:', currentSong.url.substring(0, 50) + '...');
 
     audioRef.current.play()
       .then(() => {
-        console.log('🎵 MUSIC SYSTEM - ✅ Playback started successfully');
+        console.log('🎵 Playback started:', currentSong.title);
         setIsPlaying(true);
         setTimeout(logMusicStatus, 100);
       })
       .catch(e => {
-        console.error('🎵 MUSIC SYSTEM - ❌ Play failed:', e);
-        console.log('🎵 MUSIC SYSTEM - Possible reasons for play failure:');
-        console.log('   - Browser autoplay policy (user must interact first)');
-        console.log('   - Audio file corrupted or inaccessible');
-        console.log('   - Network connectivity issues');
-        console.log('   - Browser security restrictions');
+        console.error('🎵 Play failed:', e.message);
         setIsPlaying(false);
         setTimeout(logMusicStatus, 100);
       });
   };
 
   const pause = () => {
-    console.log('🎵 MUSIC SYSTEM - Pausing music...');
     if (audioRef.current) {
       audioRef.current.pause();
       setIsPlaying(false);
-      console.log('🎵 MUSIC SYSTEM - ✅ Music paused');
+      console.log('🎵 Music paused');
       setTimeout(logMusicStatus, 100);
-    } else {
-      console.log('🎵 MUSIC SYSTEM - ❌ Cannot pause: Audio element not initialized');
     }
   };
 
@@ -279,12 +214,7 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
   };
 
   const toggleMute = () => {
-    const newMutedState = !isMuted;
-    console.log('🎵 MUSIC SYSTEM - 🔇 Toggle mute:');
-    console.log('   Was muted:', isMuted);
-    console.log('   Now muted:', newMutedState);
-    console.log('   Volume will be set to:', newMutedState ? 0 : volume);
-    setIsMuted(newMutedState);
+    setIsMuted(!isMuted);
   };
 
   const setVolume = (newVolume: number) => {
