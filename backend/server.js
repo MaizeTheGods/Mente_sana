@@ -47,9 +47,27 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// CORS configuration - Permissive for prototype
+// CORS configuration - Allow specific origins for production
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://mente-sana.vercel.app',
+  'https://agoraa.vercel.app',
+  'https://mente-sanadev.vercel.app',
+  'https://mente-sana-five.vercel.app'
+];
+
 app.use(cors({
-  origin: true, // Allow all origins for prototype
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-Requested-With']
@@ -58,7 +76,7 @@ app.use(cors({
 // Request counter
 let requestCount = 0;
 
-// Additional CORS headers for preflight requests - Permissive
+// Additional CORS headers for preflight requests
 app.use((req, res, next) => {
   requestCount++;
   const timestamp = new Date().toISOString();
@@ -66,9 +84,17 @@ app.use((req, res, next) => {
 
   console.log(`[${timestamp}] 🚀 Request #${requestCount} - ${req.method} ${req.path} - Origin: ${origin || 'No origin'}`);
 
-  // Allow all origins for prototype
-  res.header('Access-Control-Allow-Origin', origin || '*');
-  console.log(`[${timestamp}] ✅ CORS ALLOWED for origin: ${origin || 'All origins (prototype mode)'}`);
+  // Set CORS headers based on allowed origins
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    console.log(`[${timestamp}] ✅ CORS ALLOWED for origin: ${origin}`);
+  } else if (!origin) {
+    // Allow requests with no origin (server-to-server, mobile apps, etc.)
+    res.header('Access-Control-Allow-Origin', '*');
+    console.log(`[${timestamp}] ✅ CORS ALLOWED for no origin (server/mobile request)`);
+  } else {
+    console.log(`[${timestamp}] ❌ CORS BLOCKED for origin: ${origin}`);
+  }
 
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
