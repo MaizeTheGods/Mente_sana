@@ -1025,9 +1025,7 @@ const AdminPanel: React.FC = () => {
           <MenuButton onClick={() => setIsMobileMenuOpen(true)}>☰</MenuButton>
           <Logo style={{ marginBottom: 0, fontSize: '20px' }}>🌿 Agora</Logo>
         </div>
-        <UserProfile>
-          <Avatar>{user.firstName[0]}</Avatar>
-        </UserProfile>
+
       </MobileHeader>
 
       <Overlay isOpen={isMobileMenuOpen} onClick={() => setIsMobileMenuOpen(false)} />
