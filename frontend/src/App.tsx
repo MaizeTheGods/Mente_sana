@@ -16,6 +16,7 @@ import TipDetail from './components/TipDetail';
 import AdminPanel from './components/AdminPanel';
 import SidebarLayout from './components/SidebarLayout';
 import Profile from './components/Profile';
+import Blog from './components/Blog';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Card, CubeLoader, CubeSquare, LoadingText, PageHeader, PageTitle, PageSubtitle } from './components/SharedStyles';
 import { Line, Bar } from 'react-chartjs-2';
@@ -197,6 +198,11 @@ const AppRoutes: React.FC = () => {
             <TipDetail />
           </ProtectedRoute>
         } />
+        <Route path="/blog" element={
+          <ProtectedRoute>
+            <Blog />
+          </ProtectedRoute>
+        } />
 
         <Route path="/admin" element={
           user ? <AdminPanel /> : <Navigate to="/login" />
@@ -369,6 +375,15 @@ const Dashboard: React.FC = () => {
       bg: '#fef3c7',
       color: '#d97706',
       action: () => navigate('/tips')
+    },
+    {
+      id: 'blog',
+      title: 'Blog de ÁGORA',
+      description: 'Información completa sobre salud mental y nuestra plataforma',
+      icon: '📖',
+      bg: '#e8f5e9',
+      color: '#2e7d32',
+      action: () => navigate('/blog')
     },
     {
       id: 'chat',
