@@ -15,7 +15,7 @@ import {
   Filler,
 } from 'chart.js';
 import { Line, Doughnut } from 'react-chartjs-2';
-import { tipsAPI, exercisesAPI, uploadsAPI, Tip, Category } from '../services/api';
+import { tipsAPI, exercisesAPI, uploadsAPI, songsAPI, Tip, Category, Song } from '../services/api';
 import { Card } from './SharedStyles';
 import api from '../services/api';
 
@@ -470,22 +470,28 @@ const ModalActions = styled.div`
 const AdminPanel: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'tips' | 'exercises' | 'avatars' | 'categories'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'tips' | 'exercises' | 'avatars' | 'categories' | 'songs'>('dashboard');
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [tips, setTips] = useState<Tip[]>([]);
   const [exercises, setExercises] = useState<any[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [songs, setSongs] = useState<Song[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [avatars, setAvatars] = useState<Record<string, any[]>>({});
   const [avatarCategories, setAvatarCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isSongModalOpen, setIsSongModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [editingCategory, setEditingCategory] = useState<any | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
+  const [songFormData, setSongFormData] = useState({
+    title: '',
+    file: null as File | null
+  });
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -551,6 +557,9 @@ const AdminPanel: React.FC = () => {
         ]);
         setExercises(exercisesRes.exercises);
         setCategories(catsRes.categories);
+      } else if (activeTab === 'songs') {
+        const songsRes = await songsAPI.getSongs();
+        setSongs(songsRes.songs);
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -968,6 +977,37 @@ const AdminPanel: React.FC = () => {
     }
   };
 
+  const handleSongUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!songFormData.title.trim() || !songFormData.file) {
+      alert('Título y archivo son obligatorios');
+      return;
+    }
+
+    try {
+      await songsAPI.uploadSong(songFormData.file, songFormData.title.trim());
+      setIsSongModalOpen(false);
+      setSongFormData({ title: '', file: null });
+      loadData();
+      alert('Canción subida exitosamente');
+    } catch (error) {
+      console.error('Error uploading song:', error);
+      alert('Error al subir la canción');
+    }
+  };
+
+  const handleDeleteSong = async (songId: string) => {
+    if (!window.confirm('¿Eliminar canción?')) return;
+    try {
+      await songsAPI.deleteSong(songId);
+      loadData();
+      alert('Canción eliminada exitosamente');
+    } catch (error) {
+      console.error('Error deleting song:', error);
+      alert('Error al eliminar la canción');
+    }
+  };
+
   // Chart Data Preparation - Must be called before any conditional returns
   const userGrowthData = React.useMemo(() => {
     if (!stats?.userGrowth) {
@@ -1052,6 +1092,9 @@ const AdminPanel: React.FC = () => {
         <NavItem active={activeTab === 'categories'} onClick={() => { setActiveTab('categories'); setIsMobileMenuOpen(false); }}>
           📂 Categorías
         </NavItem>
+        <NavItem active={activeTab === 'songs'} onClick={() => { setActiveTab('songs'); setIsMobileMenuOpen(false); }}>
+          🎵 Música
+        </NavItem>
 
         <div style={{ marginTop: 'auto' }}>
           <NavItem active={false} onClick={() => navigate('/dashboard')}>
@@ -1069,6 +1112,7 @@ const AdminPanel: React.FC = () => {
             {activeTab === 'exercises' && 'Biblioteca de Ejercicios'}
             {activeTab === 'avatars' && 'Gestión de Avatares'}
             {activeTab === 'categories' && 'Gestión de Categorías'}
+            {activeTab === 'songs' && 'Biblioteca de Música'}
           </PageTitle >
           <UserProfile>
             <span>{user.firstName} {user.lastName}</span>
@@ -1638,6 +1682,48 @@ const AdminPanel: React.FC = () => {
           )
         }
 
+        {
+          activeTab === 'songs' && (
+            <>
+              <TipsHeader>
+                <div style={{ color: '#64748b' }}>Gestiona las canciones para la música de fondo</div>
+                <AddButton onClick={() => setIsSongModalOpen(true)}>
+                  + Subir Canción
+                </AddButton>
+              </TipsHeader>
+              <TipsGrid>
+                {songs.map(song => (
+                  <TipCard key={song._id}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <Badge bg="#e0f2fe" color="#0284c7">#{song.order}</Badge>
+                      <span>🎵</span>
+                    </div>
+                    <TipTitle>{song.title}</TipTitle>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                      <span style={{ color: '#64748b', fontSize: '14px' }}>
+                        {(song.fileSize / 1024 / 1024).toFixed(2)} MB
+                      </span>
+                      {song.duration > 0 && (
+                        <span style={{ color: '#64748b', fontSize: '14px' }}>
+                          {Math.floor(song.duration / 60)}:{(song.duration % 60).toString().padStart(2, '0')}
+                        </span>
+                      )}
+                    </div>
+                    <TipFooter>
+                      <ActionButton onClick={() => window.open(song.url, '_blank')}>
+                        Reproducir
+                      </ActionButton>
+                      <ActionButton variant="danger" onClick={() => handleDeleteSong(song._id)}>
+                        Eliminar
+                      </ActionButton>
+                    </TipFooter>
+                  </TipCard>
+                ))}
+              </TipsGrid>
+            </>
+          )
+        }
+
       </MainContent >
       {isModalOpen && (
         <ModalOverlay onClick={() => setIsModalOpen(false)}>
@@ -1801,6 +1887,60 @@ const AdminPanel: React.FC = () => {
                 </ModalActions>
               </form>
             )}
+          </ModalContent>
+        </ModalOverlay>
+      )}
+
+      {isSongModalOpen && (
+        <ModalOverlay onClick={() => setIsSongModalOpen(false)}>
+          <ModalContent onClick={e => e.stopPropagation()}>
+            <h2 style={{ marginBottom: 20, color: '#1e293b' }}>
+              Subir Nueva Canción
+            </h2>
+
+            <form onSubmit={handleSongUpload}>
+              <FormGroup>
+                <Label>Título de la Canción</Label>
+                <Input
+                  required
+                  placeholder="Ej: Canción de Relajación 1"
+                  value={songFormData.title}
+                  onChange={e => setSongFormData({ ...songFormData, title: e.target.value })}
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Label>Archivo de Audio (MP3/MP4)</Label>
+                <input
+                  type="file"
+                  accept="audio/*,video/mp4"
+                  required
+                  onChange={e => {
+                    const file = e.target.files?.[0] || null;
+                    setSongFormData({ ...songFormData, file });
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '8px',
+                    fontSize: '14px'
+                  }}
+                />
+                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+                  Máximo 50MB. Formatos soportados: MP3, MP4, WAV, etc.
+                </div>
+              </FormGroup>
+
+              <ModalActions>
+                <ActionButton type="button" variant="danger" onClick={() => setIsSongModalOpen(false)}>
+                  Cancelar
+                </ActionButton>
+                <ActionButton type="submit" variant="success">
+                  Subir Canción
+                </ActionButton>
+              </ModalActions>
+            </form>
           </ModalContent>
         </ModalOverlay>
       )}

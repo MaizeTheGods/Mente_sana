@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import MusicPlayer from './MusicPlayer';
 
 // --- Styled Components (Adapted from AdminPanel) ---
 
@@ -263,6 +264,8 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
             <MainContent>
                 {children}
             </MainContent>
+
+            <MusicPlayer />
         </Layout>
     );
 };

@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { MusicProvider } from './contexts/MusicContext';
 import Login from './components/Login';
 import Register from './components/Register';
 import Questionnaire from './components/Questionnaire';
@@ -216,8 +217,10 @@ const AppRoutes: React.FC = () => {
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <GlobalStyle />
-      <AppRoutes />
+      <MusicProvider>
+        <GlobalStyle />
+        <AppRoutes />
+      </MusicProvider>
     </AuthProvider>
   );
 };

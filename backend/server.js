@@ -112,6 +112,7 @@ app.use('/api/tips', require('./routes/tips'));
 app.use('/api/chat', require('./routes/chat'));
 app.use('/api/uploads', require('./routes/uploads'));
 app.use('/api/avatar-categories', require('./routes/avatarCategories'));
+app.use('/api/songs', require('./routes/songs'));
 // TODO: Implement remaining routes
 // app.use('/api/maps', require('./routes/maps'));
 // app.use('/api/feedback', require('./routes/feedback'));

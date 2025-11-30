@@ -151,6 +151,22 @@ export interface Category {
   icon: string;
 }
 
+export interface Song {
+  _id: string;
+  title: string;
+  url: string;
+  order: number;
+  duration: number;
+  fileSize: number;
+  filename: string;
+  uploadedBy: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+  };
+  createdAt: string;
+}
+
 export interface ApiError {
   error: string;
   message?: string;
@@ -302,27 +318,57 @@ export const tipsAPI = {
 
 // Uploads API
 export const uploadsAPI = {
- uploadAvatar: async (file: File, category: string): Promise<{ message: string; avatar: any }> => {
-   const formData = new FormData();
-   formData.append('avatar', file);
-   formData.append('category', category);
+  uploadAvatar: async (file: File, category: string): Promise<{ message: string; avatar: any }> => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    formData.append('category', category);
 
-   const response = await api.post('/uploads/avatar', formData, {
-     headers: {
-       'Content-Type': 'multipart/form-data',
-     },
-   });
-   return response.data;
- },
+    const response = await api.post('/uploads/avatar', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
 
- deleteAvatar: async (publicId: string): Promise<void> => {
-   await api.delete(`/uploads/avatar/${publicId}`);
- },
+  deleteAvatar: async (publicId: string): Promise<void> => {
+    await api.delete(`/uploads/avatar/${publicId}`);
+  },
 
- getAvatars: async (): Promise<{ avatarsByCategory: Record<string, Array<{ _id: string; publicId: string; url: string; filename: string; category: string; uploadedBy?: any; createdAt: string }>> }> => {
-   const response = await api.get('/uploads/avatars');
-   return response.data;
- },
+  getAvatars: async (): Promise<{ avatarsByCategory: Record<string, Array<{ _id: string; publicId: string; url: string; filename: string; category: string; uploadedBy?: any; createdAt: string }>> }> => {
+    const response = await api.get('/uploads/avatars');
+    return response.data;
+  },
+};
+
+// Songs API
+export const songsAPI = {
+  uploadSong: async (file: File, title: string): Promise<{ message: string; song: Song }> => {
+    const formData = new FormData();
+    formData.append('song', file);
+    formData.append('title', title);
+
+    const response = await api.post('/songs', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  getSongs: async (): Promise<{ songs: Song[] }> => {
+    const response = await api.get('/songs');
+    return response.data;
+  },
+
+  deleteSong: async (id: string): Promise<void> => {
+    await api.delete(`/songs/${id}`);
+  },
+
+  reorderSongs: async (songOrders: Array<{ _id: string; order: number }>): Promise<{ message: string }> => {
+    const response = await api.put('/songs/reorder', { songOrders });
+    return response.data;
+  },
 };
 
 // Chat API
