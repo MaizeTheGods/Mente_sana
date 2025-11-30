@@ -193,21 +193,51 @@ app.use((err, req, res, next) => {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Database connection
-console.log('Attempting to connect to MongoDB...');
-console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
-mongoose.connect(process.env.MONGODB_URI)
+// Database connection with better error handling
+console.log('🔌 Attempting to connect to MongoDB...');
+console.log('📋 MONGODB_URI exists:', !!process.env.MONGODB_URI);
+
+if (!process.env.MONGODB_URI) {
+  console.error('❌ CRITICAL: MONGODB_URI environment variable is not set!');
+  console.log('⚠️ Server will continue but database operations will fail');
+}
+
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/mente-sana', {
+  // Add connection options for better stability
+  serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
+  socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+  bufferCommands: false, // Disable mongoose buffering
+  bufferMaxEntries: 0, // Disable mongoose buffering
+})
   .then(() => {
     console.log('✅ MongoDB connected successfully');
     console.log('📊 Connection ready state:', mongoose.connection.readyState);
     console.log('🚀 Request counter initialized and ready to track requests');
   })
   .catch(err => {
-    console.error('❌ MongoDB connection error:', err);
-    console.error('Connection failed, but continuing...');
-    console.log('⚠️ Database operations will fail gracefully');
-    // Don't exit process, let it continue - database operations will fail gracefully
+    console.error('❌ MongoDB connection error:', err.message);
+    console.error('🔍 Connection details:', {
+      host: err?.reason?.servers?.[0]?.host || 'unknown',
+      port: err?.reason?.servers?.[0]?.port || 'unknown',
+      code: err.code,
+      codeName: err.codeName
+    });
+    console.log('⚠️ Server will continue but database operations may fail');
+    // Don't exit process - let it continue gracefully
   });
+
+// Handle database disconnection
+mongoose.connection.on('disconnected', () => {
+  console.log('⚠️ MongoDB disconnected');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('🚨 MongoDB runtime error:', err);
+});
+
+mongoose.connection.on('reconnected', () => {
+  console.log('🔄 MongoDB reconnected');
+});
 
 // Routes
 app.use('/', require('./routes/index'));
@@ -225,15 +255,43 @@ app.use('/api/songs', require('./routes/songs'));
 // app.use('/api/feedback', require('./routes/feedback'));
 // app.use('/api/analytics', require('./routes/analytics'));
 
-// Health check endpoint with request counter
+// Health check endpoint with comprehensive status
 app.get('/health', (req, res) => {
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': res.get('Access-Control-Allow-Origin'),
+    'Access-Control-Allow-Credentials': res.get('Access-Control-Allow-Credentials'),
+    'Access-Control-Allow-Methods': res.get('Access-Control-Allow-Methods'),
+    'Access-Control-Allow-Headers': res.get('Access-Control-Allow-Headers')
+  };
+
   res.status(200).json({
     status: 'OK',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     totalRequests: requestCount,
     environment: process.env.NODE_ENV,
-    corsOrigins: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['default']
+    server: {
+      nodeVersion: process.version,
+      platform: process.platform,
+      memoryUsage: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+      pid: process.pid
+    },
+    database: {
+      connected: mongoose.connection.readyState === 1,
+      readyState: mongoose.connection.readyState,
+      name: mongoose.connection.name || 'unknown'
+    },
+    cors: {
+      configured: true,
+      headers: corsHeaders,
+      allowsAllOrigins: true
+    },
+    features: {
+      music: true,
+      chat: true,
+      admin: true,
+      authentication: true
+    }
   });
 });
 
@@ -466,16 +524,50 @@ io.on('connection', (socket) => {
   });
 });
 
+// ===== PROCESS ERROR HANDLING =====
+// Catch unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('🚨 Unhandled Rejection at:', promise, 'reason:', reason);
+  // Don't exit process - let it continue
+});
+
+// Catch uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('🚨 Uncaught Exception:', error);
+  // Don't exit process - let it continue
+});
+
+// Handle process termination signals gracefully
+process.on('SIGTERM', () => {
+  console.log('📴 SIGTERM received, shutting down gracefully');
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('📴 SIGINT received, shutting down gracefully');
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
+});
+
 const PORT = process.env.PORT || 5000;
-console.log(`Starting server on port ${PORT}...`);
-console.log(`PORT environment variable:`, process.env.PORT);
+console.log(`🚀 Starting server on port ${PORT}...`);
+console.log(`📋 PORT environment variable:`, process.env.PORT);
+console.log(`🌍 Environment:`, process.env.NODE_ENV);
+console.log(`🔧 Node version:`, process.version);
+console.log(`💾 Memory usage:`, Math.round(process.memoryUsage().heapUsed / 1024 / 1024), 'MB');
 
 server.listen(PORT, () => {
   console.log(`✅ Server successfully started and listening on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV}`);
-  console.log(`CORS_ORIGIN:`, process.env.CORS_ORIGIN);
+  console.log(`🌐 CORS configured for all origins`);
   console.log(`🚀 Request counter initialized at 0`);
-  console.log(`📊 Health check available at: http://localhost:${PORT}/health`);
+  console.log(`📊 Health check: http://localhost:${PORT}/health`);
+  console.log(`🧪 CORS test: http://localhost:${PORT}/cors-test`);
+  console.log(`🎵 Music API: http://localhost:${PORT}/api/songs`);
 }).on('error', (err) => {
   console.error('❌ Server failed to start:', err);
   process.exit(1);
