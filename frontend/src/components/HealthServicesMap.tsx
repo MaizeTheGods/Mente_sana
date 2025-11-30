@@ -28,6 +28,10 @@ const MapWrapper = styled.div`
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 24px;
   border: 1px solid #e2e8f0;
+
+  @media (max-width: 768px) {
+    height: 350px;
+  }
 `;
 
 const InfoSection = styled(Card)`
@@ -116,6 +120,14 @@ const ServiceTypeBadge = styled.span`
   font-size: 11px;
   font-weight: 600;
   margin-left: auto;
+`;
+
+const Container = styled.div`
+  padding: 24px;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
 `;
 
 interface HealthService {
@@ -570,7 +582,7 @@ Solución: Intenta nuevamente o usa la búsqueda manual de ubicación abajo.`;
   };
 
   return (
-    <div style={{ padding: '24px' }}>
+    <Container>
       <PageHeader>
         <div style={{ textAlign: 'center', width: '100%' }}>
           <PageTitle>Ayuda Profesional Cercana</PageTitle>
@@ -762,7 +774,7 @@ Solución: Intenta nuevamente o usa la búsqueda manual de ubicación abajo.`;
           </ServicesList>
         </div>
       )}
-    </div>
+    </Container>
   );
 };
 
