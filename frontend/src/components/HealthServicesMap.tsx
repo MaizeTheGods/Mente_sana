@@ -28,9 +28,25 @@ const MapWrapper = styled.div`
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 24px;
   border: 1px solid #e2e8f0;
+  position: relative;
+  z-index: 1;
+
+  .leaflet-container {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
 
   @media (max-width: 768px) {
     height: 350px;
+    position: relative;
+    z-index: 1;
+    margin-top: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    box-shadow: none;
   }
 `;
 
@@ -124,9 +140,13 @@ const ServiceTypeBadge = styled.span`
 
 const Container = styled.div`
   padding: 24px;
+  position: relative;
+  z-index: 1;
+  background: white;
 
   @media (max-width: 768px) {
-    padding: 16px;
+    padding: 16px 0 0 0;
+    margin-top: 0;
   }
 `;
 
