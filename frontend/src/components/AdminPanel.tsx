@@ -530,11 +530,11 @@ const AdminPanel: React.FC = () => {
       const backendUrl = 'https://mente-sana-backend.onrender.com';
 
       if (activeTab === 'dashboard') {
-        const statsRes = await fetch(`${backendUrl} /api/admin / stats`, { headers });
+        const statsRes = await fetch(`${backendUrl}/api/admin/stats`, { headers });
         const statsData = await statsRes.json();
         setStats(statsData);
       } else if (activeTab === 'users') {
-        const usersRes = await fetch(`${backendUrl} /api/admin / users`, { headers });
+        const usersRes = await fetch(`${backendUrl}/api/admin/users`, { headers });
         const usersData = await usersRes.json();
         setUsers(usersData.users);
       } else if (activeTab === 'tips') {
