@@ -42,7 +42,7 @@ app.use(helmet({
 // ===== RATE LIMITING - PREVENT 429 ERRORS =====
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Increased limit for API calls
+  max: 5000, // Very high limit to prevent 429 errors
   message: {
     error: 'Too Many Requests',
     message: 'Rate limit exceeded. Please try again later.',
@@ -50,13 +50,22 @@ const limiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  // Skip rate limiting for health checks and OPTIONS requests
+  // Skip rate limiting for health checks, CORS tests, and OPTIONS requests
   skip: (req) => {
-    return req.path === '/health' || req.method === 'OPTIONS';
+    return req.path === '/health' ||
+           req.path === '/cors-test' ||
+           req.method === 'OPTIONS' ||
+           req.path.startsWith('/api/songs'); // Temporarily skip songs for debugging
   },
   // Use IP address for rate limiting
   keyGenerator: (req) => {
     return req.ip || req.connection.remoteAddress || 'unknown';
+  },
+  // Log when rate limiting occurs
+  onLimitReached: (req, res) => {
+    console.log(`🚨 RATE LIMIT EXCEEDED for ${req.method} ${req.path} from IP: ${req.ip}`);
+    console.log(`   User-Agent: ${req.headers['user-agent']?.substring(0, 50)}...`);
+    console.log(`   Origin: ${req.headers.origin || 'NO_ORIGIN'}`);
   }
 });
 app.use(limiter);
