@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { songsAPI, Song } from '../services/api';
+import { useAuth } from './AuthContext';
 
 interface MusicContextType {
   songs: Song[];
@@ -33,6 +34,7 @@ interface MusicProviderProps {
 }
 
 export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
+  const { user } = useAuth();
   const [songs, setSongs] = useState<Song[]>([]);
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -90,6 +92,12 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
   const loadSongs = async () => {
     // Prevent multiple simultaneous loads
     if (isLoadingSongs || songs.length > 0) return;
+
+    // Only load songs if user is authenticated and is admin
+    if (!user || (user.role !== 'admin' && user.role !== 'owner')) {
+      console.log('🎵 Music loading skipped: User not authenticated or not admin');
+      return;
+    }
 
     setIsLoadingSongs(true);
     try {
@@ -221,12 +229,28 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
     setVolumeState(Math.max(0, Math.min(1, newVolume)));
   };
 
-  // Auto-load songs on mount if not iOS
+  // Auto-load songs on mount if not iOS and user is authenticated and admin
   useEffect(() => {
-    if (shouldShowMusic && songs.length === 0 && !isLoadingSongs) {
+    if (shouldShowMusic && songs.length === 0 && !isLoadingSongs && user && (user.role === 'admin' || user.role === 'owner')) {
       loadSongs();
     }
-  }, [shouldShowMusic]);
+  }, [shouldShowMusic, user]);
+
+  // Clear songs when user logs out or changes to non-admin
+  useEffect(() => {
+    if (!user || (user.role !== 'admin' && user.role !== 'owner')) {
+      if (songs.length > 0) {
+        console.log('🎵 Clearing songs: User logged out or no longer admin');
+        setSongs([]);
+        setCurrentSong(null);
+        setIsPlaying(false);
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.src = '';
+        }
+      }
+    }
+  }, [user, songs.length]);
 
   const value: MusicContextType = {
     songs,

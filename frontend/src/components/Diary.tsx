@@ -21,6 +21,17 @@ const Book = styled.div<{ flipping: boolean }>`
   perspective: 2000px;
 `;
 
+const BookCover = styled.div`
+  background: linear-gradient(135deg, #2e7d32 0%, #43a047 100%);
+  padding: clamp(8px, 1.5vw, 14px);
+  border-radius: 16px;
+  border: 2px solid #1b5e20;
+  box-shadow:
+    0 14px 28px rgba(46, 125, 50, 0.25),
+    0 6px 12px rgba(0, 0, 0, 0.08),
+    inset 0 2px 6px rgba(255, 255, 255, 0.25);
+`;
+
 const BookInner = styled.div<{ flipping: boolean }>`
   position: relative;
   width: 100%;
@@ -30,6 +41,24 @@ const BookInner = styled.div<{ flipping: boolean }>`
   box-shadow: 0 10px 25px rgba(0,0,0,0.1);
   overflow: hidden;
   transform-style: preserve-3d;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 56px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      rgba(0,0,0,0) 0%,
+      rgba(0,0,0,0.12) 50%,
+      rgba(0,0,0,0) 100%
+    );
+    filter: blur(0.5px);
+    z-index: 2;
+  }
 `;
 
 const LeftPage = styled.div`
@@ -42,6 +71,7 @@ const LeftPage = styled.div`
   background: #f8fafc;
   border-right: 1px solid #e2e8f0;
   display: none;
+  z-index: 1;
 
   @media (min-width: 640px) {
     display: block;
@@ -60,6 +90,7 @@ const RightPage = styled.div<{ flipping: boolean }>`
   transition: transform 0.6s ease;
   backface-visibility: hidden;
   will-change: transform;
+  z-index: 1;
   ${p => p.flipping ? 'transform: rotateY(-180deg);' : ''}
 `;
 
@@ -193,16 +224,18 @@ const Diary: React.FC = () => {
       </PageHeader>
 
       <Book flipping={flipping}>
-        <BookInner flipping={flipping}>
-          <LeftPage />
-          <RightPage flipping={flipping}>
-            <PageTextarea
-              value={page.text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Escribe aquí..."
-            />
-          </RightPage>
-        </BookInner>
+        <BookCover>
+          <BookInner flipping={flipping}>
+            <LeftPage />
+            <RightPage flipping={flipping}>
+              <PageTextarea
+                value={page.text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Escribe aquí..."
+              />
+            </RightPage>
+          </BookInner>
+        </BookCover>
       </Book>
 
       <Controls>
