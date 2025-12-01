@@ -432,7 +432,17 @@ const Dashboard: React.FC = () => {
       bg: '#fee2e2',
       color: '#dc2626',
       action: () => navigate('/maps')
-    }
+    },
+    // Admin Panel - only shown for admin/owner users
+    ...(user && (user.role === 'admin' || user.role === 'owner') ? [{
+      id: 'admin',
+      title: 'Panel de Administración',
+      description: 'Gestiona usuarios, contenido y configuraciones del sistema',
+      icon: '⚙️',
+      bg: '#fef2f2',
+      color: '#dc2626',
+      action: () => navigate('/admin')
+    }] : [])
   ];
 
   return (
