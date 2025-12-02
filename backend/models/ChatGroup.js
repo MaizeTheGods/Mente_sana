@@ -75,8 +75,8 @@ const chatGroupSchema = new mongoose.Schema({
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    ref: 'User'
+    // required: true  // Temporalmente removido para seeding
   },
   createdAt: {
     type: Date,

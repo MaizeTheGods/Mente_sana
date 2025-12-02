@@ -270,80 +270,113 @@ app.post('/api/seed-temp', async (req, res) => {
     const ChatGroup = require('./models/ChatGroup');
     const Exercise = require('./models/Exercise');
 
+    // First, find an admin user to use as createdBy
+    const User = require('./models/User');
+    let adminUser = await User.findOne({ role: 'admin' });
+
+    if (!adminUser) {
+      // Create a temporary admin user if none exists
+      adminUser = new User({
+        username: 'admin_seed',
+        email: 'admin@seed.local',
+        password: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewfLkI0qQcO8m5m', // 'seedpassword'
+        firstName: 'Admin',
+        lastName: 'Seed',
+        role: 'admin',
+        isActive: true,
+        questionnaireCompleted: true
+      });
+      await adminUser.save();
+      console.log('✅ Created temporary admin user for seeding');
+    }
+
+    // Use simplified data compatible with current production model
     const chatGroups = [
       {
         name: 'Grupo de Apoyo contra la Depresión',
         description: 'Espacio seguro para compartir experiencias y recibir apoyo mutuo en el camino hacia la recuperación de la depresión.',
-        category: 'depression',
+        type: 'peer_support',
         maxMembers: 50,
-        isActive: true
+        isActive: true,
+        createdBy: adminUser._id
       },
       {
         name: 'Acompañamiento para la Ansiedad',
         description: 'Grupo de apoyo para personas que lidian con ansiedad, donde podemos compartir estrategias y experiencias.',
-        category: 'anxiety',
+        type: 'peer_support',
         maxMembers: 50,
-        isActive: true
+        isActive: true,
+        createdBy: adminUser._id
       },
       {
         name: 'Red de Apoyo para Estrés Crónico',
         description: 'Conecta con personas que entienden el estrés crónico y comparte formas de manejarlo.',
-        category: 'stress',
+        type: 'peer_support',
         maxMembers: 50,
-        isActive: true
+        isActive: true,
+        createdBy: adminUser._id
       },
       {
         name: 'Círculo de Bienestar Emocional',
         description: 'Un espacio para explorar y mejorar nuestra salud emocional colectiva.',
-        category: 'general',
+        type: 'general',
         maxMembers: 50,
-        isActive: true
+        isActive: true,
+        createdBy: adminUser._id
       },
       {
         name: 'Grupo de Manejo de Emociones',
         description: 'Aprende técnicas para identificar, comprender y gestionar tus emociones de manera saludable.',
-        category: 'general',
+        type: 'general',
         maxMembers: 50,
-        isActive: true
+        isActive: true,
+        createdBy: adminUser._id
       },
       {
         name: 'Espacio para Autoestima y Autoconfianza',
         description: 'Trabajemos juntos en construir una autoestima sólida y confianza en nosotros mismos.',
-        category: 'general',
+        type: 'general',
         maxMembers: 50,
-        isActive: true
+        isActive: true,
+        createdBy: adminUser._id
       },
       {
         name: 'Grupo para Duelo y Pérdida',
         description: 'Apoyo compasivo para quienes atraviesan procesos de duelo y pérdida.',
-        category: 'general',
+        type: 'general',
         maxMembers: 50,
-        isActive: true
+        isActive: true,
+        createdBy: adminUser._id
       },
       {
         name: 'Apoyo para Relaciones Personales',
         description: 'Explora y mejora tus relaciones interpersonales con el apoyo de la comunidad.',
-        category: 'family',
+        type: 'general',
         maxMembers: 50,
-        isActive: true
+        isActive: true,
+        createdBy: adminUser._id
       }
     ];
 
     // Insert chat groups
     let groupsCreated = 0;
     for (const groupData of chatGroups) {
-      const existingGroup = await ChatGroup.findOne({ name: groupData.name });
-      if (!existingGroup) {
-        const group = new ChatGroup(groupData);
-        await group.save();
-        groupsCreated++;
-        console.log(`✅ Created group: ${groupData.name}`);
-      } else {
-        console.log(`⏭️  Skipped existing group: ${groupData.name}`);
+      try {
+        const existingGroup = await ChatGroup.findOne({ name: groupData.name });
+        if (!existingGroup) {
+          const group = new ChatGroup(groupData);
+          await group.save();
+          groupsCreated++;
+          console.log(`✅ Created group: ${groupData.name}`);
+        } else {
+          console.log(`⏭️  Skipped existing group: ${groupData.name}`);
+        }
+      } catch (error) {
+        console.log(`❌ Error creating group ${groupData.name}:`, error.message);
       }
     }
 
-    // Insert exercises (shortened for brevity - you can add more)
+    // Insert exercises (simplified version)
     const exercises = [
       {
         title: 'Diario de Gratitud',
@@ -377,14 +410,18 @@ app.post('/api/seed-temp', async (req, res) => {
 
     let exercisesCreated = 0;
     for (const exerciseData of exercises) {
-      const existingExercise = await Exercise.findOne({ title: exerciseData.title });
-      if (!existingExercise) {
-        const exercise = new Exercise(exerciseData);
-        await exercise.save();
-        exercisesCreated++;
-        console.log(`✅ Created exercise: ${exerciseData.title}`);
-      } else {
-        console.log(`⏭️  Skipped existing exercise: ${exerciseData.title}`);
+      try {
+        const existingExercise = await Exercise.findOne({ title: exerciseData.title });
+        if (!existingExercise) {
+          const exercise = new Exercise(exerciseData);
+          await exercise.save();
+          exercisesCreated++;
+          console.log(`✅ Created exercise: ${exerciseData.title}`);
+        } else {
+          console.log(`⏭️  Skipped existing exercise: ${exerciseData.title}`);
+        }
+      } catch (error) {
+        console.log(`❌ Error creating exercise ${exerciseData.title}:`, error.message);
       }
     }
 
