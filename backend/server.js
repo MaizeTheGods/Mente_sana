@@ -259,6 +259,28 @@ app.use('/api/uploads', require('./routes/uploads'));
 app.use('/api/avatar-categories', require('./routes/avatarCategories'));
 app.use('/api/songs', require('./routes/songs'));
 app.use('/api/reels', require('./routes/reels'));
+
+// Seed endpoint (temporary for admin use)
+app.post('/api/seed', require('./middleware/auth').authenticateToken, async (req, res) => {
+  try {
+    console.log('🌱 Starting database seeding via API endpoint...');
+    const { seedDatabase } = require('./scripts/seedData');
+    await seedDatabase();
+    res.json({
+      success: true,
+      message: 'Database seeded successfully',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Seeding error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to seed database',
+      error: error.message
+    });
+  }
+});
+
 // TODO: Implement remaining routes
 // app.use('/api/maps', require('./routes/maps'));
 // app.use('/api/feedback', require('./routes/feedback'));

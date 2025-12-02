@@ -538,6 +538,38 @@ const AdminPanel: React.FC = () => {
     description: '',
     videoFile: null as File | null
   });
+  const [isSeeding, setIsSeeding] = useState(false);
+
+  const handleSeedDatabase = async () => {
+    if (!window.confirm('¿Estás seguro de que quieres poblar la base de datos con datos de ejemplo? Esto puede tomar unos minutos.')) return;
+
+    setIsSeeding(true);
+    try {
+      // Crear un endpoint temporal para ejecutar el seed
+      const token = localStorage.getItem('token');
+      const response = await fetch('https://mente-sana-backend.onrender.com/api/seed', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert('✅ Base de datos poblada exitosamente!\n\n' + JSON.stringify(result, null, 2));
+        // Recargar datos
+        loadData();
+      } else {
+        const error = await response.json();
+        alert('❌ Error al poblar la base de datos: ' + (error.message || 'Error desconocido'));
+      }
+    } catch (error: any) {
+      alert('❌ Error de conexión: ' + error.message);
+    } finally {
+      setIsSeeding(false);
+    }
+  };
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -1253,6 +1285,15 @@ const AdminPanel: React.FC = () => {
 
         {activeTab === 'dashboard' && stats && (
           <>
+            <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
+              <AddButton onClick={handleSeedDatabase} disabled={isSeeding}>
+                {isSeeding ? '🌱 Poblando...' : '🌱 Poblar Base de Datos'}
+              </AddButton>
+              <div style={{ fontSize: '12px', color: '#64748b', alignSelf: 'center' }}>
+                Agrega grupos de chat y ejercicios de ejemplo
+              </div>
+            </div>
+
             <StatsGrid>
               <StatCard>
                 <StatLabel>Total Usuarios</StatLabel>
