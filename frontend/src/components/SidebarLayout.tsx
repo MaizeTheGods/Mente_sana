@@ -22,11 +22,33 @@ const Sidebar = styled.div<{ isOpen: boolean }>`
   padding: 20px;
   position: fixed;
   height: 100vh;
-  z-index: 100;
+  z-index: 1000;
   transition: transform 0.3s ease;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* Custom scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
 
   @media (max-width: 768px) {
     transform: translateX(${props => props.isOpen ? '0' : '-100%'});
+    z-index: 1100;
   }
 `;
 
@@ -40,7 +62,7 @@ const Overlay = styled.div<{ isOpen: boolean }>`
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 90;
+    z-index: 1050;
   }
 `;
 
@@ -102,7 +124,7 @@ const MobileHeader = styled.div`
     top: 0;
     left: 0;
     right: 0;
-    z-index: 80;
+    z-index: 1060;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     height: 64px; /* stabilize header height for consistent content offset */
   }

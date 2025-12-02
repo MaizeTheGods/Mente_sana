@@ -72,11 +72,33 @@ const Sidebar = styled.div<{ isOpen: boolean }>`
   padding: 20px;
   position: fixed;
   height: 100vh;
-  z-index: 100;
+  z-index: 1000;
   transition: transform 0.3s ease;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* Custom scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
 
   @media (max-width: 768px) {
     transform: translateX(${props => props.isOpen ? '0' : '-100%'});
+    z-index: 1100;
   }
 `;
 
@@ -90,7 +112,7 @@ const Overlay = styled.div<{ isOpen: boolean }>`
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 90;
+    z-index: 1050;
   }
 `;
 
@@ -106,7 +128,7 @@ const MobileHeader = styled.div`
     top: 0;
     left: 0;
     right: 0;
-    z-index: 80;
+    z-index: 1060;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   }
 `;
@@ -174,7 +196,7 @@ const Header = styled.div`
   left: 260px;
   background: white;
   padding: 20px 30px;
-  z-index: 100;
+  z-index: 1070;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 
   @media (max-width: 768px) {
@@ -412,7 +434,7 @@ const ModalOverlay = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1200;
   backdrop-filter: blur(4px);
 `;
 
@@ -1399,10 +1421,27 @@ const AdminPanel: React.FC = () => {
                 console.log('📂 Estado avatars:', avatars);
                 console.log('📂 Estado avatarCategories:', avatarCategories);
 
-                const activeCategories = avatarCategories.filter(category => category.isActive);
-                console.log('✅ Categorías activas:', activeCategories.map(c => `${c.icon} ${c.label} (${c.name})`));
+                // Si no hay categorías definidas, usar las categorías de los avatares existentes
+                let categoriesToShow = avatarCategories.filter(category => category.isActive);
 
-                return activeCategories
+                if (categoriesToShow.length === 0 && avatars) {
+                  // Crear categorías basadas en las claves de avatars
+                  categoriesToShow = Object.keys(avatars).map((categoryName, index) => ({
+                    name: categoryName,
+                    label: categoryName === 'default' ? 'Predeterminados' :
+                           categoryName.charAt(0).toUpperCase() + categoryName.slice(1),
+                    icon: categoryName === 'default' ? '❓' :
+                          categoryName.includes('mejor') ? '⭐' :
+                          categoryName.includes('agora') ? '🌿' : '📁',
+                    color: '#2e7d32',
+                    order: index + 1,
+                    isActive: true
+                  }));
+                }
+
+                console.log('✅ Categorías a mostrar:', categoriesToShow.map(c => `${c.icon} ${c.label} (${c.name})`));
+
+                return categoriesToShow
                   .sort((catA, catB) => {
                     // Ordenar por orden definido, luego alfabéticamente
                     if (catA.order !== undefined && catB.order !== undefined) {
