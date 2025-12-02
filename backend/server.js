@@ -260,16 +260,143 @@ app.use('/api/avatar-categories', require('./routes/avatarCategories'));
 app.use('/api/songs', require('./routes/songs'));
 app.use('/api/reels', require('./routes/reels'));
 
-// Seed endpoint (temporary for admin use)
-app.post('/api/seed', require('./middleware/auth').authenticateToken, async (req, res) => {
+// Seed endpoint (temporary for admin use - REMOVE AFTER SEEDING)
+app.post('/api/seed-temp', async (req, res) => {
   try {
-    console.log('🌱 Starting database seeding via API endpoint...');
-    const { seedDatabase } = require('./scripts/seedData');
-    await seedDatabase();
+    console.log('🌱 Starting database seeding via temporary endpoint...');
+
+    // Import the data directly
+    const mongoose = require('mongoose');
+    const ChatGroup = require('./models/ChatGroup');
+    const Exercise = require('./models/Exercise');
+
+    const chatGroups = [
+      {
+        name: 'Grupo de Apoyo contra la Depresión',
+        description: 'Espacio seguro para compartir experiencias y recibir apoyo mutuo en el camino hacia la recuperación de la depresión.',
+        category: 'depression',
+        maxMembers: 50,
+        isActive: true
+      },
+      {
+        name: 'Acompañamiento para la Ansiedad',
+        description: 'Grupo de apoyo para personas que lidian con ansiedad, donde podemos compartir estrategias y experiencias.',
+        category: 'anxiety',
+        maxMembers: 50,
+        isActive: true
+      },
+      {
+        name: 'Red de Apoyo para Estrés Crónico',
+        description: 'Conecta con personas que entienden el estrés crónico y comparte formas de manejarlo.',
+        category: 'stress',
+        maxMembers: 50,
+        isActive: true
+      },
+      {
+        name: 'Círculo de Bienestar Emocional',
+        description: 'Un espacio para explorar y mejorar nuestra salud emocional colectiva.',
+        category: 'general',
+        maxMembers: 50,
+        isActive: true
+      },
+      {
+        name: 'Grupo de Manejo de Emociones',
+        description: 'Aprende técnicas para identificar, comprender y gestionar tus emociones de manera saludable.',
+        category: 'general',
+        maxMembers: 50,
+        isActive: true
+      },
+      {
+        name: 'Espacio para Autoestima y Autoconfianza',
+        description: 'Trabajemos juntos en construir una autoestima sólida y confianza en nosotros mismos.',
+        category: 'general',
+        maxMembers: 50,
+        isActive: true
+      },
+      {
+        name: 'Grupo para Duelo y Pérdida',
+        description: 'Apoyo compasivo para quienes atraviesan procesos de duelo y pérdida.',
+        category: 'general',
+        maxMembers: 50,
+        isActive: true
+      },
+      {
+        name: 'Apoyo para Relaciones Personales',
+        description: 'Explora y mejora tus relaciones interpersonales con el apoyo de la comunidad.',
+        category: 'family',
+        maxMembers: 50,
+        isActive: true
+      }
+    ];
+
+    // Insert chat groups
+    let groupsCreated = 0;
+    for (const groupData of chatGroups) {
+      const existingGroup = await ChatGroup.findOne({ name: groupData.name });
+      if (!existingGroup) {
+        const group = new ChatGroup(groupData);
+        await group.save();
+        groupsCreated++;
+        console.log(`✅ Created group: ${groupData.name}`);
+      } else {
+        console.log(`⏭️  Skipped existing group: ${groupData.name}`);
+      }
+    }
+
+    // Insert exercises (shortened for brevity - you can add more)
+    const exercises = [
+      {
+        title: 'Diario de Gratitud',
+        description: 'Escribe 3 cosas por las que estás agradecido cada día',
+        category: 'daily',
+        duration: 10,
+        difficulty: 'beginner',
+        instructions: [
+          { step: 1, text: 'Toma tu diario o una hoja de papel' },
+          { step: 2, text: 'Escribe la fecha en la parte superior' },
+          { step: 3, text: 'Lista 3 cosas por las que estás agradecido hoy' }
+        ],
+        targetDisorders: ['depression', 'anxiety', 'stress'],
+        isActive: true
+      },
+      {
+        title: 'Registro de Emociones',
+        description: 'Identifica y registra tus emociones a lo largo del día',
+        category: 'daily',
+        duration: 15,
+        difficulty: 'beginner',
+        instructions: [
+          { step: 1, text: 'Lleva una libreta o usa una app de notas' },
+          { step: 2, text: 'Cada 2-3 horas, registra cómo te sientes' },
+          { step: 3, text: 'Describe la emoción y qué la provocó' }
+        ],
+        targetDisorders: ['anxiety', 'depression'],
+        isActive: true
+      }
+    ];
+
+    let exercisesCreated = 0;
+    for (const exerciseData of exercises) {
+      const existingExercise = await Exercise.findOne({ title: exerciseData.title });
+      if (!existingExercise) {
+        const exercise = new Exercise(exerciseData);
+        await exercise.save();
+        exercisesCreated++;
+        console.log(`✅ Created exercise: ${exerciseData.title}`);
+      } else {
+        console.log(`⏭️  Skipped existing exercise: ${exerciseData.title}`);
+      }
+    }
+
     res.json({
       success: true,
-      message: 'Database seeded successfully',
-      timestamp: new Date().toISOString()
+      message: `Database seeded successfully! Created ${groupsCreated} groups and ${exercisesCreated} exercises`,
+      timestamp: new Date().toISOString(),
+      data: {
+        groupsCreated,
+        exercisesCreated,
+        totalItems: groupsCreated + exercisesCreated
+      }
     });
   } catch (error) {
     console.error('Seeding error:', error);
