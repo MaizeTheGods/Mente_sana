@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
 const { seedDatabase } = require('../scripts/seedData');
 
@@ -17,6 +18,107 @@ router.post('/seed', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to seed database',
+      error: error.message
+    });
+  }
+});
+
+// Safe seed endpoint (adds data without deleting existing)
+router.post('/seed-safe', async (req, res) => {
+  try {
+    console.log('🛡️ Safe seeding database via API endpoint...');
+
+    const { exercisesData, tipsData, chatGroupsData, avatarCategoriesData } = require('../scripts/seedData');
+    const Exercise = require('../models/Exercise');
+    const Tip = require('../models/Tip');
+    const ChatGroup = require('../models/ChatGroup');
+    const AvatarCategory = require('../models/AvatarCategory');
+
+    let exercisesInserted = 0, exercisesSkipped = 0;
+    let tipsInserted = 0, tipsSkipped = 0;
+    let chatGroupsInserted = 0, chatGroupsSkipped = 0;
+    let avatarCategoriesInserted = 0, avatarCategoriesSkipped = 0;
+
+    // Create default admin user if needed
+    let defaultUser = await mongoose.connection.db.collection('users').findOne({ email: 'admin@mentesana.com' });
+    if (!defaultUser) {
+      defaultUser = {
+        _id: new mongoose.Types.ObjectId(),
+        username: 'admin',
+        email: 'admin@mentesana.com',
+        firstName: 'Admin',
+        lastName: 'Agora',
+        role: 'admin',
+        questionnaireCompleted: true,
+        preferences: { language: 'es', theme: 'light', notifications: true },
+        progressTracking: { streakDays: 0, lastActivity: new Date() }
+      };
+      await mongoose.connection.db.collection('users').insertOne(defaultUser);
+      console.log('✅ Created default admin user');
+    }
+
+    // Safe insert exercises
+    for (const exerciseData of exercisesData) {
+      const existing = await Exercise.findOne({ title: exerciseData.title });
+      if (!existing) {
+        await Exercise.create(exerciseData);
+        exercisesInserted++;
+      } else {
+        exercisesSkipped++;
+      }
+    }
+
+    // Safe insert tips
+    for (const tipData of tipsData) {
+      const existing = await Tip.findOne({ title: tipData.title });
+      if (!existing) {
+        await Tip.create(tipData);
+        tipsInserted++;
+      } else {
+        tipsSkipped++;
+      }
+    }
+
+    // Safe insert chat groups
+    for (const groupData of chatGroupsData) {
+      const existing = await ChatGroup.findOne({ name: groupData.name });
+      if (!existing) {
+        await ChatGroup.create({ ...groupData, createdBy: defaultUser._id });
+        chatGroupsInserted++;
+      } else {
+        chatGroupsSkipped++;
+      }
+    }
+
+    // Safe insert avatar categories
+    for (const categoryData of avatarCategoriesData) {
+      const existing = await AvatarCategory.findOne({ name: categoryData.name });
+      if (!existing) {
+        await AvatarCategory.create(categoryData);
+        avatarCategoriesInserted++;
+      } else {
+        avatarCategoriesSkipped++;
+      }
+    }
+
+    console.log('📊 Safe seeding completed');
+
+    res.json({
+      success: true,
+      message: 'Safe seeding completed successfully',
+      summary: {
+        exercises: { inserted: exercisesInserted, skipped: exercisesSkipped },
+        tips: { inserted: tipsInserted, skipped: tipsSkipped },
+        chatGroups: { inserted: chatGroupsInserted, skipped: chatGroupsSkipped },
+        avatarCategories: { inserted: avatarCategoriesInserted, skipped: avatarCategoriesSkipped }
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Safe seeding error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to safe seed database',
       error: error.message
     });
   }
