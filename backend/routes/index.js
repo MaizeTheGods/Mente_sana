@@ -54,6 +54,38 @@ router.post('/seed-tips', async (req, res) => {
   }
 });
 
+// Seed exercises endpoint (populate exercises only)
+router.post('/seed-exercises', async (req, res) => {
+  try {
+    console.log('🏃 Seeding exercises via API endpoint...');
+
+    const Exercise = require('../models/Exercise');
+    const { exercisesData } = require('../scripts/seedData');
+
+    // Clear existing exercises
+    await Exercise.deleteMany({});
+    console.log('🗑️ Cleared existing exercises');
+
+    // Insert new exercises
+    const exercises = await Exercise.insertMany(exercisesData);
+    console.log(`✅ Inserted ${exercises.length} exercises`);
+
+    res.json({
+      success: true,
+      message: `Successfully seeded ${exercises.length} exercises`,
+      exercisesCount: exercises.length,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Seeding exercises error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to seed exercises',
+      error: error.message
+    });
+  }
+});
+
 // Health check endpoint
 router.get('/', (req, res) => {
   res.send(`
