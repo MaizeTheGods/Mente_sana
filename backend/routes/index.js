@@ -22,26 +22,37 @@ router.post('/seed', async (req, res) => {
   }
 });
 
-// Seed tips endpoint (populate tips only)
+// Seed tips endpoint (populate tips only - safe mode)
 router.post('/seed-tips', async (req, res) => {
   try {
-    console.log('📚 Seeding tips via API endpoint...');
+    console.log('📚 Seeding tips via API endpoint (safe mode)...');
 
     const Tip = require('../models/Tip');
     const { tipsData } = require('../scripts/seedData');
 
-    // Clear existing tips
-    await Tip.deleteMany({});
-    console.log('🗑️ Cleared existing tips');
+    let insertedCount = 0;
+    let skippedCount = 0;
 
-    // Insert new tips
-    const tips = await Tip.insertMany(tipsData);
-    console.log(`✅ Inserted ${tips.length} tips`);
+    // Insert tips one by one, skipping if title already exists
+    for (const tipData of tipsData) {
+      const existingTip = await Tip.findOne({ title: tipData.title });
+      if (!existingTip) {
+        await Tip.create(tipData);
+        insertedCount++;
+        console.log(`✅ Inserted tip: ${tipData.title}`);
+      } else {
+        skippedCount++;
+        console.log(`⏭️ Skipped existing tip: ${tipData.title}`);
+      }
+    }
+
+    console.log(`📊 Summary: ${insertedCount} inserted, ${skippedCount} skipped`);
 
     res.json({
       success: true,
-      message: `Successfully seeded ${tips.length} tips`,
-      tipsCount: tips.length,
+      message: `Tips seeding completed. ${insertedCount} new tips added, ${skippedCount} already existed.`,
+      insertedCount,
+      skippedCount,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
