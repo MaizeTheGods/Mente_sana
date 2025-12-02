@@ -3,62 +3,93 @@ const ChatGroup = require('./models/ChatGroup');
 const Exercise = require('./models/Exercise');
 
 // Datos de seed
+// First, find an admin user to use as createdBy
+const User = require('./models/User');
+let adminUser = await User.findOne({ role: 'admin' });
+
+if (!adminUser) {
+  // Create a temporary admin user if none exists
+  adminUser = new User({
+    username: 'admin_seed',
+    email: 'admin@seed.local',
+    password: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewfLkI0qQcO8m5m', // 'seedpassword'
+    firstName: 'Admin',
+    lastName: 'Seed',
+    role: 'admin',
+    isActive: true,
+    questionnaireCompleted: true
+  });
+  await adminUser.save();
+  console.log('✅ Created temporary admin user for seeding');
+}
+
 const chatGroups = [
   {
     name: 'Grupo de Apoyo contra la Depresión',
     description: 'Espacio seguro para compartir experiencias y recibir apoyo mutuo en el camino hacia la recuperación de la depresión.',
-    category: 'depression',
+    type: 'peer_support',
+    disorderCategory: 'depression',
     maxMembers: 50,
-    isActive: true
+    isActive: true,
+    createdBy: adminUser._id
   },
   {
     name: 'Acompañamiento para la Ansiedad',
     description: 'Grupo de apoyo para personas que lidian con ansiedad, donde podemos compartir estrategias y experiencias.',
-    category: 'anxiety',
+    type: 'peer_support',
+    disorderCategory: 'anxiety',
     maxMembers: 50,
-    isActive: true
+    isActive: true,
+    createdBy: adminUser._id
   },
   {
     name: 'Red de Apoyo para Estrés Crónico',
     description: 'Conecta con personas que entienden el estrés crónico y comparte formas de manejarlo.',
-    category: 'stress',
+    type: 'peer_support',
+    disorderCategory: 'stress',
     maxMembers: 50,
-    isActive: true
+    isActive: true,
+    createdBy: adminUser._id
   },
   {
     name: 'Círculo de Bienestar Emocional',
     description: 'Un espacio para explorar y mejorar nuestra salud emocional colectiva.',
-    category: 'general',
+    type: 'general',
     maxMembers: 50,
-    isActive: true
+    isActive: true,
+    createdBy: adminUser._id
   },
   {
     name: 'Grupo de Manejo de Emociones',
     description: 'Aprende técnicas para identificar, comprender y gestionar tus emociones de manera saludable.',
-    category: 'general',
+    type: 'general',
     maxMembers: 50,
-    isActive: true
+    isActive: true,
+    createdBy: adminUser._id
   },
   {
     name: 'Espacio para Autoestima y Autoconfianza',
     description: 'Trabajemos juntos en construir una autoestima sólida y confianza en nosotros mismos.',
-    category: 'general',
+    type: 'general',
     maxMembers: 50,
-    isActive: true
+    isActive: true,
+    createdBy: adminUser._id
   },
   {
     name: 'Grupo para Duelo y Pérdida',
     description: 'Apoyo compasivo para quienes atraviesan procesos de duelo y pérdida.',
-    category: 'general',
+    type: 'general',
     maxMembers: 50,
-    isActive: true
+    isActive: true,
+    createdBy: adminUser._id
   },
   {
     name: 'Apoyo para Relaciones Personales',
     description: 'Explora y mejora tus relaciones interpersonales con el apoyo de la comunidad.',
-    category: 'family',
+    type: 'general',
     maxMembers: 50,
-    isActive: true
+    isActive: true,
+    createdBy: adminUser._id
   }
 ];
 
@@ -445,14 +476,16 @@ if (require.main === module) {
   // Intentar cargar variables de entorno de producción
   require('dotenv').config({ path: './.env' });
 
-  // Si no hay MONGODB_URI configurado, usar argumentos de línea de comandos
-  if (!process.env.MONGODB_URI) {
-    if (process.argv.length < 3) {
-      console.log('❌ Uso: node seed_production.js "mongodb+srv://usuario:password@cluster.mongodb.net/db"');
-      console.log('   O configura MONGODB_URI en el archivo .env');
-      process.exit(1);
-    }
-    process.env.MONGODB_URI = process.argv[2];
+  // Forzar uso de base de datos de producción (asumiendo que está configurada en Render)
+  // Si no está configurada, intentar con una URI de producción típica
+  if (!process.env.MONGODB_URI || process.env.MONGODB_URI.includes('xxxxx')) {
+    console.log('⚠️  MONGODB_URI no configurada o es placeholder. Intentando con URI de producción...');
+    // Aquí puedes reemplazar con la URI real de producción si la conoces
+    // process.env.MONGODB_URI = 'mongodb+srv://tu_usuario_real:tu_password_real@cluster0.xxxxx.mongodb.net/mente_sana?retryWrites=true&w=majority';
+    console.log('❌ No se puede determinar la URI de producción automáticamente.');
+    console.log('💡 Opción 1: Configura MONGODB_URI en backend/.env con la URI real de producción');
+    console.log('💡 Opción 2: Ejecuta: node seed_production.js "tu_mongodb_uri_real_aqui"');
+    process.exit(1);
   }
 
   console.log('🔗 Usando MongoDB URI:', process.env.MONGODB_URI.replace(/:([^:@]{4})[^:@]*@/, ':****@'));
