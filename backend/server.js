@@ -281,6 +281,15 @@ app.post('/api/seed', require('./middleware/auth').authenticateToken, async (req
   }
 });
 
+// Temporary endpoint to get connection info (remove after seeding)
+app.get('/api/connection-info', (req, res) => {
+  res.json({
+    mongodb_uri: process.env.MONGODB_URI ? 'configured' : 'not configured',
+    environment: process.env.NODE_ENV,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // TODO: Implement remaining routes
 // app.use('/api/maps', require('./routes/maps'));
 // app.use('/api/feedback', require('./routes/feedback'));
