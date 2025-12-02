@@ -12,7 +12,7 @@ const tipSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    enum: ['daily_habit', 'coping_strategy', 'lifestyle', 'relationships', 'work_life', 'self_care'],
+    enum: ['daily_habit', 'coping_strategy', 'lifestyle', 'relationships', 'student_life', 'self_care'],
     required: true
   },
   targetDisorders: [{

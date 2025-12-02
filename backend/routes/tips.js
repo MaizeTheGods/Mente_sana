@@ -9,7 +9,7 @@ const router = express.Router();
 const tipValidation = [
   body('title').trim().isLength({ min: 3, max: 100 }).withMessage('Title must be between 3 and 100 characters'),
   body('content').trim().isLength({ min: 1 }).withMessage('Content must be at least 1 character'),
-  body('category').isIn(['daily_habit', 'coping_strategy', 'lifestyle', 'relationships', 'work_life', 'self_care']).withMessage('Invalid category'),
+  body('category').isIn(['daily_habit', 'coping_strategy', 'lifestyle', 'relationships', 'student_life', 'self_care']).withMessage('Invalid category'),
   body('priority').optional().isIn(['low', 'medium', 'high']).withMessage('Invalid priority level'),
   body('frequency').optional().isIn(['daily', 'weekly', 'monthly', 'as_needed']).withMessage('Invalid frequency'),
   body('targetDisorders').optional().isArray().withMessage('Target disorders must be an array'),
@@ -60,7 +60,7 @@ router.get('/categories', (req, res) => {
     { id: 'coping_strategy', label: 'Estrategias de Afrontamiento', icon: '🛡️' },
     { id: 'lifestyle', label: 'Estilo de Vida', icon: '🏠' },
     { id: 'relationships', label: 'Relaciones', icon: '❤️' },
-    { id: 'work_life', label: 'Vida Laboral', icon: '💼' },
+    { id: 'student_life', label: 'Vida Estudiantil', icon: '📚' },
     { id: 'self_care', label: 'Autocuidado', icon: '🧴' }
   ];
 
