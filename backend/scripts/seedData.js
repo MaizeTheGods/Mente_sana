@@ -354,139 +354,458 @@ const chatGroupsData = [
 ];
 
 const tipsData = [
+  // 🌿 CATEGORÍA: ESTILO DE VIDA (7 consejos)
   {
-    title: 'Practica la Gratitud Diaria',
-    content: 'Cada noche antes de dormir, escribe 3 cosas por las que estás agradecido. Puede ser algo simple como "tu salud", "una comida deliciosa" o "un amigo que te apoya". Esta práctica ayuda a cambiar el enfoque de lo negativo a lo positivo, entrenando tu cerebro para buscar lo bueno en la vida cotidiana.',
-    why: 'La gratitud ha sido científicamente probada para mejorar el bienestar mental, reducir síntomas de depresión y aumentar la satisfacción con la vida.',
-    category: 'daily_habit',
-    media: {
-      videoUrl: 'WPPPFqsECz0'
-    }
-  },
-  {
-    title: 'Establece Límites Saludables',
-    content: 'Aprende a decir "no" cuando sea necesario. Proteger tu energía es fundamental para mantener el equilibrio emocional. Establece límites claros en tus relaciones laborales y personales, comunicándolos de manera asertiva y respetuosa.',
-    why: 'Los límites saludables previenen el agotamiento emocional y te permiten mantener relaciones más equilibradas y satisfactorias.',
-    category: 'coping_strategy',
-    media: {
-      videoUrl: '5t8xAcPK-9E'
-    }
-  },
-  {
-    title: 'Crea una Rutina de Sueño Saludable',
-    content: 'Acuéstate y levántate a la misma hora todos los días, incluso los fines de semana. Crea un ritual nocturno relajante: evita pantallas al menos 1 hora antes de dormir, toma un baño tibio, lee un libro o practica respiración profunda.',
-    why: 'El sueño de calidad es fundamental para la salud mental. La falta de sueño puede aumentar la ansiedad, depresión y dificultar la regulación emocional.',
+    title: 'Cómo dormir mejor',
+    content: 'Hábitos simples para descansar profundamente y recuperar energía.',
+    why: 'El sueño reparador es fundamental para la salud mental y el rendimiento diario.',
     category: 'lifestyle',
     media: {
-      videoUrl: 'nmFhqKHZrns'
+      videoUrl: 'vkQQCclKzxo'
     }
   },
   {
-    title: 'Comunicación Asertiva',
-    content: 'Expresa tus sentimientos y necesidades de manera clara y respetuosa. Usa frases como "Me siento..." en lugar de "Tú me haces sentir...". Por ejemplo: "Me siento abrumado cuando hay mucho ruido" en vez de "Siempre haces demasiado ruido".',
-    why: 'La comunicación asertiva mejora las relaciones, reduce conflictos y aumenta la autoestima al expresar tus necesidades de manera saludable.',
-    category: 'relationships',
-    media: {
-      videoUrl: '3kO3q8aT1oE'
-    }
-  },
-  {
-    title: 'Técnica Pomodoro para Mejorar la Productividad',
-    content: 'Trabaja 25 minutos concentrado en una tarea (sin distracciones) y toma un descanso de 5 minutos. Después de 4 ciclos, toma un descanso más largo de 15-30 minutos. Usa un temporizador para mantener la disciplina.',
-    why: 'Esta técnica previene el agotamiento mental, mejora la concentración y hace que el trabajo sea más manejable al dividirlo en intervalos pequeños.',
-    category: 'work_life',
-    media: {
-      videoUrl: '1h8j8F8r5lY'
-    }
-  },
-  {
-    title: 'Mindful Eating (Comer Consciente)',
-    content: 'Come sin distracciones: apaga la TV, guarda el teléfono. Mastica lentamente, saborea cada bocado, nota texturas, sabores y aromas. Come solo cuando tengas hambre real, no por aburrimiento o estrés.',
-    why: 'El mindful eating mejora la relación con la comida, ayuda a reconocer señales de hambre/saciedad y puede prevenir trastornos alimenticios.',
-    category: 'daily_habit',
-    media: {
-      videoUrl: '2cC2P5V5EiI'
-    }
-  },
-  {
-    title: 'Diario de Pensamientos Automáticos',
-    content: 'Cuando notes un pensamiento negativo, escríbelo en un diario junto con evidencia que lo contradiga. Por ejemplo: Pensamiento: "Soy un fracaso". Evidencia contraria: "Aprobé mis exámenes", "Tengo amigos que me quieren".',
-    why: 'Identificar y cuestionar pensamientos automáticos negativos es una herramienta fundamental en terapia cognitivo-conductual para reducir la depresión y ansiedad.',
-    category: 'coping_strategy',
-    media: {
-      videoUrl: '7Qv0X2Va5gc'
-    }
-  },
-  {
-    title: 'Ejercicio Físico Regular',
-    content: 'Encuentra una actividad que disfrutes: caminar, bailar, nadar, yoga. Apunta a 30 minutos de actividad moderada la mayoría de los días. No tiene que ser intenso - lo importante es la consistencia.',
-    why: 'El ejercicio libera endorfinas, reduce el estrés, mejora el sueño y aumenta la autoestima. Es tan efectivo como los antidepresivos para casos leves de depresión.',
+    title: 'Maneja tu estrés del día a día',
+    content: 'Técnicas rápidas para calmar tu mente en momentos tensos.',
+    why: 'El manejo efectivo del estrés previene problemas de salud mental a largo plazo.',
     category: 'lifestyle',
     media: {
-      videoUrl: '9L2F8mL9XE'
+      videoUrl: 'doZeCiT5Rh8'
     }
   },
   {
-    title: 'Construye una Red de Apoyo',
-    content: 'Identifica personas en las que confías y con quienes puedes hablar abiertamente. Únete a grupos de apoyo, comunidades en línea o actividades sociales. Recuerda que pedir ayuda es un signo de fortaleza, no debilidad.',
-    why: 'Las conexiones sociales son protectoras contra la depresión y ansiedad. Sentirse conectado reduce el aislamiento y proporciona perspectivas diferentes.',
+    title: 'Mañanas sin ansiedad',
+    content: 'Comienza tu día con una rutina que te dé calma y claridad.',
+    why: 'Un buen inicio de día establece el tono emocional para toda la jornada.',
+    category: 'lifestyle',
+    media: {
+      videoUrl: 'AWjI0mBpIIo'
+    }
+  },
+  {
+    title: 'Cómo tener un día más equilibrado',
+    content: 'Aprende a organizar tus actividades sin sentirte abrumado(a).',
+    why: 'El equilibrio diario reduce el estrés y mejora la calidad de vida.',
+    category: 'lifestyle',
+    media: {
+      videoUrl: 'S6CmxoIkHd4'
+    }
+  },
+  {
+    title: 'Dormir mejor después de clases',
+    content: 'Guía rápida para soltar tensión y descansar tras tareas y exámenes.',
+    why: 'El descanso adecuado después del estudio mejora la retención y reduce la ansiedad.',
+    category: 'lifestyle',
+    media: {
+      videoUrl: 'cvflhGzINJ4'
+    }
+  },
+  {
+    title: 'Recupera tu energía emocional',
+    content: 'Mini consejos para evitar agotamiento mental.',
+    why: 'La recuperación emocional es esencial para mantener el bienestar mental.',
+    category: 'lifestyle',
+    media: {
+      videoUrl: 'yKNd9FJDVis'
+    }
+  },
+  {
+    title: 'Construye una vida más saludable',
+    content: 'Cambios pequeños que mejoran tu bienestar a largo plazo.',
+    why: 'Los hábitos saludables construyen resiliencia emocional y física.',
+    category: 'lifestyle',
+    media: {
+      videoUrl: '7Ep5mKuRmAA'
+    }
+  },
+
+  // ❤️ CATEGORÍA: RELACIONES (7 consejos)
+  {
+    title: 'Superar el rechazo',
+    content: 'Aprende a manejar el dolor emocional y fortalecer tu autoestima.',
+    why: 'Superar el rechazo construye resiliencia emocional y autoestima saludable.',
     category: 'relationships',
     media: {
-      videoUrl: 'tD8KJzOPoKw'
+      videoUrl: 'aLu7vllKXDw'
     }
   },
   {
-    title: 'Gestión del Tiempo con Matriz Eisenhower',
-    content: 'Divide tus tareas en 4 cuadrantes: 1) Urgente e importante (haz ahora), 2) Importante pero no urgente (planifica), 3) Urgente pero no importante (delegar), 4) Ni urgente ni importante (eliminar).',
-    why: 'Esta técnica reduce la sobrecarga mental al priorizar efectivamente, previniendo el estrés causado por la procrastinación y la sensación de estar abrumado.',
-    category: 'work_life',
+    title: 'Cómo expresar lo que sientes',
+    content: 'Hablar con claridad reduce conflictos y mejora vínculos.',
+    why: 'La expresión emocional saludable fortalece las relaciones interpersonales.',
+    category: 'relationships',
     media: {
-      videoUrl: 'NyXdXmznNzE'
+      videoUrl: '0CME0v2JqLg'
     }
   },
   {
-    title: 'Autocompasión Diaria',
-    content: 'Trátate con la misma amabilidad que tratarías a un amigo querido. Cuando cometas un error, en lugar de criticarte duramente, di: "Todos cometemos errores, soy humano". Practica el abrazo propio o afirmaciones positivas.',
-    why: 'La autocompasión reduce la autocrítica destructiva, mejora la resiliencia emocional y está asociada con menor depresión y ansiedad.',
+    title: 'Poner límites sin culpa',
+    content: 'Proteger tu paz también es un acto de amor propio.',
+    why: 'Los límites saludables protegen tu bienestar emocional y mental.',
+    category: 'relationships',
+    media: {
+      videoUrl: 'tYjD9oxB6Vw'
+    }
+  },
+  {
+    title: 'Detectar y alejarte de amistades tóxicas',
+    content: 'Señales para identificar relaciones dañinas.',
+    why: 'Identificar relaciones tóxicas protege tu salud mental y emocional.',
+    category: 'relationships',
+    media: {
+      videoUrl: 'iO0_SsxH7iE'
+    }
+  },
+  {
+    title: 'Mejorar la comunicación con tus padres',
+    content: 'Estrategias para evitar discusiones y llegar a acuerdos.',
+    why: 'Una buena comunicación familiar reduce conflictos y mejora el apoyo emocional.',
+    category: 'relationships',
+    media: {
+      videoUrl: '80UVszvdy5U'
+    }
+  },
+  {
+    title: 'Resolver conflictos sin explotar',
+    content: 'Aprende a calmarte antes de reaccionar.',
+    why: 'La resolución pacífica de conflictos mejora las relaciones y reduce el estrés.',
+    category: 'relationships',
+    media: {
+      videoUrl: 'GJQjOMGEYTk'
+    }
+  },
+  {
+    title: 'Sanar una amistad rota',
+    content: 'Aceptar, valorar y seguir adelante sin rencor.',
+    why: 'La sanación emocional permite cerrar ciclos y abrir espacio para relaciones saludables.',
+    category: 'relationships',
+    media: {
+      videoUrl: '3t6T2cBS0Dc'
+    }
+  },
+
+  // 🧩 CATEGORÍA: ESTRATEGIAS DE AFRONTAMIENTO (7 consejos)
+  {
+    title: 'Deja de sobrepensar',
+    content: 'Técnicas para frenar pensamientos repetitivos.',
+    why: 'Controlar el sobrepensar reduce la ansiedad y mejora la claridad mental.',
+    category: 'coping_strategy',
+    media: {
+      videoUrl: 'OMoRh6bqSHo'
+    }
+  },
+  {
+    title: 'Qué hacer en una crisis emocional',
+    content: 'Pasos para recuperar control en momentos difíciles.',
+    why: 'Tener un plan para crisis emocionales proporciona seguridad y control.',
+    category: 'coping_strategy',
+    media: {
+      videoUrl: 'wfDTp2GogaQ'
+    }
+  },
+  {
+    title: 'Manejo de ansiedad escolar',
+    content: 'Ideas para reducir presión académica.',
+    why: 'Manejar la ansiedad escolar mejora el rendimiento y el bienestar estudiantil.',
+    category: 'coping_strategy',
+    media: {
+      videoUrl: '7i9x1McMz1M'
+    }
+  },
+  {
+    title: 'Control de pensamientos negativos',
+    content: 'Cambia el diálogo interior por uno más sano.',
+    why: 'Los pensamientos negativos afectan el estado de ánimo y la autoestima.',
+    category: 'coping_strategy',
+    media: {
+      videoUrl: 'm4tYDhTQ3aI'
+    }
+  },
+  {
+    title: 'Haz una pausa antes de saturarte',
+    content: 'Detenerte a tiempo puede evitar ansiedad acumulada.',
+    why: 'Las pausas preventivas evitan el agotamiento emocional y mental.',
+    category: 'coping_strategy',
+    media: {
+      videoUrl: 'w_bmCKMrLYs'
+    }
+  },
+  {
+    title: 'Qué hacer cuando el estrés te supera',
+    content: 'Movimiento + respiración para calmar tu sistema nervioso.',
+    why: 'Técnicas físicas ayudan a regular el sistema nervioso autónomo.',
+    category: 'coping_strategy',
+    media: {
+      videoUrl: 'UaYZgPE97Xc'
+    }
+  },
+  {
+    title: 'Sé más resiliente',
+    content: 'Aprende a levantar la mente ante retos y fracasos.',
+    why: 'La resiliencia emocional es clave para afrontar desafíos de la vida.',
+    category: 'coping_strategy',
+    media: {
+      videoUrl: 'AWjI0mBpIIo'
+    }
+  },
+
+  // 🌱 CATEGORÍA: AUTOCUIDADO (7 consejos)
+  {
+    title: 'Rutina simple de autocuidado',
+    content: 'Acciones pequeñas para sentirte mejor cada día.',
+    why: 'El autocuidado diario construye bienestar emocional sostenible.',
     category: 'self_care',
     media: {
-      videoUrl: 'V2j4_OyxhcE'
+      videoUrl: 'h_xI6WJ7R1w'
     }
   },
   {
-    title: 'Desconexión Digital Saludable',
-    content: 'Establece "horas sin pantalla" todos los días. Apaga notificaciones de apps no esenciales. Crea zonas libres de dispositivos (como el dormitorio). Reemplaza el tiempo en pantalla con actividades offline.',
-    why: 'La sobrecarga digital aumenta la ansiedad y dificulta el sueño. Las pausas digitales permiten procesar emociones y mejorar la concentración.',
+    title: 'Cuida tu salud digital',
+    content: 'Reduce el impacto emocional del uso excesivo del celular.',
+    why: 'La desconexión digital mejora el sueño y reduce la ansiedad.',
+    category: 'self_care',
+    media: {
+      videoUrl: 'rMmH0kG0mR4'
+    }
+  },
+  {
+    title: 'Pequeños hábitos que levantan tu ánimo',
+    content: 'Ajustes diarios para mejorar tu estado emocional.',
+    why: 'Los hábitos positivos crean cambios significativos en el estado de ánimo.',
+    category: 'self_care',
+    media: {
+      videoUrl: 'pHoojJHW5mg'
+    }
+  },
+  {
+    title: 'Cómo reconectar contigo',
+    content: 'Aprende a escucharte cuando te sientes desconectado.',
+    why: 'La reconexión consigo mismo mejora la toma de decisiones y el bienestar.',
+    category: 'self_care',
+    media: {
+      videoUrl: '5KEs7zJ2fQo'
+    }
+  },
+  {
+    title: 'Descanso mental intencional',
+    content: 'Dale un respiro a tu mente sin sentir culpa.',
+    why: 'El descanso mental es tan importante como el físico para la salud mental.',
+    category: 'self_care',
+    media: {
+      videoUrl: 'UEYhxPUwC9E'
+    }
+  },
+  {
+    title: 'Journaling para liberar emociones',
+    content: 'Escribir lo que sientes ayuda a ordenar tu vida interior.',
+    why: 'El journaling facilita el procesamiento emocional y reduce el estrés.',
+    category: 'self_care',
+    media: {
+      videoUrl: 'gTOc2qLT4n0'
+    }
+  },
+  {
+    title: 'Cómo cuidar tu energía emocional',
+    content: 'Aprende a no entregarte más de lo que puedes dar.',
+    why: 'Gestionar la energía emocional previene el agotamiento y mejora las relaciones.',
+    category: 'self_care',
+    media: {
+      videoUrl: 'YjJQzNtAUB8'
+    }
+  },
+
+  // ⚠️ CATEGORÍA: HÁBITOS DAÑINOS (7 consejos)
+  {
+    title: 'Cómo dejar de compararte en redes',
+    content: 'Evita que Instagram/TikTok afecten tu autoestima.',
+    why: 'La comparación social en redes sociales aumenta la ansiedad y depresión.',
     category: 'daily_habit',
     media: {
-      videoUrl: '3E7HKjA9jzg'
+      videoUrl: '3FkjwMTHyS0'
     }
   },
   {
-    title: 'Técnica de los Cinco Sentidos',
-    content: 'Cuando sientas ansiedad, nombra: 5 cosas que ves, 4 que puedes tocar, 3 que puedes oír, 2 que puedes oler, 1 que puedes saborear. Esto te ancla en el momento presente y reduce la rumiación.',
-    why: 'Esta técnica de grounding interrumpe los ciclos de pensamientos ansiosos al reconectar con el entorno físico inmediato.',
+    title: 'Adiós al autosabotaje',
+    content: 'Deja de ponerte trabas sin darte cuenta.',
+    why: 'Identificar y eliminar el autosabotaje mejora el éxito personal.',
+    category: 'daily_habit',
+    media: {
+      videoUrl: '1fFh7W3zQCY'
+    }
+  },
+  {
+    title: 'Rompe el ciclo de procrastinación',
+    content: 'Técnicas rápidas para dejar de posponer todo.',
+    why: 'La procrastinación crónica aumenta el estrés y reduce la productividad.',
+    category: 'daily_habit',
+    media: {
+      videoUrl: 'cJx5rQCZAL8'
+    }
+  },
+  {
+    title: 'Dejar la dependencia emocional',
+    content: 'Aprende a no basar tu bienestar en otra persona.',
+    why: 'La independencia emocional fortalece la autoestima y las relaciones saludables.',
+    category: 'daily_habit',
+    media: {
+      videoUrl: 'Kk31B7xW06g'
+    }
+  },
+  {
+    title: 'Controlar impulsos y reacciones fuertes',
+    content: 'Estrategias para no perder el control.',
+    why: 'Controlar impulsos mejora las relaciones y reduce conflictos.',
+    category: 'daily_habit',
+    media: {
+      videoUrl: '_fKxJgEDzJE'
+    }
+  },
+  {
+    title: 'Dejar hábitos que dañan tu mente',
+    content: 'Identifica conductas que te hacen daño sin darte cuenta.',
+    why: 'Eliminar hábitos dañinos mejora significativamente la salud mental.',
+    category: 'daily_habit',
+    media: {
+      videoUrl: 'q7HUPoH7JDs'
+    }
+  },
+  {
+    title: 'Cómo romper ciclos tóxicos personales',
+    content: 'Aprende a identificar patrones y cambiar.',
+    why: 'Romper ciclos tóxicos libera energía para crecimiento personal.',
+    category: 'daily_habit',
+    media: {
+      videoUrl: 'd2QcozHnXMQ'
+    }
+  },
+
+  // 💼 CATEGORÍA: VIDA ESTUDIANTIL (7 consejos)
+  {
+    title: 'Cómo organizar tus tareas sin estrés',
+    content: 'Distribuye tu tiempo para evitar ansiedad académica.',
+    why: 'La organización efectiva reduce el estrés académico y mejora el rendimiento.',
+    category: 'student_life',
+    media: {
+      videoUrl: 'V1O2B8-Fvpo'
+    }
+  },
+  {
+    title: 'Técnicas de estudio sin presión',
+    content: 'Aprende a estudiar sin sentir que te ahogas.',
+    why: 'Las técnicas de estudio efectivas mejoran la retención y reducen la ansiedad.',
+    category: 'student_life',
+    media: {
+      videoUrl: '8Yz1tCyt0bk'
+    }
+  },
+  {
+    title: 'Cómo mejorar tu concentración',
+    content: 'Tips para mantener tu mente enfocada.',
+    why: 'La concentración mejorada aumenta la productividad y reduce la frustración.',
+    category: 'student_life',
+    media: {
+      videoUrl: 'dHxuVvTNfhA'
+    }
+  },
+  {
+    title: 'Maneja el estrés por exámenes',
+    content: 'Lo que necesitas para evitar crisis antes de un examen.',
+    why: 'Manejar el estrés pre-examen mejora el rendimiento y la salud mental.',
+    category: 'student_life',
+    media: {
+      videoUrl: 'AWoXo5a9j_g'
+    }
+  },
+  {
+    title: 'Cómo equilibrar escuela y descanso',
+    content: 'Aprende a no saturarte y respetar tus tiempos.',
+    why: 'El equilibrio entre estudio y descanso previene el burnout académico.',
+    category: 'student_life',
+    media: {
+      videoUrl: 'mXAAlEaVtGY'
+    }
+  },
+  {
+    title: 'Evita el burnout académico',
+    content: 'Señales de alerta y cómo prevenir agotamiento extremo.',
+    why: 'Prevenir el burnout académico mantiene la motivación y el rendimiento.',
+    category: 'student_life',
+    media: {
+      videoUrl: '5E6qtjlD2Bw'
+    }
+  },
+  {
+    title: 'Tips para mejorar tus hábitos de estudio',
+    content: 'Pequeños cambios que hacen una gran diferencia.',
+    why: 'Los buenos hábitos de estudio mejoran el aprendizaje y reducen el estrés.',
+    category: 'student_life',
+    media: {
+      videoUrl: 'WHWZ2p5Xh8E'
+    }
+  },
+
+  // 🌀 CATEGORÍA: TODOS (7 consejos globales)
+  {
+    title: 'Respira para calmar tu mente',
+    content: 'Todo empieza con un minuto de respiración consciente.',
+    why: 'La respiración consciente es la base de todas las técnicas de manejo del estrés.',
+    category: 'daily_habit',
+    media: {
+      videoUrl: 'wfDTp2GogaQ'
+    }
+  },
+  {
+    title: 'Cómo superar días difíciles',
+    content: 'Consejos para recuperar tu estabilidad emocional.',
+    why: 'Tener herramientas para días difíciles aumenta la resiliencia emocional.',
     category: 'coping_strategy',
     media: {
-      videoUrl: 'YBk9-1Ce5lU'
+      videoUrl: 'UaYZgPE97Xc'
     }
   },
   {
-    title: 'Alimentación Antiinflamatoria',
-    content: 'Incluye más frutas, verduras, nueces, semillas, pescado y aceite de oliva. Reduce azúcares procesados, alimentos fritos y carnes rojas. Come alimentos integrales y de colores variados.',
-    why: 'La inflamación crónica está ligada a la depresión. Una dieta antiinflamatoria puede mejorar el estado de ánimo y reducir síntomas depresivos.',
-    category: 'lifestyle',
+    title: 'Evita el autosabotaje diario',
+    content: 'Tú puedes ser tu mejor aliado, no tu enemigo.',
+    why: 'Eliminar el autosabotaje libera potencial y mejora la autoestima.',
+    category: 'self_care',
     media: {
-      videoUrl: '4XqKd5Vr1PE'
+      videoUrl: '1fFh7W3zQCY'
     }
   },
   {
-    title: 'Escucha Activa en Conversaciones',
-    content: 'Cuando alguien habla, enfócate completamente en lo que dice sin planear tu respuesta. Haz preguntas para clarificar, resume lo que entendiste ("¿Quieres decir que...?"). Evita interrumpir o cambiar de tema.',
-    why: 'La escucha activa fortalece las relaciones, reduce malentendidos y hace que los demás se sientan valorados y comprendidos.',
+    title: 'Expresa lo que sientes sin miedo',
+    content: 'Hablar ayuda más de lo que imaginas.',
+    why: 'La expresión emocional saludable mejora las relaciones y el bienestar.',
     category: 'relationships',
     media: {
-      videoUrl: '7wUCyKQ0p8I'
+      videoUrl: '0CME0v2JqLg'
+    }
+  },
+  {
+    title: 'Reconecta contigo mismo',
+    content: 'Cuando te sientes perdido, respira y vuelve a ti.',
+    why: 'La reconexión personal es fundamental para el bienestar mental.',
+    category: 'lifestyle',
+    media: {
+      videoUrl: '5KEs7zJ2fQo'
+    }
+  },
+  {
+    title: 'Superar el rechazo',
+    content: 'Tu valor no depende de lo que otros opinen.',
+    why: 'Superar el rechazo construye autoestima y resiliencia.',
+    category: 'relationships',
+    media: {
+      videoUrl: 'aLu7vllKXDw'
+    }
+  },
+  {
+    title: 'Construye resiliencia día a día',
+    content: 'Aprende a levantarte incluso cuando no tienes fuerzas.',
+    why: 'La resiliencia es la clave para afrontar los desafíos de la vida.',
+    category: 'coping_strategy',
+    media: {
+      videoUrl: 'AWjI0mBpIIo'
     }
   }
 ];
@@ -553,7 +872,7 @@ const categoriesData = {
     { id: 'coping_strategy', label: 'Estrategias de Afrontamiento', icon: '🛡️' },
     { id: 'lifestyle', label: 'Estilo de Vida', icon: '🏠' },
     { id: 'relationships', label: 'Relaciones', icon: '❤️' },
-    { id: 'work_life', label: 'Vida Laboral', icon: '💼' },
+    { id: 'student_life', label: 'Vida Estudiantil', icon: '📚' },
     { id: 'self_care', label: 'Autocuidado', icon: '🧴' }
   ]
 };

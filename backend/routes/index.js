@@ -22,6 +22,38 @@ router.post('/seed', async (req, res) => {
   }
 });
 
+// Seed tips endpoint (populate tips only)
+router.post('/seed-tips', async (req, res) => {
+  try {
+    console.log('📚 Seeding tips via API endpoint...');
+
+    const Tip = require('../models/Tip');
+    const { tipsData } = require('../scripts/seedData');
+
+    // Clear existing tips
+    await Tip.deleteMany({});
+    console.log('🗑️ Cleared existing tips');
+
+    // Insert new tips
+    const tips = await Tip.insertMany(tipsData);
+    console.log(`✅ Inserted ${tips.length} tips`);
+
+    res.json({
+      success: true,
+      message: `Successfully seeded ${tips.length} tips`,
+      tipsCount: tips.length,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Seeding tips error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to seed tips',
+      error: error.message
+    });
+  }
+});
+
 // Health check endpoint
 router.get('/', (req, res) => {
   res.send(`
