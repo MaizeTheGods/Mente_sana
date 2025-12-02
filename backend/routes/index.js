@@ -124,6 +124,49 @@ router.post('/seed-safe', async (req, res) => {
   }
 });
 
+// Emergency exercises restore endpoint
+router.post('/restore-exercises', async (req, res) => {
+  try {
+    console.log('🏃 Emergency exercises restore...');
+
+    const { exercisesData } = require('../scripts/seedData');
+    const Exercise = require('../models/Exercise');
+
+    let inserted = 0;
+    let skipped = 0;
+
+    // Safe insert exercises
+    for (const exerciseData of exercisesData) {
+      const existing = await Exercise.findOne({ title: exerciseData.title });
+      if (!existing) {
+        await Exercise.create(exerciseData);
+        inserted++;
+        console.log(`✅ Restored exercise: ${exerciseData.title}`);
+      } else {
+        skipped++;
+        console.log(`⏭️ Exercise already exists: ${exerciseData.title}`);
+      }
+    }
+
+    console.log(`📊 Exercises restore completed: ${inserted} restored, ${skipped} already existed`);
+
+    res.json({
+      success: true,
+      message: `Exercises restored successfully. ${inserted} exercises added, ${skipped} already existed.`,
+      inserted,
+      skipped,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Exercises restore error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to restore exercises',
+      error: error.message
+    });
+  }
+});
+
 // Seed tips endpoint (populate tips only - safe mode)
 router.post('/seed-tips', async (req, res) => {
   try {
