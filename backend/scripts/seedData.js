@@ -5,351 +5,507 @@ const ChatGroup = require('../models/ChatGroup');
 const AvatarCategory = require('../models/AvatarCategory');
 
 const exercisesData = [
+  // EJERCICIOS DE DIARIO (7 ejercicios)
   {
-    title: 'Respiración 4-7-8',
-    description: 'La técnica de respiración 4-7-8 es un ejercicio de respiración profunda desarrollado por el Dr. Andrew Weil. Esta técnica ayuda a reducir la ansiedad, promover el sueño reparador y calmar el sistema nervioso.',
+    title: 'Diario de Gratitud — 3 cosas positivas',
+    description: 'Actividad para mejorar el ánimo identificando cosas positivas del día.',
     duration: 5,
-    category: 'breathing',
+    category: 'diary',
     instructions: [
-      { step: 1, text: 'Siéntate cómodamente con la espalda recta en una silla o almohada en el suelo.', duration: 10 },
-      { step: 2, text: 'Coloca la punta de la lengua en el paladar superior, justo detrás de los dientes frontales.', duration: 5 },
-      { step: 3, text: 'Exhala completamente por la boca, haciendo un sonido de "whoosh".', duration: 8 },
-      { step: 4, text: 'Inhala silenciosamente por la nariz durante 4 segundos.', duration: 4 },
-      { step: 5, text: 'Retén la respiración durante 7 segundos.', duration: 7 },
-      { step: 6, text: 'Exhala completamente por la boca durante 8 segundos, haciendo el sonido de "whoosh".', duration: 8 },
-      { step: 7, text: 'Repite el ciclo 4 veces.', duration: 0 }
+      { step: 1, text: 'Escribe tres cosas que agradeces hoy.', duration: 0 },
+      { step: 2, text: 'Explica por qué las elegiste.', duration: 0 },
+      { step: 3, text: 'Describe cómo te hicieron sentir.', duration: 0 }
     ],
     benefits: [
-      'Reduce la ansiedad y el estrés',
-      'Ayuda a conciliar el sueño más rápidamente',
-      'Mejora la concentración y el enfoque',
-      'Regula el sistema nervioso autónomo',
-      'Puede practicarse en cualquier momento y lugar'
+      'Mejora el estado de ánimo',
+      'Aumenta la positividad',
+      'Reduce síntomas de depresión',
+      'Fortalece la resiliencia emocional'
     ],
     media: {
-      videoUrl: '4bB49F5GZsw'
+      videoUrl: 'MTmYVgIMG2w'
     }
   },
   {
-    title: 'Meditación Mindfulness',
-    description: 'La meditación mindfulness, o atención plena, es una práctica que consiste en prestar atención al momento presente de manera intencional y sin juzgar. Esta técnica ayuda a desarrollar una mayor consciencia de nuestros pensamientos, emociones y sensaciones corporales.',
-    duration: 10,
-    category: 'meditation',
-    instructions: [
-      { step: 1, text: 'Siéntate en un lugar tranquilo donde no te interrumpan.', duration: 30 },
-      { step: 2, text: 'Adopta una postura cómoda con la espalda recta.', duration: 10 },
-      { step: 3, text: 'Cierra los ojos suavemente o mantén una mirada suave hacia abajo.', duration: 5 },
-      { step: 4, text: 'Enfócate en tu respiración natural - siente como el aire entra y sale.', duration: 120 },
-      { step: 5, text: 'Cuando tu mente divague (como sucederá), gentilmente regresa tu atención a la respiración.', duration: 300 },
-      { step: 6, text: 'Observa tus pensamientos sin juzgarlos, como nubes pasando por el cielo.', duration: 180 },
-      { step: 7, text: 'Continúa por el tiempo establecido, terminando con una respiración profunda.', duration: 30 }
-    ],
-    benefits: [
-      'Reduce el estrés y la ansiedad',
-      'Mejora la concentración y la claridad mental',
-      'Aumenta la capacidad de manejar emociones difíciles',
-      'Mejora la calidad del sueño',
-      'Desarrolla mayor resiliencia emocional'
-    ],
-    media: {
-      videoUrl: 'ZToicYcHwb4'
-    }
-  },
-  {
-    title: 'Relajación Muscular Progresiva',
-    description: 'La relajación muscular progresiva es una técnica desarrollada por Edmund Jacobson que consiste en tensar y relajar grupos musculares específicos del cuerpo. Esta práctica ayuda a liberar la tensión acumulada y reduce los niveles de estrés.',
-    duration: 15,
-    category: 'relaxation',
-    instructions: [
-      { step: 1, text: 'Túmbate cómodamente en una superficie plana o siéntate en una silla cómoda.', duration: 30 },
-      { step: 2, text: 'Comienza por los pies: tense los músculos de los dedos y el arco del pie durante 5 segundos.', duration: 5 },
-      { step: 3, text: 'Libera la tensión lentamente, sintiendo como los músculos se relajan.', duration: 10 },
-      { step: 4, text: 'Continúa con las pantorrillas, glúteos, abdomen, pecho, brazos, cuello y rostro.', duration: 300 },
-      { step: 5, text: 'Respira profundamente durante todo el proceso.', duration: 400 },
-      { step: 6, text: 'Termina con una respiración profunda y abre los ojos lentamente.', duration: 30 }
-    ],
-    benefits: [
-      'Reduce la tensión muscular crónica',
-      'Ayuda con dolores de cabeza tensionales',
-      'Mejora la calidad del sueño',
-      'Reduce la ansiedad y el estrés diario',
-      'Mejora la circulación sanguínea'
-    ],
-    media: {
-      videoUrl: '86HUcX8TWZs'
-    }
-  },
-  {
-    title: 'Respiración Cuadrada (Box Breathing)',
-    description: 'La respiración cuadrada, también conocida como box breathing, es una técnica de respiración que ayuda a mantener la calma y mejorar la concentración. Es utilizada por militares y atletas de élite.',
+    title: '¿Cómo me siento hoy? — Escala emocional',
+    description: 'Registro breve para identificar emociones predominantes.',
     duration: 5,
-    category: 'breathing',
+    category: 'diary',
     instructions: [
-      { step: 1, text: 'Siéntate cómodamente con la espalda recta.', duration: 10 },
-      { step: 2, text: 'Inhala lentamente por la nariz durante 4 segundos.', duration: 4 },
-      { step: 3, text: 'Retén la respiración durante 4 segundos.', duration: 4 },
-      { step: 4, text: 'Exhala lentamente por la boca durante 4 segundos.', duration: 4 },
-      { step: 5, text: 'Mantén los pulmones vacíos durante 4 segundos.', duration: 4 },
-      { step: 6, text: 'Repite el ciclo 4-5 veces.', duration: 0 }
+      { step: 1, text: 'Escribe tu emoción principal del día.', duration: 0 },
+      { step: 2, text: 'Describe qué la generó.', duration: 0 },
+      { step: 3, text: 'Anota qué necesitas para sentirte mejor.', duration: 0 }
     ],
     benefits: [
-      'Reduce el estrés y la ansiedad',
-      'Mejora la concentración y el enfoque',
-      'Ayuda en situaciones de alta presión',
-      'Regula el ritmo cardíaco',
-      'Aumenta la claridad mental'
+      'Mejora la inteligencia emocional',
+      'Ayuda a identificar patrones emocionales',
+      'Facilita la autorregulación',
+      'Promueve la autoconciencia'
     ],
     media: {
-      videoUrl: '8T1W2q9b3E'
+      videoUrl: 'ALv9xU5iQPg'
     }
   },
   {
-    title: 'Meditación Guiada para Ansiedad',
-    description: 'Esta meditación guiada está diseñada específicamente para personas que sufren de ansiedad. Te guía a través de visualizaciones calmantes y afirmaciones positivas.',
-    duration: 12,
-    category: 'meditation',
+    title: 'Lo que puedo controlar vs. lo que no puedo',
+    description: 'Ejercicio para manejar ansiedad y pensamientos excesivos.',
+    duration: 7,
+    category: 'diary',
     instructions: [
-      { step: 1, text: 'Encuentra un lugar tranquilo y cómodo.', duration: 30 },
-      { step: 2, text: 'Cierra los ojos y enfócate en tu respiración.', duration: 60 },
-      { step: 3, text: 'Visualiza un lugar seguro y pacífico.', duration: 180 },
-      { step: 4, text: 'Repite mentalmente afirmaciones positivas.', duration: 300 },
-      { step: 5, text: 'Permite que las preocupaciones fluyan sin juzgarlas.', duration: 240 },
-      { step: 6, text: 'Regresa gradualmente a la consciencia plena.', duration: 60 }
+      { step: 1, text: 'Divide tu página en dos columnas.', duration: 0 },
+      { step: 2, text: 'Escribe lo que puedes controlar.', duration: 0 },
+      { step: 3, text: 'Escribe lo que está fuera de tu control.', duration: 0 },
+      { step: 4, text: 'Enfócate en acciones reales que sí dependan de ti.', duration: 0 }
     ],
     benefits: [
-      'Reduce síntomas de ansiedad',
-      'Promueve la relajación profunda',
-      'Ayuda a manejar pensamientos intrusivos',
-      'Mejora el sueño',
-      'Desarrolla mayor control emocional'
+      'Reduce la ansiedad',
+      'Mejora el locus de control',
+      'Ayuda a priorizar acciones efectivas',
+      'Disminuye la rumiación mental'
     ],
     media: {
-      videoUrl: 'inpok4MKVLM'
+      videoUrl: '0Qz-h1l_tH4'
     }
   },
   {
-    title: 'Ejercicio de Grounding (Anclaje)',
-    description: 'El ejercicio de grounding te ayuda a reconectar con el momento presente cuando te sientes abrumado o ansioso. Es especialmente útil durante ataques de pánico.',
+    title: 'Descarga mental — vaciar la mente',
+    description: 'Ideal para liberar estrés acumulado.',
+    duration: 5,
+    category: 'diary',
+    instructions: [
+      { step: 1, text: 'Escribe sin parar todo lo que tengas en la mente.', duration: 0 },
+      { step: 2, text: 'No te preocupes por ortografía o coherencia.', duration: 0 },
+      { step: 3, text: 'Cuando termines, subraya solo lo más importante.', duration: 0 }
+    ],
+    benefits: [
+      'Libera estrés acumulado',
+      'Aclara pensamientos confusos',
+      'Reduce la sobrecarga mental',
+      'Mejora la claridad cognitiva'
+    ],
+    media: {
+      videoUrl: 'XOHgYVd0A2Q'
+    }
+  },
+  {
+    title: 'Diario de metas pequeñas',
+    description: 'Ayuda a establecer micro-logros diarios.',
+    duration: 6,
+    category: 'diary',
+    instructions: [
+      { step: 1, text: 'Escribe una meta muy simple para hoy.', duration: 0 },
+      { step: 2, text: 'Anota qué necesitas para lograrla.', duration: 0 },
+      { step: 3, text: 'Evalúa al final si la cumpliste y cómo te sentiste.', duration: 0 }
+    ],
+    benefits: [
+      'Aumenta la motivación',
+      'Construye confianza gradual',
+      'Desarrolla hábitos positivos',
+      'Reduce la procrastinación'
+    ],
+    media: {
+      videoUrl: 'L2z8f0TQ8Qw'
+    }
+  },
+  {
+    title: 'Diario del estrés — identificando detonantes',
+    description: 'Reflexión sobre momentos tensos del día.',
+    duration: 7,
+    category: 'diary',
+    instructions: [
+      { step: 1, text: 'Escribe una situación que te estresó hoy.', duration: 0 },
+      { step: 2, text: 'Describe qué pensaste y qué sentiste.', duration: 0 },
+      { step: 3, text: 'Escribe una alternativa más saludable de reaccionar.', duration: 0 }
+    ],
+    benefits: [
+      'Identifica patrones de estrés',
+      'Desarrolla respuestas más saludables',
+      'Mejora la autorregulación emocional',
+      'Reduce reacciones automáticas negativas'
+    ],
+    media: {
+      videoUrl: '5NLPxv0FZWU'
+    }
+  },
+  {
+    title: 'Me hablo con amabilidad',
+    description: 'Escritura para mejorar autoestima y autocompasión.',
+    duration: 5,
+    category: 'diary',
+    instructions: [
+      { step: 1, text: 'Escribe una frase amable dirigida a ti.', duration: 0 },
+      { step: 2, text: 'Explica por qué la necesitas hoy.', duration: 0 },
+      { step: 3, text: 'Anota cómo te hace sentir leerla.', duration: 0 }
+    ],
+    benefits: [
+      'Mejora la autoestima',
+      'Desarrolla autocompasión',
+      'Reduce la autocrítica',
+      'Fortalece la relación consigo mismo'
+    ],
+    media: {
+      videoUrl: 'K4YkZ9B7pFM'
+    }
+  },
+
+  // EJERCICIOS FÍSICOS (7 ejercicios)
+  {
+    title: 'Estiramiento completo para relajar tensión',
+    description: 'Rutina corta para liberar el cuerpo después de la escuela.',
+    duration: 5,
+    category: 'physical',
+    instructions: [
+      { step: 1, text: 'Estira brazos arriba profundamente.', duration: 0 },
+      { step: 2, text: 'Rota cuello despacio a ambos lados.', duration: 0 },
+      { step: 3, text: 'Flexiona el torso hacia adelante.', duration: 0 }
+    ],
+    benefits: [
+      'Libera tensión muscular',
+      'Mejora la circulación',
+      'Reduce el estrés físico',
+      'Aumenta la flexibilidad'
+    ],
+    media: {
+      videoUrl: '2L2lnxIcNmo'
+    }
+  },
+  {
+    title: 'Movilidad de cuello y hombros',
+    description: 'Ideal para jóvenes con estrés o rigidez por tareas.',
+    duration: 4,
+    category: 'physical',
+    instructions: [
+      { step: 1, text: 'Gira el cuello lentamente.', duration: 0 },
+      { step: 2, text: 'Lleva hombros arriba y atrás.', duration: 0 },
+      { step: 3, text: 'Relaja y respira profundo.', duration: 0 }
+    ],
+    benefits: [
+      'Alivia tensión en cuello y hombros',
+      'Mejora la postura',
+      'Reduce dolores de cabeza tensionales',
+      'Aumenta la relajación'
+    ],
+    media: {
+      videoUrl: '4BOTvaRaDjI'
+    }
+  },
+  {
+    title: 'Estiramiento de espalda baja',
+    description: 'Libera tensión de la espalda por estar sentado.',
+    duration: 5,
+    category: 'physical',
+    instructions: [
+      { step: 1, text: 'Siéntate en el piso.', duration: 0 },
+      { step: 2, text: 'Abraza tus rodillas hacia el pecho.', duration: 0 },
+      { step: 3, text: 'Mantén por 20 segundos.', duration: 0 }
+    ],
+    benefits: [
+      'Alivia dolor de espalda baja',
+      'Mejora la flexibilidad lumbar',
+      'Reduce tensión postural',
+      'Promueve relajación general'
+    ],
+    media: {
+      videoUrl: '5T9hVVF6wBs'
+    }
+  },
+  {
+    title: 'Activación corporal rápida',
+    description: 'Mejora energía y reduce sensación de cansancio mental.',
     duration: 3,
-    category: 'mindfulness',
+    category: 'physical',
     instructions: [
-      { step: 1, text: 'Siéntate o párate en un lugar seguro.', duration: 10 },
-      { step: 2, text: 'Nombra 5 cosas que puedes ver alrededor tuyo.', duration: 15 },
-      { step: 3, text: 'Nombra 4 cosas que puedes tocar.', duration: 15 },
-      { step: 4, text: 'Nombra 3 cosas que puedes oír.', duration: 15 },
-      { step: 5, text: 'Nombra 2 cosas que puedes oler.', duration: 15 },
-      { step: 6, text: 'Nombra 1 cosa que puedes saborear.', duration: 15 }
+      { step: 1, text: 'Realiza 10 saltos suaves.', duration: 0 },
+      { step: 2, text: 'Agita brazos y piernas.', duration: 0 },
+      { step: 3, text: 'Respira profundamente 3 veces.', duration: 0 }
     ],
     benefits: [
-      'Ayuda durante ataques de pánico',
-      'Reconecta con el momento presente',
-      'Reduce la disociación',
-      'Proporciona sensación de seguridad',
-      'Puede practicarse en cualquier lugar'
+      'Aumenta la energía física',
+      'Mejora la circulación',
+      'Reduce la somnolencia',
+      'Activa el sistema nervioso'
     ],
     media: {
-      videoUrl: 'YBk9-1Ce5lU'
+      videoUrl: 'WPv6GV3kGkE'
     }
   },
   {
-    title: 'Yoga Nidra (Sueño Consciente)',
-    description: 'Yoga Nidra es una forma de meditación guiada que induce un estado de relajación profunda similar al sueño, pero manteniendo la consciencia. Es muy efectiva para reducir el estrés.',
-    duration: 20,
-    category: 'relaxation',
+    title: 'Estiramiento para liberar ansiedad',
+    description: 'Secuencia suave diseñada para calmar el sistema nervioso.',
+    duration: 6,
+    category: 'physical',
     instructions: [
-      { step: 1, text: 'Túmbate en posición supina (boca arriba) con las piernas ligeramente separadas.', duration: 30 },
-      { step: 2, text: 'Coloca los brazos a los lados del cuerpo con las palmas hacia arriba.', duration: 15 },
-      { step: 3, text: 'Cierra los ojos y enfócate en tu intención para esta práctica.', duration: 60 },
-      { step: 4, text: 'Sigue la guía para rotar la consciencia por diferentes partes del cuerpo.', duration: 600 },
-      { step: 5, text: 'Permite que surjan visualizaciones y sensaciones sin resistencia.', duration: 480 },
-      { step: 6, text: 'Regresa gradualmente a la consciencia plena.', duration: 120 }
+      { step: 1, text: 'Extiende brazos hacia adelante.', duration: 0 },
+      { step: 2, text: 'Inhala profundo mientras extiendes torso.', duration: 0 },
+      { step: 3, text: 'Exhala doblando columna suavemente.', duration: 0 }
     ],
     benefits: [
-      'Reduce el estrés crónico',
-      'Mejora la calidad del sueño',
-      'Ayuda con la depresión y ansiedad',
-      'Aumenta la creatividad',
-      'Promueve la sanación emocional'
+      'Reduce la ansiedad física',
+      'Calma el sistema nervioso',
+      'Mejora la respiración',
+      'Promueve relajación profunda'
     ],
     media: {
-      videoUrl: 'z6YgXE4HrKs'
+      videoUrl: 'UT0U0ZxF8y8'
     }
   },
   {
-    title: 'Respiración Abdominal (Diafragmática)',
-    description: 'La respiración abdominal o diafragmática es la forma natural de respirar. Esta técnica ayuda a activar el sistema nervioso parasimpático y promover la relajación.',
-    duration: 8,
-    category: 'breathing',
+    title: 'Yoga básico para relajar la mente',
+    description: 'Poses sencillas diseñadas para adolescentes.',
+    duration: 7,
+    category: 'physical',
     instructions: [
-      { step: 1, text: 'Túmbate boca arriba con las rodillas dobladas o siéntate cómodamente.', duration: 20 },
-      { step: 2, text: 'Coloca una mano en el abdomen y otra en el pecho.', duration: 10 },
-      { step: 3, text: 'Inhala lentamente por la nariz, permitiendo que el abdomen se eleve.', duration: 4 },
-      { step: 4, text: 'Siente como el diafragma se expande hacia abajo.', duration: 4 },
-      { step: 5, text: 'Exhala lentamente por la boca o nariz, sintiendo como el abdomen baja.', duration: 6 },
-      { step: 6, text: 'Repite por 5-10 minutos, manteniendo el pecho relativamente quieto.', duration: 300 }
+      { step: 1, text: 'Postura del niño 20 segundos.', duration: 0 },
+      { step: 2, text: 'Perro boca abajo.', duration: 0 },
+      { step: 3, text: 'Postura de montaña con respiración lenta.', duration: 0 }
     ],
     benefits: [
-      'Reduce la frecuencia cardíaca',
-      'Mejora la oxigenación',
-      'Ayuda con problemas digestivos',
-      'Reduce la tensión muscular',
-      'Promueve la relajación profunda'
+      'Reduce el estrés mental',
+      'Mejora la concentración',
+      'Fortalece el cuerpo',
+      'Promueve equilibrio mente-cuerpo'
     ],
     media: {
-      videoUrl: '1cE1E8RjP8Y'
+      videoUrl: 'dF7bAwAwb94'
     }
   },
   {
-    title: 'Meditación Metta (Bondad Amorosa)',
-    description: 'La meditación Metta cultiva sentimientos de bondad amorosa hacia uno mismo y hacia los demás. Esta práctica ayuda a desarrollar compasión y reducir sentimientos de aislamiento.',
-    duration: 15,
-    category: 'meditation',
+    title: 'Liberación de tensión en hombros',
+    description: 'Ideal después de clases o emociones fuertes.',
+    duration: 5,
+    category: 'physical',
     instructions: [
-      { step: 1, text: 'Siéntate cómodamente con la espalda recta.', duration: 30 },
-      { step: 2, text: 'Comienza enviando bondad amorosa hacia ti mismo: "Que yo sea feliz, que yo esté sano".', duration: 120 },
-      { step: 3, text: 'Envía bondad hacia alguien a quien amas incondicionalmente.', duration: 120 },
-      { step: 4, text: 'Envía bondad hacia un amigo neutral.', duration: 120 },
-      { step: 5, text: 'Envía bondad hacia alguien con quien tienes dificultades.', duration: 120 },
-      { step: 6, text: 'Finalmente, envía bondad hacia todos los seres.', duration: 180 }
+      { step: 1, text: 'Lleva hombros hacia atrás suavemente.', duration: 0 },
+      { step: 2, text: 'Presiona brazos hacia el cuerpo.', duration: 0 },
+      { step: 3, text: 'Respira profundo durante el movimiento.', duration: 0 }
     ],
     benefits: [
-      'Desarrolla compasión y empatía',
-      'Reduce sentimientos de aislamiento',
-      'Mejora las relaciones interpersonales',
-      'Aumenta la autoestima',
-      'Reduce la depresión y ansiedad'
+      'Libera tensión acumulada en hombros',
+      'Mejora la postura',
+      'Reduce estrés físico',
+      'Aumenta la relajación'
     ],
     media: {
-      videoUrl: 't7jovtTxqoo'
+      videoUrl: 'zExRQYycKEM'
+    }
+  },
+
+  // EJERCICIOS COGNITIVOS (7 ejercicios)
+  {
+    title: 'Reencuadre de pensamientos negativos',
+    description: 'Ejercicio cognitivo para transformar ideas pesimistas.',
+    duration: 6,
+    category: 'cognitive',
+    instructions: [
+      { step: 1, text: 'Escribe un pensamiento negativo.', duration: 0 },
+      { step: 2, text: 'Cámbialo por uno más realista.', duration: 0 },
+      { step: 3, text: 'Evalúa cómo te hace sentir el nuevo pensamiento.', duration: 0 }
+    ],
+    benefits: [
+      'Transforma pensamientos negativos',
+      'Mejora el realismo cognitivo',
+      'Reduce la depresión',
+      'Aumenta la resiliencia mental'
+    ],
+    media: {
+      videoUrl: 'crpXAGsV2uk'
     }
   },
   {
-    title: 'Escaneo Corporal Mindfulness',
-    description: 'El escaneo corporal es una práctica de mindfulness que implica dirigir la atención de manera sistemática a diferentes partes del cuerpo, notando sensaciones sin juzgar.',
-    duration: 20,
-    category: 'mindfulness',
+    title: 'Entrenamiento de concentración — 5 objetos',
+    description: 'Mejora la atención plena seleccionando objetos a observar.',
+    duration: 5,
+    category: 'cognitive',
     instructions: [
-      { step: 1, text: 'Túmbate cómodamente boca arriba con los ojos cerrados.', duration: 30 },
-      { step: 2, text: 'Comienza enfocando tu atención en los dedos de los pies.', duration: 60 },
-      { step: 3, text: 'Nota cualquier sensación: calor, frío, presión, hormigueo.', duration: 60 },
-      { step: 4, text: 'Muévete lentamente hacia arriba: pies, tobillos, pantorrillas, rodillas.', duration: 240 },
-      { step: 5, text: 'Continúa con caderas, abdomen, pecho, espalda, hombros.', duration: 300 },
-      { step: 6, text: 'Finaliza con brazos, manos, cuello y cabeza.', duration: 240 },
-      { step: 7, text: 'Regresa tu atención al cuerpo como un todo.', duration: 60 }
+      { step: 1, text: 'Elige un objeto cerca de ti.', duration: 0 },
+      { step: 2, text: 'Obsérvalo a detalle durante 1 minuto.', duration: 0 },
+      { step: 3, text: 'Repite con 4 objetos más.', duration: 0 }
     ],
     benefits: [
-      'Aumenta la consciencia corporal',
-      'Ayuda a identificar y liberar tensión',
-      'Mejora la conexión mente-cuerpo',
-      'Reduce el estrés y la ansiedad',
-      'Ayuda con problemas de sueño'
+      'Mejora la concentración',
+      'Desarrolla atención plena',
+      'Reduce la dispersión mental',
+      'Fortalece el enfoque'
     ],
     media: {
-      videoUrl: 'gJsr2V2L1Wk'
+      videoUrl: 'c-2E3c3TdU9DM'
+    }
+  },
+  {
+    title: 'Identificación de distorsiones cognitivas',
+    description: 'Ayuda a reconocer pensamientos extremos.',
+    duration: 7,
+    category: 'cognitive',
+    instructions: [
+      { step: 1, text: 'Piensa en una situación reciente estresante.', duration: 0 },
+      { step: 2, text: 'Identifica si exageraste algo.', duration: 0 },
+      { step: 3, text: 'Escribe una interpretación más equilibrada.', duration: 0 }
+    ],
+    benefits: [
+      'Identifica distorsiones cognitivas',
+      'Promueve pensamiento equilibrado',
+      'Reduce ansiedad irracional',
+      'Mejora la toma de decisiones'
+    ],
+    media: {
+      videoUrl: 'iZ3c3TdU9DM'
+    }
+  },
+  {
+    title: 'Técnica STOP',
+    description: 'Método rápido para detener pensamientos obsesivos.',
+    duration: 3,
+    category: 'cognitive',
+    instructions: [
+      { step: 1, text: 'S = Stop (Detente).', duration: 0 },
+      { step: 2, text: 'T = Toma una respiración.', duration: 0 },
+      { step: 3, text: 'O = Observa tu mente.', duration: 0 },
+      { step: 4, text: 'P = Prosigue conscientemente.', duration: 0 }
+    ],
+    benefits: [
+      'Detiene pensamientos obsesivos',
+      'Proporciona pausa mental',
+      'Reduce impulsividad',
+      'Mejora el control cognitivo'
+    ],
+    media: {
+      videoUrl: '_RZzG0u2cQY'
+    }
+  },
+  {
+    title: 'Orden mental — mapa de ideas',
+    description: 'Ejercicio para organizar pensamientos y prioridades.',
+    duration: 6,
+    category: 'cognitive',
+    instructions: [
+      { step: 1, text: 'Toma una hoja.', duration: 0 },
+      { step: 2, text: 'Escribe el tema central en medio.', duration: 0 },
+      { step: 3, text: 'Extiende ideas alrededor con líneas.', duration: 0 }
+    ],
+    benefits: [
+      'Organiza pensamientos complejos',
+      'Mejora la claridad mental',
+      'Facilita la resolución de problemas',
+      'Reduce la sobrecarga cognitiva'
+    ],
+    media: {
+      videoUrl: 'uQ7z_SBKFQI'
+    }
+  },
+  {
+    title: 'Técnica del "si esto pasara…"',
+    description: 'Reduce ansiedad anticipatoria analizando escenarios.',
+    duration: 7,
+    category: 'cognitive',
+    instructions: [
+      { step: 1, text: 'Escribe tu miedo principal.', duration: 0 },
+      { step: 2, text: 'Describe el peor escenario posible.', duration: 0 },
+      { step: 3, text: 'Después, uno realista y probable.', duration: 0 }
+    ],
+    benefits: [
+      'Reduce ansiedad anticipatoria',
+      'Promueve pensamiento realista',
+      'Mejora la tolerancia a la incertidumbre',
+      'Desarrolla perspectiva equilibrada'
+    ],
+    media: {
+      videoUrl: '8_lS9u-wyQ4'
+    }
+  },
+  {
+    title: 'Atención plena en sonidos',
+    description: 'Entrenar tu enfoque con estímulos auditivos.',
+    duration: 5,
+    category: 'cognitive',
+    instructions: [
+      { step: 1, text: 'Cierra los ojos.', duration: 0 },
+      { step: 2, text: 'Escucha sonidos alrededor sin juzgar.', duration: 0 },
+      { step: 3, text: 'Identifica 5 sonidos diferentes.', duration: 0 }
+    ],
+    benefits: [
+      'Desarrolla atención plena',
+      'Mejora la concentración auditiva',
+      'Reduce el ruido mental',
+      'Aumenta la consciencia sensorial'
+    ],
+    media: {
+      videoUrl: 'qcNG_doqh0E'
     }
   }
 ];
 
 const chatGroupsData = [
   {
-    name: '🌟 Ansiedad y Preocupaciones',
+    name: 'Grupo de Apoyo contra la Depresión',
+    description: 'Un espacio seguro para compartir experiencias con la depresión, encontrar apoyo emocional y aprender estrategias de manejo. Recuerda que no estás solo en este camino.',
+    category: 'depression',
+    createdBy: null,
+    currentMembers: [],
+    maxMembers: 50,
+    isActive: true
+  },
+  {
+    name: 'Acompañamiento para la Ansiedad',
     description: 'Comparte tus experiencias con la ansiedad, aprende técnicas de manejo y encuentra apoyo en personas que entienden lo que vives. Un espacio seguro para hablar abiertamente.',
-    type: 'peer_support',
-    disorderCategory: 'anxiety',
-    createdBy: null, // Will be set to a default admin user
-    currentMembers: [],
-    rules: [
-      { rule: 'Sé respetuoso con las experiencias de los demás', priority: 'high' },
-      { rule: 'Mantén la confidencialidad de lo compartido', priority: 'high' },
-      { rule: 'No des consejos médicos profesionales', priority: 'medium' }
-    ]
-  },
-  {
-    name: '💙 Apoyo en Depresión',
-    description: 'Conecta con personas que han pasado por depresión. Comparte tus sentimientos, recibe apoyo emocional y descubre que no estás solo en este camino.',
-    type: 'peer_support',
-    disorderCategory: 'depression',
+    category: 'anxiety',
     createdBy: null,
     currentMembers: [],
-    rules: [
-      { rule: 'Comparte tus sentimientos sin juzgar a otros', priority: 'high' },
-      { rule: 'Recuerda que la recuperación es posible', priority: 'medium' },
-      { rule: 'Ofrece apoyo, no soluciones médicas', priority: 'medium' }
-    ]
+    maxMembers: 50,
+    isActive: true
   },
   {
-    name: '😌 Manejo del Estrés',
+    name: 'Red de Apoyo para Estrés Crónico',
     description: 'Aprende a manejar el estrés diario, comparte técnicas que funcionan y encuentra apoyo en momentos difíciles. Un oasis de calma en tu rutina.',
-    type: 'peer_support',
-    disorderCategory: 'stress',
+    category: 'stress',
     createdBy: null,
     currentMembers: [],
-    rules: [
-      { rule: 'Comparte técnicas que te han funcionado', priority: 'medium' },
-      { rule: 'Respeta los límites de los demás', priority: 'high' },
-      { rule: 'Mantén un tono positivo y de apoyo', priority: 'medium' }
-    ]
+    maxMembers: 50,
+    isActive: true
   },
   {
-    name: '🌈 Jóvenes en Transición',
-    description: 'Para jóvenes adultos (18-35 años) enfrentando cambios de vida, presión laboral, relaciones y crecimiento personal. Comparte tus desafíos y encuentra comprensión.',
-    type: 'general',
+    name: 'Círculo de Bienestar Emocional',
+    description: 'Un espacio para trabajar en tu bienestar emocional general, compartir experiencias y aprender herramientas para una vida más equilibrada.',
+    category: 'general',
     createdBy: null,
     currentMembers: [],
-    rules: [
-      { rule: 'Este espacio es para jóvenes adultos (18-35 años)', priority: 'medium' },
-      { rule: 'Sé empático con las experiencias de transición', priority: 'high' },
-      { rule: 'Comparte recursos útiles para jóvenes', priority: 'low' }
-    ]
+    maxMembers: 50,
+    isActive: true
   },
   {
-    name: '💪 Camino a la Recuperación',
-    description: 'Para quienes están en proceso de recuperación. Comparte tus victorias, pide consejos y motiva a otros. Cada paso cuenta, ¡estamos orgullosos de ti!',
-    type: 'peer_support',
-    disorderCategory: 'general',
+    name: 'Grupo de Manejo de Emociones',
+    description: 'Aprende a identificar, entender y manejar tus emociones de manera saludable. Comparte estrategias que te han funcionado.',
+    category: 'general',
     createdBy: null,
     currentMembers: [],
-    rules: [
-      { rule: 'Celebra los pequeños logros', priority: 'high' },
-      { rule: 'Ofrece esperanza y motivación', priority: 'medium' },
-      { rule: 'Comparte estrategias de afrontamiento', priority: 'medium' }
-    ]
+    maxMembers: 50,
+    isActive: true
   },
   {
-    name: '👨‍👩‍👧‍👦 Familiares y Cuidadores',
-    description: 'Apoyo para familiares y cuidadores. Comparte experiencias, obtén consejos sobre cómo apoyar a tus seres queridos y cuida de tu propio bienestar.',
-    type: 'general',
+    name: 'Apoyo para Autoestima y Autoconfianza',
+    description: 'Trabaja en fortalecer tu autoestima y confianza personal. Comparte tus logros y recibe apoyo para superar inseguridades.',
+    category: 'general',
     createdBy: null,
     currentMembers: [],
-    rules: [
-      { rule: 'Respeta la privacidad de tus seres queridos', priority: 'high' },
-      { rule: 'Comparte consejos prácticos de cuidado', priority: 'medium' },
-      { rule: 'Recuerda cuidar también de tu bienestar', priority: 'high' }
-    ]
+    maxMembers: 50,
+    isActive: true
   },
   {
-    name: '🧘 Mindfulness y Meditación',
-    description: 'Comparte experiencias con meditación, mindfulness y prácticas de atención plena. Aprende nuevas técnicas y encuentra motivación para mantener tu práctica.',
-    type: 'general',
+    name: 'Espacio para Duelo y Pérdida',
+    description: 'Un lugar compasivo para procesar el duelo y la pérdida. Comparte tus sentimientos y encuentra comprensión en otros que han pasado por experiencias similares.',
+    category: 'general',
     createdBy: null,
     currentMembers: [],
-    rules: [
-      { rule: 'Comparte técnicas que has probado', priority: 'medium' },
-      { rule: 'Sé paciente con principiantes', priority: 'medium' },
-      { rule: 'Mantén el enfoque en experiencias personales', priority: 'low' }
-    ]
+    maxMembers: 50,
+    isActive: true
   },
   {
-    name: '❤️ Relaciones y Amor Propio',
+    name: 'Grupo para apoyo en Relaciones Personales',
     description: 'Habla sobre relaciones interpersonales, amor propio y autoestima. Un espacio para procesar emociones y crecer en tus relaciones contigo mismo y con otros.',
-    type: 'general',
+    category: 'general',
     createdBy: null,
     currentMembers: [],
-    rules: [
-      { rule: 'Practica la compasión hacia ti mismo', priority: 'high' },
-      { rule: 'Comparte experiencias de crecimiento personal', priority: 'medium' },
-      { rule: 'Mantén un ambiente de apoyo y respeto', priority: 'high' }
-    ]
+    maxMembers: 50,
+    isActive: true
   }
 ];
 
@@ -542,10 +698,9 @@ const avatarCategoriesData = [
 const categoriesData = {
   exercises: [
     { id: 'all', label: 'Todos', icon: '🧘' },
-    { id: 'breathing', label: 'Respiración', icon: '🫁' },
-    { id: 'meditation', label: 'Meditación', icon: '🧘' },
-    { id: 'relaxation', label: 'Relajación', icon: '😌' },
-    { id: 'mindfulness', label: 'Mindfulness', icon: '🌸' }
+    { id: 'diary', label: 'Diario', icon: '📓' },
+    { id: 'physical', label: 'Físico', icon: '🏃‍♂️' },
+    { id: 'cognitive', label: 'Cognitivo', icon: '🧠' }
   ],
   tips: [
     { id: 'all', label: 'Todos', icon: '💡' },
