@@ -243,8 +243,8 @@ router.delete('/groups/:groupId/messages/:messageId', authenticateToken, async (
       return res.status(404).json({ error: 'Message not found' });
     }
 
-    // Check if user is the sender or an admin
-    if (message.senderId.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+    // Check if user is the sender or an admin/owner
+    if (message.senderId.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'owner') {
       return res.status(403).json({ error: 'Not authorized to delete this message' });
     }
 

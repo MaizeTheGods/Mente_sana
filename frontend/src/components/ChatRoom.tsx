@@ -250,7 +250,7 @@ const ChatRoom: React.FC = () => {
   };
 
   const handleMessageClick = (messageId: string, isOwn: boolean, senderId: string) => {
-    const isAdmin = user?.role === 'admin';
+    const isAdmin = user?.role === 'admin' || user?.role === 'owner';
     const canInteract = isOwn || isAdmin;
     if (!canInteract) return;
 
