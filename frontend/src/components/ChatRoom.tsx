@@ -56,7 +56,7 @@ const MessagesContainer = styled.div`
   gap: 16px;
 `;
 
-const MessageBubble = styled.div<{ isOwn: boolean; selected?: boolean }>`
+const MessageBubble = styled.div<{ isOwn: boolean; selected?: boolean; canInteract?: boolean }>`
   background: ${props => props.selected ? '#e8f5e8' : props.isOwn ? '#2e7d32' : 'white'};
   color: ${props => props.isOwn ? 'white' : '#1e293b'};
   padding: 12px 16px;
@@ -68,7 +68,7 @@ const MessageBubble = styled.div<{ isOwn: boolean; selected?: boolean }>`
   align-self: ${props => props.isOwn ? 'flex-end' : 'flex-start'};
   position: relative;
   word-wrap: break-word;
-  cursor: ${props => props.isOwn ? 'pointer' : 'default'};
+  cursor: ${props => props.canInteract ? 'pointer' : 'default'};
 `;
 
 const MessageSender = styled.div`
@@ -249,8 +249,10 @@ const ChatRoom: React.FC = () => {
     }
   };
 
-  const handleMessageClick = (messageId: string, isOwn: boolean) => {
-    if (!isOwn) return;
+  const handleMessageClick = (messageId: string, isOwn: boolean, senderId: string) => {
+    const isAdmin = user?.role === 'admin';
+    const canInteract = isOwn || isAdmin;
+    if (!canInteract) return;
 
     if (isMultiSelectMode) {
       const newSelected = new Set(selectedMessages);
@@ -265,8 +267,10 @@ const ChatRoom: React.FC = () => {
     }
   };
 
-  const handleMessageLongPressStart = (messageId: string, isOwn: boolean) => {
-    if (!isOwn) return;
+  const handleMessageLongPressStart = (messageId: string, isOwn: boolean, senderId: string) => {
+    const isAdmin = user?.role === 'admin';
+    const canInteract = isOwn || isAdmin;
+    if (!canInteract) return;
 
     const timer = setTimeout(() => {
       setIsMultiSelectMode(true);
@@ -345,6 +349,8 @@ const ChatRoom: React.FC = () => {
           <MessagesContainer>
             {messages.map((msg) => {
               const isOwn = msg.senderId._id === user?._id;
+              const isAdmin = user?.role === 'admin';
+              const canInteract = isOwn || isAdmin;
               const isSelected = selectedMessages.has(msg._id);
               return (
                 <div key={msg._id} style={{ display: 'flex', flexDirection: 'column', alignItems: isOwn ? 'flex-end' : 'flex-start' }}>
@@ -373,18 +379,19 @@ const ChatRoom: React.FC = () => {
                   <MessageBubble
                     isOwn={isOwn}
                     selected={isSelected}
-                    onClick={() => handleMessageClick(msg._id, isOwn)}
-                    onMouseDown={() => handleMessageLongPressStart(msg._id, isOwn)}
+                    canInteract={canInteract}
+                    onClick={() => canInteract && handleMessageClick(msg._id, isOwn, msg.senderId._id)}
+                    onMouseDown={() => canInteract && handleMessageLongPressStart(msg._id, isOwn, msg.senderId._id)}
                     onMouseUp={handleMessageLongPressEnd}
                     onMouseLeave={handleMessageLongPressEnd}
-                    onTouchStart={() => handleMessageLongPressStart(msg._id, isOwn)}
+                    onTouchStart={() => canInteract && handleMessageLongPressStart(msg._id, isOwn, msg.senderId._id)}
                     onTouchEnd={handleMessageLongPressEnd}
                   >
                     {msg.content}
                     <MessageTime isOwn={isOwn}>
                       {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </MessageTime>
-                    {isMultiSelectMode && isOwn && (
+                    {isMultiSelectMode && canInteract && (
                       <SelectionIndicator selected={isSelected}>
                         {isSelected ? '✓' : ''}
                       </SelectionIndicator>
