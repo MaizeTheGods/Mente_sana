@@ -56,8 +56,8 @@ const MessagesContainer = styled.div`
   gap: 16px;
 `;
 
-const MessageBubble = styled.div<{ isOwn: boolean }>`
-  background: ${props => props.isOwn ? '#2e7d32' : 'white'};
+const MessageBubble = styled.div<{ isOwn: boolean; selected?: boolean }>`
+  background: ${props => props.selected ? '#e8f5e8' : props.isOwn ? '#2e7d32' : 'white'};
   color: ${props => props.isOwn ? 'white' : '#1e293b'};
   padding: 12px 16px;
   border-radius: 16px;
@@ -68,6 +68,7 @@ const MessageBubble = styled.div<{ isOwn: boolean }>`
   align-self: ${props => props.isOwn ? 'flex-end' : 'flex-start'};
   position: relative;
   word-wrap: break-word;
+  cursor: ${props => props.isOwn ? 'pointer' : 'default'};
 `;
 
 const MessageSender = styled.div`
@@ -108,6 +109,47 @@ const MessageTime = styled.div<{ isOwn: boolean }>`
   text-align: right;
 `;
 
+const DeleteButton = styled.button`
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-left: 8px;
+
+  &:hover {
+    background: #c82333;
+  }
+`;
+
+const SelectionIndicator = styled.div<{ selected: boolean }>`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid ${props => props.selected ? '#2e7d32' : '#cbd5e1'};
+  background: ${props => props.selected ? '#2e7d32' : 'white'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: white;
+  font-weight: bold;
+`;
+
+const MultiSelectBar = styled.div`
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 const InputContainer = styled.div`
   padding: 16px;
   background: white;
@@ -145,6 +187,10 @@ const ChatRoom: React.FC = () => {
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
+  const [selectedMessages, setSelectedMessages] = useState<Set<string>>(new Set());
+  const [showDeleteButton, setShowDeleteButton] = useState<string | null>(null);
+  const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -203,6 +249,63 @@ const ChatRoom: React.FC = () => {
     }
   };
 
+  const handleMessageClick = (messageId: string, isOwn: boolean) => {
+    if (!isOwn) return;
+
+    if (isMultiSelectMode) {
+      const newSelected = new Set(selectedMessages);
+      if (newSelected.has(messageId)) {
+        newSelected.delete(messageId);
+      } else {
+        newSelected.add(messageId);
+      }
+      setSelectedMessages(newSelected);
+    } else {
+      setShowDeleteButton(showDeleteButton === messageId ? null : messageId);
+    }
+  };
+
+  const handleMessageLongPressStart = (messageId: string, isOwn: boolean) => {
+    if (!isOwn) return;
+
+    const timer = setTimeout(() => {
+      setIsMultiSelectMode(true);
+      setSelectedMessages(new Set([messageId]));
+      setShowDeleteButton(null);
+    }, 500);
+    setLongPressTimer(timer);
+  };
+
+  const handleMessageLongPressEnd = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+  };
+
+  const handleDeleteMessages = async () => {
+    if (!id) return;
+
+    const messagesToDelete = Array.from(selectedMessages);
+    if (messagesToDelete.length === 0) return;
+
+    try {
+      await Promise.all(messagesToDelete.map(msgId => chatAPI.deleteMessage(id, msgId)));
+      setMessages(messages.filter(msg => !selectedMessages.has(msg._id)));
+      setSelectedMessages(new Set());
+      setIsMultiSelectMode(false);
+      setShowDeleteButton(null);
+    } catch (error) {
+      console.error('Failed to delete messages:', error);
+    }
+  };
+
+  const handleCancelSelection = () => {
+    setSelectedMessages(new Set());
+    setIsMultiSelectMode(false);
+    setShowDeleteButton(null);
+  };
+
   if (isLoading) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px' }}>
@@ -242,6 +345,7 @@ const ChatRoom: React.FC = () => {
           <MessagesContainer>
             {messages.map((msg) => {
               const isOwn = msg.senderId._id === user?._id;
+              const isSelected = selectedMessages.has(msg._id);
               return (
                 <div key={msg._id} style={{ display: 'flex', flexDirection: 'column', alignItems: isOwn ? 'flex-end' : 'flex-start' }}>
                   <MessageSender>
@@ -266,17 +370,60 @@ const ChatRoom: React.FC = () => {
                     </MessageAvatar>
                     {msg.senderId.firstName} {msg.senderId.lastName}
                   </MessageSender>
-                  <MessageBubble isOwn={isOwn}>
+                  <MessageBubble
+                    isOwn={isOwn}
+                    selected={isSelected}
+                    onClick={() => handleMessageClick(msg._id, isOwn)}
+                    onMouseDown={() => handleMessageLongPressStart(msg._id, isOwn)}
+                    onMouseUp={handleMessageLongPressEnd}
+                    onMouseLeave={handleMessageLongPressEnd}
+                    onTouchStart={() => handleMessageLongPressStart(msg._id, isOwn)}
+                    onTouchEnd={handleMessageLongPressEnd}
+                  >
                     {msg.content}
                     <MessageTime isOwn={isOwn}>
                       {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </MessageTime>
+                    {isMultiSelectMode && isOwn && (
+                      <SelectionIndicator selected={isSelected}>
+                        {isSelected ? '✓' : ''}
+                      </SelectionIndicator>
+                    )}
+                    {showDeleteButton === msg._id && !isMultiSelectMode && (
+                      <DeleteButton onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteMessages();
+                        setSelectedMessages(new Set([msg._id]));
+                      }}>
+                        Eliminar
+                      </DeleteButton>
+                    )}
                   </MessageBubble>
                 </div>
               );
             })}
             <div ref={messagesEndRef} />
           </MessagesContainer>
+
+          {isMultiSelectMode && (
+            <MultiSelectBar>
+              <div>
+                {selectedMessages.size} mensaje{selectedMessages.size !== 1 ? 's' : ''} seleccionado{selectedMessages.size !== 1 ? 's' : ''}
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <Button variant="outline" onClick={handleCancelSelection}>
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleDeleteMessages}
+                  disabled={selectedMessages.size === 0}
+                  style={{ background: '#dc3545', borderColor: '#dc3545' }}
+                >
+                  Eliminar
+                </Button>
+              </div>
+            </MultiSelectBar>
+          )}
 
           <InputContainer>
             <MessageInput
