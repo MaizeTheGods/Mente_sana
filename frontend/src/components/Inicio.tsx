@@ -6,8 +6,8 @@ import { Button } from './SharedStyles';
 const PageContainer = styled.div`
   margin: -30px; /* Negate the MainContent padding to go full bleed */
   min-height: calc(100vh);
-  background: #0f172a; /* Dark background similar to image */
-  color: #f8fafc;
+  background: #f0fdf4; /* Light green background */
+  color: #1e293b;
   padding: 40px;
   display: flex;
   flex-direction: column;
@@ -48,21 +48,21 @@ const Badge = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(46, 125, 50, 0.2);
-  color: #4ade80;
+  background: #e8f5e9;
+  color: #2e7d32;
   padding: 8px 16px;
   border-radius: 100px;
   font-size: 14px;
   font-weight: 600;
   width: fit-content;
-  border: 1px solid rgba(46, 125, 50, 0.3);
+  border: 1px solid #bbf7d0;
 `;
 
 const Title = styled.h1`
   font-size: 56px;
   font-weight: 800;
   line-height: 1.1;
-  color: #ffffff;
+  color: #1e293b;
   margin: 0;
 
   @media (max-width: 768px) {
@@ -73,7 +73,7 @@ const Title = styled.h1`
 const Description = styled.p`
   font-size: 18px;
   line-height: 1.6;
-  color: #94a3b8;
+  color: #475569;
   max-width: 480px;
   margin: 0;
 `;
@@ -100,12 +100,13 @@ const SecondaryButton = styled(Button)`
   padding: 14px 28px;
   border-radius: 100px;
   background: transparent;
-  color: white;
-  border: 1px solid #475569;
+  color: #2e7d32;
+  border: 1px solid #2e7d32;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: #64748b;
+    background: #e8f5e9;
+    border-color: #1b5e20;
+    color: #1b5e20;
   }
 `;
 
@@ -121,24 +122,24 @@ const StatsRow = styled.div`
 `;
 
 const StatCard = styled.div`
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: white;
+  border: 1px solid #e2e8f0;
   border-radius: 16px;
   padding: 16px 24px;
   flex: 1;
   min-width: 140px;
-  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
 
   h3 {
     font-size: 24px;
     font-weight: 700;
-    color: #ffffff;
+    color: #1e293b;
     margin: 0 0 4px 0;
   }
 
   p {
     font-size: 13px;
-    color: #94a3b8;
+    color: #64748b;
     margin: 0;
     line-height: 1.4;
   }
@@ -226,8 +227,8 @@ const CardContent = styled.div`
 `;
 
 const RecommendationCard = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: white;
+  border: 1px solid #e2e8f0;
   border-radius: 16px;
   padding: 20px;
   display: flex;
@@ -235,22 +236,24 @@ const RecommendationCard = styled.div`
   gap: 16px;
   cursor: pointer;
   transition: all 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: #f8fafc;
     transform: translateY(-2px);
+    border-color: #cbd5e1;
   }
 
   .icon {
     width: 48px;
     height: 48px;
-    background: #1e293b;
+    background: #f0fdf4;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid #bbf7d0;
   }
 
   .text-content {
@@ -258,7 +261,7 @@ const RecommendationCard = styled.div`
 
     .label {
       font-size: 12px;
-      color: #4ade80;
+      color: #2e7d32;
       font-weight: 600;
       margin-bottom: 4px;
       display: flex;
@@ -268,13 +271,13 @@ const RecommendationCard = styled.div`
 
     h4 {
       font-size: 16px;
-      color: #ffffff;
+      color: #1e293b;
       margin: 0 0 4px 0;
     }
 
     p {
       font-size: 13px;
-      color: #94a3b8;
+      color: #64748b;
       margin: 0;
     }
   }
