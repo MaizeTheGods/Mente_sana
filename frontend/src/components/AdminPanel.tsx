@@ -641,8 +641,6 @@ const AdminPanel: React.FC = () => {
   useEffect(() => {
     if (activeTab === 'avatars' && (user?.role === 'admin' || user?.role === 'owner')) {
       loadAvatars();
-{{ ... }
-```
       loadCategories(); // Necesario para el dropdown de categorías en subida
     }
     if (activeTab === 'categories' && (user?.role === 'admin' || user?.role === 'owner')) {

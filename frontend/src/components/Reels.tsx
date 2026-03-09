@@ -226,34 +226,7 @@ const Reels: React.FC = () => {
   const [showPlayButton, setShowPlayButton] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  useEffect(() => {
-    loadReels();
-  }, [loadReels]);
 
-  useEffect(() => {
-    // Auto-play when reels are loaded and current index changes
-    if (reels.length > 0 && videoRef.current && isPlaying) {
-      const playVideo = async () => {
-        try {
-          await videoRef.current!.play();
-          showLogMessage(`▶️ Reproduciendo: ${reels[currentReelIndex].title}`);
-        } catch (err) {
-          console.log('Auto-play failed:', err);
-        }
-      };
-      playVideo();
-    }
-  }, [currentReelIndex, reels, isPlaying]);
-
-  // Hide play button after 3 seconds when paused
-  useEffect(() => {
-    if (showPlayButton) {
-      const timer = setTimeout(() => {
-        setShowPlayButton(false);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [showPlayButton]);
 
   const loadReels = async () => {
     try {
@@ -336,6 +309,37 @@ const Reels: React.FC = () => {
       day: 'numeric'
     });
   };
+
+  useEffect(() => {
+    loadReels();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // Auto-play when reels are loaded and current index changes
+    if (reels.length > 0 && videoRef.current && isPlaying) {
+      const playVideo = async () => {
+        try {
+          await videoRef.current!.play();
+          showLogMessage(`▶️ Reproduciendo: ${reels[currentReelIndex].title}`);
+        } catch (err) {
+          console.log('Auto-play failed:', err);
+        }
+      };
+      playVideo();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentReelIndex, reels, isPlaying]);
+
+  // Hide play button after 3 seconds when paused
+  useEffect(() => {
+    if (showPlayButton) {
+      const timer = setTimeout(() => {
+        setShowPlayButton(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showPlayButton]);
 
   if (loading) {
     return (

@@ -154,7 +154,8 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
         audioRef.current = null;
       }
     };
-  }, [next, volume]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [volume]);
 
   // Update audio source when current song changes
   useEffect(() => {

@@ -1,0 +1,44 @@
+
+> frontend@0.1.0 build
+> react-scripts build
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+Creating an optimized production build...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+Compiled with warnings.
+
+[eslint] 
+src\components\AdminPanel.tsx
+  Line 593:9:  The 'loadData' function makes the dependencies of useEffect Hook (at line 639) change on every render. To fix this, wrap the definition of 'loadData' in its own useCallback() Hook  react-hooks/exhaustive-deps
+
+src\components\Profile.tsx
+  Line 13:3:  'CubeLoader' is defined but never used   @typescript-eslint/no-unused-vars
+  Line 14:3:  'CubeSquare' is defined but never used   @typescript-eslint/no-unused-vars
+  Line 15:3:  'LoadingText' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\contexts\MusicContext.tsx
+  Line 53:9:  The 'logMusicStatus' function makes the dependencies of useEffect Hook (at line 89) change on every render. To fix this, wrap the definition of 'logMusicStatus' in its own useCallback() Hook  react-hooks/exhaustive-deps
+  Line 92:9:  The 'loadSongs' function makes the dependencies of useEffect Hook (at line 238) change on every render. To fix this, wrap the definition of 'loadSongs' in its own useCallback() Hook           react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+File sizes after gzip:
+
+  276.6 kB  build\static\js\main.34fbca4a.js
+  6.53 kB   build\static\css\main.323d7611.css
+  1.76 kB   build\static\js\453.d7446e4a.chunk.js
+
+The project was built assuming it is hosted at /.
+You can control this with the homepage field in your package.json.
+
+The build folder is ready to be deployed.
+You may serve it with a static server:
+
+  npm install -g serve
+  serve -s build
+
+Find out more about deployment here:
+
+  https://cra.link/deployment
+
