@@ -86,7 +86,8 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
 
     // Log initial status
     setTimeout(logMusicStatus, 100);
-  }, [logMusicStatus]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Load songs
   const loadSongs = async () => {
@@ -235,7 +236,8 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
     if (shouldShowMusic && songs.length === 0 && !isLoadingSongs && user && (user.role === 'admin' || user.role === 'owner')) {
       loadSongs();
     }
-  }, [shouldShowMusic, user, songs.length, isLoadingSongs, loadSongs]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldShowMusic, user, songs.length, isLoadingSongs]);
 
   // Clear songs when user logs out or changes to non-admin
   useEffect(() => {

@@ -9,10 +9,7 @@ import {
   PageTitle,
   PageSubtitle,
   Card,
-  Button,
-  CubeLoader,
-  CubeSquare,
-  LoadingText
+  Button
 } from './SharedStyles';
 
 const ProfileContainer = styled.div`

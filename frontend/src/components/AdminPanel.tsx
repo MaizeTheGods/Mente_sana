@@ -636,7 +636,8 @@ const AdminPanel: React.FC = () => {
     if (user?.role === 'admin' || user?.role === 'owner') {
       loadData();
     }
-  }, [user, activeTab, loadData]); // Add loadData to deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, activeTab]);
 
   useEffect(() => {
     if (activeTab === 'avatars' && (user?.role === 'admin' || user?.role === 'owner')) {
