@@ -590,22 +590,6 @@ const AdminPanel: React.FC = () => {
     videoUrl: ''
   });
 
-  useEffect(() => {
-    if (user?.role === 'admin' || user?.role === 'owner') {
-      loadData();
-    }
-  }, [user, activeTab, loadData]);
-
-  useEffect(() => {
-    if (activeTab === 'avatars' && (user?.role === 'admin' || user?.role === 'owner')) {
-      loadAvatars();
-      loadCategories(); // Necesario para el dropdown de categorías en subida
-    }
-    if (activeTab === 'categories' && (user?.role === 'admin' || user?.role === 'owner')) {
-      loadCategories();
-    }
-  }, [activeTab, user]);
-
   const loadData = async () => {
     setLoading(true);
     try {
@@ -644,10 +628,27 @@ const AdminPanel: React.FC = () => {
       }
     } catch (error) {
       console.error('Error loading data:', error);
-    } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (user?.role === 'admin' || user?.role === 'owner') {
+      loadData();
+    }
+  }, [user, activeTab, loadData]); // Add loadData to deps
+
+  useEffect(() => {
+    if (activeTab === 'avatars' && (user?.role === 'admin' || user?.role === 'owner')) {
+      loadAvatars();
+{{ ... }
+```
+      loadCategories(); // Necesario para el dropdown de categorías en subida
+    }
+    if (activeTab === 'categories' && (user?.role === 'admin' || user?.role === 'owner')) {
+      loadCategories();
+    }
+  }, [activeTab, user]);
 
   const loadAvatars = async () => {
     try {
