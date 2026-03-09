@@ -19,6 +19,7 @@ import Profile from './components/Profile';
 import Blog from './components/Blog';
 import Reels from './components/Reels';
 import Diary from './components/Diary';
+import Inicio from './components/Inicio';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Card, CubeLoader, CubeSquare, LoadingText, PageHeader, PageTitle, PageSubtitle } from './components/SharedStyles';
 import { Line, Bar } from 'react-chartjs-2';
@@ -128,7 +129,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     );
   }
 
-  return user ? <Navigate to="/dashboard" /> : <>{children}</>;
+  return user ? <Navigate to="/inicio" /> : <>{children}</>;
 };
 
 const AppRoutes: React.FC = () => {
@@ -221,7 +222,12 @@ const AppRoutes: React.FC = () => {
         } />
 
         {/* Default redirect */}
-        <Route path="/" element={<Navigate to="/dashboard" />} />
+        <Route path="/" element={<Navigate to="/inicio" />} />
+        <Route path="/inicio" element={
+          <ProtectedRoute>
+            <Inicio />
+          </ProtectedRoute>
+        } />
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <Dashboard />
