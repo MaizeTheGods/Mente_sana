@@ -12,8 +12,8 @@ const chatGroupSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['general', 'disorder_specific', 'peer_support', 'one_on_one']
-    // required: true  // Temporalmente removido para seeding
+    enum: ['general', 'disorder_specific', 'peer_support', 'one_on_one'],
+    required: true
   },
   disorderCategory: {
     type: String,
@@ -75,8 +75,8 @@ const chatGroupSchema = new mongoose.Schema({
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-    // required: true  // Temporalmente removido para seeding
+    ref: 'User',
+    required: true
   },
   createdAt: {
     type: Date,

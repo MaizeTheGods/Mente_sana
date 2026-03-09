@@ -264,7 +264,6 @@ const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [results, setResults] = React.useState<any[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
 
   const hasCompletedQuestionnaire = user?.questionnaireCompleted === true;
 
@@ -276,11 +275,7 @@ const Dashboard: React.FC = () => {
           setResults(response.results);
         } catch (error) {
           console.error('Failed to load results:', error);
-        } finally {
-          setIsLoading(false);
         }
-      } else {
-        setIsLoading(false);
       }
     };
 

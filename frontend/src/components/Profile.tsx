@@ -68,13 +68,6 @@ const UserEmail = styled.p`
   font-size: 16px;
 `;
 
-const AvatarGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 16px;
-  margin-top: 32px;
-`;
-
 const AvatarOption = styled.div<{ selected: boolean }>`
   width: 100px;
   height: 100px;
@@ -135,21 +128,7 @@ const Profile: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [availableAvatars, setAvailableAvatars] = useState<Record<string, any[]>>({});
   const [avatarCategories, setAvatarCategories] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-
-  // Available profile images (these would be provided by us)
-  const defaultImages = [
-    'default-avatar.png',
-    'avatar-1.png',
-    'avatar-2.png',
-    'avatar-3.png',
-    'avatar-4.png',
-    'avatar-5.png',
-    'avatar-6.png',
-    'avatar-7.png',
-    'avatar-8.png'
-  ];
 
   useEffect(() => {
     const loadData = async () => {
@@ -198,24 +177,6 @@ const Profile: React.FC = () => {
       setIsSaving(false);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px' }}>
-        <CubeLoader>
-          <CubeSquare delay={0} />
-          <CubeSquare delay={1} />
-          <CubeSquare delay={2} />
-          <CubeSquare delay={3} />
-          <CubeSquare delay={4} />
-          <CubeSquare delay={5} />
-          <CubeSquare delay={6} />
-          <CubeSquare delay={7} />
-        </CubeLoader>
-        <LoadingText>Cargando perfil...</LoadingText>
-      </div>
-    );
-  }
 
   if (!user) {
     return <div>Usuario no encontrado</div>;

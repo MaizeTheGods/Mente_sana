@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { reelsAPI, Reel } from '../services/api';
-import { PageHeader, PageTitle, PageSubtitle } from './SharedStyles';
 
 const ReelsContainer = styled.div`
   position: relative;
@@ -229,7 +228,7 @@ const Reels: React.FC = () => {
 
   useEffect(() => {
     loadReels();
-  }, []);
+  }, [loadReels]);
 
   useEffect(() => {
     // Auto-play when reels are loaded and current index changes

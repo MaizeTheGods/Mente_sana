@@ -2,22 +2,6 @@ import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useMusic } from '../contexts/MusicContext';
 
-// Pulse animation for playing state
-const pulse = keyframes`
-  0% {
-    transform: scale(1);
-    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(46, 125, 50, 0.5);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
-  }
-`;
-
 // Wave animation for sound visualization
 const wave = keyframes`
   0%, 100% {
@@ -202,12 +186,10 @@ const Tooltip = styled.div<{ show: boolean }>`
 const MusicPlayer: React.FC = () => {
   const {
     songs,
-    currentSong,
     isPlaying,
     isMuted,
     shouldShowMusic,
     play,
-    pause,
     toggleMute,
     loadSongs
   } = useMusic();

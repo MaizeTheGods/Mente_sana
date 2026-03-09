@@ -518,7 +518,7 @@ const AdminPanel: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [avatars, setAvatars] = useState<Record<string, any[]>>({});
   const [avatarCategories, setAvatarCategories] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isSongModalOpen, setIsSongModalOpen] = useState(false);
@@ -594,7 +594,7 @@ const AdminPanel: React.FC = () => {
     if (user?.role === 'admin' || user?.role === 'owner') {
       loadData();
     }
-  }, [user, activeTab]);
+  }, [user, activeTab, loadData]);
 
   useEffect(() => {
     if (activeTab === 'avatars' && (user?.role === 'admin' || user?.role === 'owner')) {

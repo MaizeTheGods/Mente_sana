@@ -5,14 +5,8 @@ import {
   PageHeader,
   PageTitle,
   PageSubtitle,
-  Card,
-  Button
-} from './SharedStyles';
-
-const ResultCard = styled(Card)`
-  text-align: center;
-  margin-bottom: 30px;
-`;
+  Card
+} from './SharedStyles'
 
 const ScoreGrid = styled.div`
   display: grid;
