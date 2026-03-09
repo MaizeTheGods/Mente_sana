@@ -17,7 +17,13 @@ const registerValidation = [
   body('email')
     .isEmail()
     .normalizeEmail()
-    .withMessage('Please provide a valid email'),
+    .withMessage('Please provide a valid email')
+    .custom((value) => {
+      if (!value.endsWith('@cetis041.edu.mx')) {
+        throw new Error('Only institutional emails ending in @cetis041.edu.mx are allowed');
+      }
+      return true;
+    }),
   body('password')
     .isLength({ min: 8 })
     .withMessage('Password must be at least 8 characters long')
