@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import styled from 'styled-components';
 
 const GameContainer = styled.div`
@@ -46,17 +46,17 @@ const FlappyBird: React.FC = () => {
     pipes: [] as { x: number, top: number, passed: boolean }[]
   });
 
-  const resetGame = () => {
+  const resetGame = useCallback(() => {
     stateRef.current = { birdY: 250, birdVel: 0, pipes: [] };
     setScore(0);
     setGameOver(false);
     setIsPaused(false);
-  };
+  }, []);
 
-  const jump = () => {
+  const jump = useCallback(() => {
     if (gameOver) resetGame();
     else if (!isPaused) stateRef.current.birdVel = -5;
-  };
+  }, [gameOver, isPaused, resetGame]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -105,7 +105,7 @@ const FlappyBird: React.FC = () => {
     }, 1000 / 60);
 
     return () => { clearInterval(loop); window.removeEventListener('keydown', handleKey); };
-  }, [isPaused, gameOver]);
+  }, [isPaused, gameOver, jump]);
 
   return (
     <GameContainer>

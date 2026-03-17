@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import styled from 'styled-components';
 
 const GameContainer = styled.div`
@@ -77,14 +77,14 @@ const TetrisGame: React.FC = () => {
     setIsPaused(false);
   };
 
-  const spawnPiece = () => {
+  const spawnPiece = useCallback(() => {
     const idx = Math.floor(Math.random() * SHAPES.length);
     pieceRef.current = {
       pos: { x: 3, y: 0 },
       shape: SHAPES[idx],
       color: COLORS[idx]
     };
-  };
+  }, []);
 
   const rotate = (m: number[][]) => m[0].map((_, i) => m.map(row => row[i]).reverse());
 
@@ -101,18 +101,18 @@ const TetrisGame: React.FC = () => {
     return false;
   };
 
-  const move = (dir: number) => {
+  const move = useCallback((dir: number) => {
     pieceRef.current.pos.x += dir;
     if (collide(pieceRef.current, gridRef.current)) pieceRef.current.pos.x -= dir;
-  };
+  }, []);
 
-  const handleRotate = () => {
+  const handleRotate = useCallback(() => {
     const s = pieceRef.current.shape;
     pieceRef.current.shape = rotate(s);
     if (collide(pieceRef.current, gridRef.current)) pieceRef.current.shape = s;
-  };
+  }, []);
 
-  const drop = () => {
+  const drop = useCallback(() => {
     pieceRef.current.pos.y++;
     if (collide(pieceRef.current, gridRef.current)) {
       pieceRef.current.pos.y--;
@@ -133,7 +133,7 @@ const TetrisGame: React.FC = () => {
       spawnPiece();
       if (collide(pieceRef.current, gridRef.current)) setGameOver(true);
     }
-  };
+  }, [spawnPiece]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -170,7 +170,7 @@ const TetrisGame: React.FC = () => {
     });
 
     return () => { clearInterval(loop); cancelAnimationFrame(anim); window.removeEventListener('keydown', handleKey); };
-  }, [isPaused, gameOver]);
+  }, [isPaused, gameOver, move, drop, handleRotate]);
 
   return (
     <GameContainer>
