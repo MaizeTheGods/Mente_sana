@@ -119,8 +119,8 @@ const DodgeBlocks: React.FC = () => {
         </div>}
       </div>
       <MobileControls>
-        <Button onTouchStart={() => {}} onTouchEnd={() => {}} style={{ width: '80px', height: '50px' }}>Mueve arrastrando</Button>
-      </MobilePad>
+        <div style={{ color: '#94a3b8', fontSize: '14px' }}>Mueve arrastrando en la pantalla</div>
+      </MobileControls>
     </GameContainer>
   );
 };
