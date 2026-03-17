@@ -5,41 +5,135 @@ const GameContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 15px;
+  width: 100%;
 `;
 
 const Canvas = styled.canvas`
   border: 4px solid #1e293b;
-  border-radius: 8px;
+  border-radius: 12px;
   background-color: #000;
+  max-width: 100%;
+  height: auto;
 `;
 
-const Score = styled.div`
-  font-size: 24px;
-  font-weight: bold;
-  color: #1e293b;
+const Controls = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
+const Button = styled.button<{ variant?: 'danger' | 'success' | 'action' }>`
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: ${props => 
+    props.variant === 'danger' ? '#ef4444' : 
+    props.variant === 'success' ? '#10b981' : 
+    props.variant === 'action' ? '#6366f1' : '#3b82f6'};
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+`;
+
+const MobilePad = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+  width: 100%;
+  max-width: 300px;
+  @media (min-width: 769px) { display: none; }
 `;
 
 const COLS = 10;
 const ROWS = 20;
-const BLOCK_SIZE = 25;
+const BLOCK_SIZE = 20;
 
 const SHAPES = [
-  [[1, 1, 1, 1]], // I
-  [[1, 1], [1, 1]], // O
-  [[0, 1, 0], [1, 1, 1]], // T
-  [[1, 1, 0], [0, 1, 1]], // S
-  [[0, 1, 1], [1, 1, 0]], // Z
-  [[1, 0, 0], [1, 1, 1]], // J
-  [[0, 0, 1], [1, 1, 1]], // L
+  [[1, 1, 1, 1]], [[1, 1], [1, 1]], [[0, 1, 0], [1, 1, 1]],
+  [[1, 1, 0], [0, 1, 1]], [[0, 1, 1], [1, 1, 0]],
+  [[1, 0, 0], [1, 1, 1]], [[0, 0, 1], [1, 1, 1]]
 ];
-
-const COLORS = ['cyan', 'yellow', 'purple', 'green', 'red', 'blue', 'orange'];
+const COLORS = ['#06b6d4', '#eab308', '#a855f7', '#22c55e', '#ef4444', '#3b82f6', '#f97316'];
 
 const TetrisGame: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const gridRef = useRef(Array.from({ length: ROWS }, () => Array(COLS).fill(0)));
+  const pieceRef = useRef({
+    pos: { x: 3, y: 0 },
+    shape: SHAPES[0],
+    color: COLORS[0]
+  });
+
+  const resetGame = () => {
+    gridRef.current = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+    spawnPiece();
+    setScore(0);
+    setGameOver(false);
+    setIsPaused(false);
+  };
+
+  const spawnPiece = () => {
+    const idx = Math.floor(Math.random() * SHAPES.length);
+    pieceRef.current = {
+      pos: { x: 3, y: 0 },
+      shape: SHAPES[idx],
+      color: COLORS[idx]
+    };
+  };
+
+  const rotate = (m: number[][]) => m[0].map((_, i) => m.map(row => row[i]).reverse());
+
+  const collide = (p: any, g: any) => {
+    for (let y = 0; y < p.shape.length; y++) {
+      for (let x = 0; x < p.shape[y].length; x++) {
+        if (p.shape[y][x] !== 0) {
+          let ny = p.pos.y + y;
+          let nx = p.pos.x + x;
+          if (nx < 0 || nx >= COLS || ny >= ROWS || (ny >= 0 && g[ny][nx] !== 0)) return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  const move = (dir: number) => {
+    pieceRef.current.pos.x += dir;
+    if (collide(pieceRef.current, gridRef.current)) pieceRef.current.pos.x -= dir;
+  };
+
+  const handleRotate = () => {
+    const s = pieceRef.current.shape;
+    pieceRef.current.shape = rotate(s);
+    if (collide(pieceRef.current, gridRef.current)) pieceRef.current.shape = s;
+  };
+
+  const drop = () => {
+    pieceRef.current.pos.y++;
+    if (collide(pieceRef.current, gridRef.current)) {
+      pieceRef.current.pos.y--;
+      pieceRef.current.shape.forEach((row, y) => {
+        row.forEach((v, x) => {
+          if (v) gridRef.current[pieceRef.current.pos.y + y][pieceRef.current.pos.x + x] = pieceRef.current.color;
+        });
+      });
+      // Clear lines
+      for (let y = ROWS - 1; y >= 0; y--) {
+        if (gridRef.current[y].every(c => c !== 0)) {
+          gridRef.current.splice(y, 1);
+          gridRef.current.unshift(Array(COLS).fill(0));
+          setScore(s => s + 100);
+          y++;
+        }
+      }
+      spawnPiece();
+      if (collide(pieceRef.current, gridRef.current)) setGameOver(true);
+    }
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -47,141 +141,59 @@ const TetrisGame: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
-    let piece = {
-      pos: { x: 3, y: 0 },
-      shape: SHAPES[Math.floor(Math.random() * SHAPES.length)],
-      color: COLORS[Math.floor(Math.random() * COLORS.length)]
+    const handleKey = (e: KeyboardEvent) => {
+      if (gameOver || isPaused) return;
+      if (e.key === 'ArrowLeft') move(-1);
+      if (e.key === 'ArrowRight') move(1);
+      if (e.key === 'ArrowDown') drop();
+      if (e.key === 'ArrowUp') handleRotate();
     };
+    window.addEventListener('keydown', handleKey);
 
-    const collide = (p: typeof piece) => {
-      for (let y = 0; y < p.shape.length; y++) {
-        for (let x = 0; x < p.shape[y].length; x++) {
-          if (p.shape[y][x] !== 0) {
-            let newX = p.pos.x + x;
-            let newY = p.pos.y + y;
-            if (newX < 0 || newX >= COLS || newY >= ROWS || (newY >= 0 && grid[newY][newX] !== 0)) {
-              return true;
-            }
-          }
-        }
-      }
-      return false;
-    };
+    const loop = setInterval(() => {
+      if (!isPaused && !gameOver) drop();
+    }, 800);
 
-    const merge = () => {
-      piece.shape.forEach((row, y) => {
-        row.forEach((value, x) => {
-          if (value !== 0) {
-            grid[piece.pos.y + y][piece.pos.x + x] = piece.color;
-          }
-        });
-      });
-    };
-
-    const rotate = (matrix: number[][]) => {
-      return matrix[0].map((_, i) => matrix.map(row => row[i]).reverse());
-    };
-
-    const clearLines = () => {
-      let linesCleared = 0;
-      for (let y = ROWS - 1; y >= 0; y--) {
-        if (grid[y].every(cell => cell !== 0)) {
-          grid.splice(y, 1);
-          grid.unshift(Array(COLS).fill(0));
-          linesCleared++;
-          y++;
-        }
-      }
-      if (linesCleared > 0) setScore(s => s + (linesCleared * 100));
-    };
-
-    const drop = () => {
-      piece.pos.y++;
-      if (collide(piece)) {
-        piece.pos.y--;
-        merge();
-        clearLines();
-        piece = {
-          pos: { x: 3, y: 0 },
-          shape: SHAPES[Math.floor(Math.random() * SHAPES.length)],
-          color: COLORS[Math.floor(Math.random() * COLORS.length)]
-        };
-        if (collide(piece)) {
-          setGameOver(true);
-        }
-      }
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (gameOver) return;
-      if (e.key === 'ArrowLeft') {
-        piece.pos.x--;
-        if (collide(piece)) piece.pos.x++;
-      } else if (e.key === 'ArrowRight') {
-        piece.pos.x++;
-        if (collide(piece)) piece.pos.x--;
-      } else if (e.key === 'ArrowDown') {
-        drop();
-      } else if (e.key === 'ArrowUp') {
-        const prevShape = piece.shape;
-        piece.shape = rotate(piece.shape);
-        if (collide(piece)) piece.shape = prevShape;
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-
-    const gameLoop = setInterval(() => {
-      if (!gameOver) {
-        drop();
-        draw();
-      }
-    }, 500);
-
-    const draw = () => {
+    let anim = requestAnimationFrame(function draw() {
       ctx.fillStyle = 'black';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Draw grid
-      grid.forEach((row, y) => {
-        row.forEach((value, x) => {
-          if (value !== 0) {
-            ctx.fillStyle = value as string;
-            ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
-          }
-        });
-      });
-
-      // Draw piece
-      ctx.fillStyle = piece.color;
-      piece.shape.forEach((row, y) => {
-        row.forEach((value, x) => {
-          if (value !== 0) {
-            ctx.fillRect((piece.pos.x + x) * BLOCK_SIZE, (piece.pos.y + y) * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
-          }
-        });
-      });
-    };
-
-    const animationReq = requestAnimationFrame(function anim() {
-      draw();
-      if (!gameOver) requestAnimationFrame(anim);
+      // Grid
+      gridRef.current.forEach((row, y) => row.forEach((v, x) => {
+        if (v) { ctx.fillStyle = v as string; ctx.fillRect(x*BLOCK_SIZE, y*BLOCK_SIZE, BLOCK_SIZE-1, BLOCK_SIZE-1); }
+      }));
+      // Piece
+      ctx.fillStyle = pieceRef.current.color;
+      pieceRef.current.shape.forEach((row, y) => row.forEach((v, x) => {
+        if (v) ctx.fillRect((pieceRef.current.pos.x+x)*BLOCK_SIZE, (pieceRef.current.pos.y+y)*BLOCK_SIZE, BLOCK_SIZE-1, BLOCK_SIZE-1);
+      }));
+      anim = requestAnimationFrame(draw);
     });
 
-    return () => {
-      clearInterval(gameLoop);
-      cancelAnimationFrame(animationReq);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [gameOver]);
+    return () => { clearInterval(loop); cancelAnimationFrame(anim); window.removeEventListener('keydown', handleKey); };
+  }, [isPaused, gameOver]);
 
   return (
     <GameContainer>
-      <Score>Puntuación: {score}</Score>
-      {gameOver && <div style={{ color: 'red', fontSize: '20px' }}>¡Juego Terminado!</div>}
-      <Canvas ref={canvasRef} width={COLS * BLOCK_SIZE} height={ROWS * BLOCK_SIZE} />
-      <p style={{ fontSize: '14px', color: '#64748b' }}>Flechas: Mover/Rotar</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '200px' }}>
+        <h3>{score}</h3>
+        <Controls>
+          <Button onClick={() => setIsPaused(!isPaused)}>{isPaused ? '▶' : '||'}</Button>
+          <Button onClick={resetGame} variant="danger">↺</Button>
+        </Controls>
+      </div>
+      <div style={{ position: 'relative' }}>
+        <Canvas ref={canvasRef} width={COLS*BLOCK_SIZE} height={ROWS*BLOCK_SIZE} />
+        {gameOver && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <h2>GAME OVER</h2><Button onClick={resetGame} variant="success">Reintentar</Button>
+        </div>}
+      </div>
+      <MobilePad>
+        <Button onClick={() => move(-1)}>◀</Button>
+        <Button onClick={handleRotate} variant="action">↻</Button>
+        <Button onClick={() => move(1)}>▶</Button>
+        <div />
+        <Button onClick={drop} style={{ gridColumn: '2' }}>▼</Button>
+      </MobilePad>
     </GameContainer>
   );
 };

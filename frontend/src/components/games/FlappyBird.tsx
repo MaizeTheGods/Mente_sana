@@ -5,25 +5,58 @@ const GameContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 15px;
+  width: 100%;
 `;
 
 const Canvas = styled.canvas`
   border: 4px solid #1e293b;
-  border-radius: 8px;
+  border-radius: 12px;
   background-color: #70c5ce;
+  max-width: 100%;
+  height: auto;
+  touch-action: none;
 `;
 
 const Score = styled.div`
   font-size: 24px;
-  font-weight: bold;
+  font-weight: 800;
   color: #1e293b;
+`;
+
+const Button = styled.button<{ variant?: 'danger' | 'success' }>`
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: ${props => props.variant === 'danger' ? '#ef4444' : props.variant === 'success' ? '#10b981' : '#3b82f6'};
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
 `;
 
 const FlappyBird: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const stateRef = useRef({
+    birdY: 250,
+    birdVel: 0,
+    pipes: [] as { x: number, top: number, passed: boolean }[]
+  });
+
+  const resetGame = () => {
+    stateRef.current = { birdY: 250, birdVel: 0, pipes: [] };
+    setScore(0);
+    setGameOver(false);
+    setIsPaused(false);
+  };
+
+  const jump = () => {
+    if (gameOver) resetGame();
+    else if (!isPaused) stateRef.current.birdVel = -5;
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -31,104 +64,65 @@ const FlappyBird: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let birdY = canvas.height / 2;
-    let birdVelocity = 0;
     const gravity = 0.25;
-    const jump = -4.5;
-    const birdSize = 20;
-
-    let pipes: { x: number, top: number, passed: boolean }[] = [];
     const pipeWidth = 50;
     const pipeGap = 150;
-    const pipeSpeed = 2;
+    let frame = 0;
 
-    const spawnPipe = () => {
-      const minPipeHeight = 50;
-      const maxPipeHeight = canvas.height - pipeGap - minPipeHeight;
-      const height = Math.floor(Math.random() * (maxPipeHeight - minPipeHeight + 1)) + minPipeHeight;
-      pipes.push({ x: canvas.width, top: height, passed: false });
-    };
+    const handleKey = (e: KeyboardEvent) => { if (e.key === ' ' || e.key === 'ArrowUp') jump(); };
+    window.addEventListener('keydown', handleKey);
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === ' ' || e.key === 'ArrowUp') {
-        birdVelocity = jump;
-        if (gameOver) resetGame();
+    const loop = setInterval(() => {
+      if (isPaused || gameOver) return;
+
+      const s = stateRef.current;
+      s.birdVel += gravity;
+      s.birdY += s.birdVel;
+
+      if (frame % 90 === 0) {
+        const h = Math.random() * (canvas.height - 250) + 50;
+        s.pipes.push({ x: canvas.width, top: h, passed: false });
       }
-    };
+      frame++;
 
-    const resetGame = () => {
-      birdY = canvas.height / 2;
-      birdVelocity = 0;
-      pipes = [];
-      setScore(0);
-      setGameOver(false);
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    canvas.addEventListener('mousedown', () => { birdVelocity = jump; if (gameOver) resetGame(); });
-
-    let pipeInterval = 0;
-
-    const gameLoop = setInterval(() => {
-      if (gameOver) return;
-
-      birdVelocity += gravity;
-      birdY += birdVelocity;
-
-      if (pipeInterval % 100 === 0) spawnPipe();
-      pipeInterval++;
-
-      pipes.forEach(pipe => {
-        pipe.x -= pipeSpeed;
-        
-        // Collision
-        if (
-          30 + birdSize > pipe.x && 30 < pipe.x + pipeWidth &&
-          (birdY < pipe.top || birdY + birdSize > pipe.top + pipeGap)
-        ) {
-          setGameOver(true);
-        }
-
-        if (pipe.x + pipeWidth < 30 && !pipe.passed) {
-          pipe.passed = true;
-          setScore(s => s + 1);
-        }
+      s.pipes.forEach(p => {
+        p.x -= 2;
+        if (30 + 20 > p.x && 30 < p.x + pipeWidth && (s.birdY < p.top || s.birdY + 20 > p.top + pipeGap)) setGameOver(true);
+        if (p.x + pipeWidth < 30 && !p.passed) { p.passed = true; setScore(sc => sc + 1); }
       });
+      s.pipes = s.pipes.filter(p => p.x + pipeWidth > 0);
 
-      pipes = pipes.filter(pipe => pipe.x + pipeWidth > 0);
-
-      if (birdY < 0 || birdY + birdSize > canvas.height) {
-        setGameOver(true);
-      }
+      if (s.birdY < 0 || s.birdY + 20 > canvas.height) setGameOver(true);
 
       // Draw
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Bird
-      ctx.fillStyle = 'yellow';
-      ctx.fillRect(30, birdY, birdSize, birdSize);
-
-      // Pipes
-      ctx.fillStyle = 'green';
-      pipes.forEach(pipe => {
-        ctx.fillRect(pipe.x, 0, pipeWidth, pipe.top);
-        ctx.fillRect(pipe.x, pipe.top + pipeGap, pipeWidth, canvas.height);
+      ctx.fillStyle = '#fbbf24'; ctx.fillRect(30, s.birdY, 20, 20);
+      ctx.fillStyle = '#22c55e';
+      s.pipes.forEach(p => {
+        ctx.fillRect(p.x, 0, pipeWidth, p.top);
+        ctx.fillRect(p.x, p.top + pipeGap, pipeWidth, canvas.height);
       });
-
     }, 1000 / 60);
 
-    return () => {
-      clearInterval(gameLoop);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [gameOver]);
+    return () => { clearInterval(loop); window.removeEventListener('keydown', handleKey); };
+  }, [isPaused, gameOver]);
 
   return (
     <GameContainer>
-      <Score>Puntuación: {score}</Score>
-      {gameOver && <div style={{ color: 'red', fontSize: '20px' }}>¡Juego Terminado! Presiona Espacio para Reiniciar</div>}
-      <Canvas ref={canvasRef} width={400} height={500} />
-      <p style={{ fontSize: '14px', color: '#64748b' }}>Espacio o Flecha Arriba para volar</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '400px' }}>
+        <Score>{score}</Score>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <Button onClick={() => setIsPaused(!isPaused)}>{isPaused ? '▶' : '||'}</Button>
+          <Button onClick={resetGame} variant="danger">↺</Button>
+        </div>
+      </div>
+      <div style={{ position: 'relative' }} onClick={jump}>
+        <Canvas ref={canvasRef} width={400} height={500} />
+        {gameOver && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRadius: '12px' }}>
+          <h2>¡BOOM!</h2><Button onClick={resetGame} variant="success">Volver a Intentar</Button>
+        </div>}
+      </div>
+      <p style={{ fontSize: '14px', color: '#64748b' }}>Toca o presiona Espacio para saltar</p>
     </GameContainer>
   );
 };
