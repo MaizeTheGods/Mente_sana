@@ -20,6 +20,7 @@ import Blog from './components/Blog';
 import Reels from './components/Reels';
 import Diary from './components/Diary';
 import Inicio from './components/Inicio';
+import Juegos from './components/Juegos';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Card, CubeLoader, CubeSquare, LoadingText, PageHeader, PageTitle, PageSubtitle } from './components/SharedStyles';
 import { Line, Bar } from 'react-chartjs-2';
@@ -214,6 +215,11 @@ const AppRoutes: React.FC = () => {
         <Route path="/blog" element={
           <ProtectedRoute>
             <Blog />
+          </ProtectedRoute>
+        } />
+        <Route path="/juegos" element={
+          <ProtectedRoute>
+            <Juegos />
           </ProtectedRoute>
         } />
 
@@ -415,6 +421,15 @@ const Dashboard: React.FC = () => {
       bg: '#e8f5e9',
       color: '#2e7d32',
       action: () => navigate('/blog')
+    },
+    {
+      id: 'juegos',
+      title: 'Juegos',
+      description: 'Diviértete con juegos clásicos para relajarte',
+      icon: '🎮',
+      bg: '#f0fdf4',
+      color: '#16a34a',
+      action: () => navigate('/juegos')
     },
     {
       id: 'chat',
