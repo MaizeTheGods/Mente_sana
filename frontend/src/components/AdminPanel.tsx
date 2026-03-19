@@ -540,6 +540,52 @@ const AdminPanel: React.FC = () => {
     videoFile: null as File | null
   });
 
+  const handleCleanDuplicates = async (type: 'tips' | 'exercises') => {
+    const items = type === 'tips' ? tips : exercises;
+    const deleteFunc = type === 'tips' ? tipsAPI.deleteTip : exercisesAPI.deleteExercise;
+
+    if (!window.confirm(`¿Estás seguro de que quieres eliminar los ${type === 'tips' ? 'consejos' : 'ejercicios'} con nombres duplicados? Se conservará solo el más antiguo.`)) return;
+
+    const groups = new Map<string, any[]>();
+    items.forEach(item => {
+      const title = item.title.trim().toLowerCase();
+      if (!groups.has(title)) groups.set(title, []);
+      groups.get(title)?.push(item);
+    });
+
+    let deletedCount = 0;
+    const duplicateGroups = Array.from(groups.values()).filter(g => g.length > 1);
+
+    if (duplicateGroups.length === 0) {
+      alert('ℹ️ No se encontraron duplicados.');
+      return;
+    }
+
+    for (const group of duplicateGroups) {
+      // Sort by createdAt (oldest first)
+      group.sort((a, b) => {
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+        return dateA - dateB;
+      });
+
+      // Keep the first (oldest), delete the rest
+      const toDelete = group.slice(1);
+      for (const item of toDelete) {
+        try {
+          await deleteFunc(item._id);
+          deletedCount++;
+        } catch (error) {
+          console.error(`Error deleting duplicate ${type}:`, error);
+        }
+      }
+    }
+
+    if (deletedCount > 0) {
+      alert(`✅ Se eliminaron ${deletedCount} duplicados.`);
+      loadData();
+    }
+  };
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -1338,9 +1384,14 @@ const AdminPanel: React.FC = () => {
             <>
               <TipsHeader>
                 <div style={{ color: '#64748b' }}>Gestiona el contenido de bienestar</div>
-                <AddButton onClick={() => handleOpenModal()}>
-                  + Nuevo Consejo
-                </AddButton>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <ActionButton onClick={() => handleCleanDuplicates('tips')}>
+                    🧹 Limpiar Duplicados
+                  </ActionButton>
+                  <AddButton onClick={() => handleOpenModal()}>
+                    + Nuevo Consejo
+                  </AddButton>
+                </div>
               </TipsHeader>
               <TipsGrid>
                 {tips.map(tip => (
@@ -1367,9 +1418,14 @@ const AdminPanel: React.FC = () => {
             <>
               <TipsHeader>
                 <div style={{ color: '#64748b' }}>Gestiona los ejercicios de meditación y relajación</div>
-                <AddButton onClick={() => handleOpenExerciseModal()}>
-                  + Nuevo Ejercicio
-                </AddButton>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <ActionButton onClick={() => handleCleanDuplicates('exercises')}>
+                    🧹 Limpiar Duplicados
+                  </ActionButton>
+                  <AddButton onClick={() => handleOpenExerciseModal()}>
+                    + Nuevo Ejercicio
+                  </AddButton>
+                </div>
               </TipsHeader>
               <TipsGrid>
                 {exercises.map(exercise => (
