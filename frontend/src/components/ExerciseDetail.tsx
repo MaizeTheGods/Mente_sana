@@ -250,11 +250,10 @@ const ExerciseDetail: React.FC = () => {
             <VideoContainer>
               {exercise.media?.videoUrl ? (
                 <VideoFrame
-                  src={`https://www.youtube.com/embed/${extractYoutubeId(exercise.media.videoUrl)}?origin=${window.location.origin}`}
+                  src={`https://www.youtube.com/embed/${extractYoutubeId(exercise.media.videoUrl)}`}
                   title={`${exercise.title} - Tutorial`}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
-                  referrerPolicy="strict-origin-when-cross-origin"
                 />
               ) : (
                 <div style={{

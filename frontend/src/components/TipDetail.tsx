@@ -252,11 +252,10 @@ const TipDetail: React.FC = () => {
             </h3>
             <VideoContainer>
               <VideoFrame
-                src={`https://www.youtube.com/embed/${extractYoutubeId(tip.media?.videoUrl)}?origin=${window.location.origin}`}
+                src={`https://www.youtube.com/embed/${extractYoutubeId(tip.media?.videoUrl)}`}
                 title={`${tip.title} - Tutorial`}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
-                referrerPolicy="strict-origin-when-cross-origin"
               />
             </VideoContainer>
           </SidebarCard>
