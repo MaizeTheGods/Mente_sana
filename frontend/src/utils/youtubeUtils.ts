@@ -14,7 +14,7 @@ export const extractYoutubeId = (urlOrId: string | undefined): string => {
   const trimmed = urlOrId.trim();
   
   // Enhanced regex to handle watch, embed, v, youtu.be, shorts, and live
-  const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|live\/|shorts\/)|youtu\.be\/)([^"&?\/\s]{11})/i;
+  const regExp = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|live\/|shorts\/)|youtu\.be\/)([^"&?/\s]{11})/i;
   const match = trimmed.match(regExp);
 
   if (match && match[1]) {
