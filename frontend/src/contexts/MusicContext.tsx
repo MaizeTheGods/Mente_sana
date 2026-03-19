@@ -46,8 +46,6 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Track last logged status to avoid spam
-  const lastLoggedStatus = useRef<any>(null);
 
   // Status logging function - reduced verbosity
   const logMusicStatus = () => {
