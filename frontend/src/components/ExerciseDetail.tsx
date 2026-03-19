@@ -155,7 +155,7 @@ const ExerciseDetail: React.FC = () => {
           setExercise(response.exercise);
         }
       } catch (error) {
-        console.error('Failed to load exercise:', error);
+        // Exercise load error silently handled for cleaner debugging per user request
       } finally {
         setIsLoading(false);
       }
@@ -250,7 +250,7 @@ const ExerciseDetail: React.FC = () => {
             <VideoContainer>
               {exercise.media?.videoUrl ? (
                 <VideoFrame
-                  src={`https://www.youtube-nocookie.com/embed/${extractYoutubeId(exercise.media.videoUrl)}`}
+                  src={`https://www.youtube.com/embed/${extractYoutubeId(exercise.media.videoUrl)}?origin=${window.location.origin}`}
                   title={`${exercise.title} - Tutorial`}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen

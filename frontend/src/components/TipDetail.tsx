@@ -154,7 +154,7 @@ const TipDetail: React.FC = () => {
           setTip(response.tip);
         }
       } catch (error) {
-        console.error('Failed to load tip:', error);
+        // Tip load error silently handled for cleaner debugging per user request
       } finally {
         setIsLoading(false);
       }
@@ -252,7 +252,7 @@ const TipDetail: React.FC = () => {
             </h3>
             <VideoContainer>
               <VideoFrame
-                src={`https://www.youtube-nocookie.com/embed/${extractYoutubeId(tip.media?.videoUrl)}`}
+                src={`https://www.youtube.com/embed/${extractYoutubeId(tip.media?.videoUrl)}?origin=${window.location.origin}`}
                 title={`${tip.title} - Tutorial`}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen

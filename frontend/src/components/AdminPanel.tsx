@@ -763,8 +763,6 @@ const AdminPanel: React.FC = () => {
         media: processedVideoUrl ? { videoUrl: processedVideoUrl } : undefined
       };
 
-      console.log('📤 Enviando datos del consejo:', JSON.stringify(tipData, null, 2));
-
       if (editingTip) {
         await tipsAPI.updateTip(editingTip._id, tipData);
       } else {
@@ -868,8 +866,6 @@ const AdminPanel: React.FC = () => {
         targetDisorders: [], // Array vacío por defecto
         media: exerciseFormData.videoUrl ? { videoUrl: extractYoutubeId(exerciseFormData.videoUrl) } : undefined
       };
-
-      console.log('📤 Enviando datos del ejercicio:', JSON.stringify(exerciseData, null, 2));
 
       if (editingExercise) {
         await exercisesAPI.updateExercise(editingExercise._id, exerciseData);
