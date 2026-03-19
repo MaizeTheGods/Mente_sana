@@ -4,19 +4,28 @@
  * - https://www.youtube.com/watch?v=VIDEO_ID
  * - https://youtu.be/VIDEO_ID
  * - https://www.youtube.com/embed/VIDEO_ID
+ * - https://www.youtube.com/live/VIDEO_ID
+ * - https://www.youtube.com/shorts/VIDEO_ID
  * - VIDEO_ID (returns as is)
  */
 export const extractYoutubeId = (urlOrId: string | undefined): string => {
-  if (!urlOrId) return 'dQw4w9WgXcQ'; // Default placeholder (Rick Astley) or you could return empty
+  if (!urlOrId) return 'dQw4w9WgXcQ'; // Default placeholder (Rick Astley)
 
   const trimmed = urlOrId.trim();
   
-  // If it's already just an ID (11 chars, no slashes or dots usually)
-  // But let's use regex for safety
-  
-  // Regex for different formats
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  // Enhanced regex to handle watch, embed, v, youtu.be, shorts, and live
+  const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|live\/|shorts\/)|youtu\.be\/)([^"&?\/\s]{11})/i;
   const match = trimmed.match(regExp);
 
-  return (match && match[2].length === 11) ? match[2] : trimmed;
+  if (match && match[1]) {
+    return match[1];
+  }
+
+  // Fallback for raw IDs or malformed strings that look like IDs
+  // (11 chars, no common URL punctuation)
+  if (trimmed.length === 11 && !trimmed.includes('/') && !trimmed.includes('.') && !trimmed.includes(':')) {
+    return trimmed;
+  }
+  
+  return trimmed; 
 };
