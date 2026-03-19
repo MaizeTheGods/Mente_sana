@@ -51,20 +51,7 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
 
   // Status logging function - reduced verbosity
   const logMusicStatus = () => {
-    // Only log status changes, not every time
-    const status = {
-      songs: songs.length,
-      currentSong: currentSong?.title || 'None',
-      isPlaying,
-      isMuted,
-      volume
-    };
-
-    // Log only if status actually changed
-    if (JSON.stringify(status) !== JSON.stringify(lastLoggedStatus.current)) {
-      console.log('🎵 MUSIC STATUS:', status);
-      lastLoggedStatus.current = { ...status };
-    }
+    // Logging disabled per user request
   };
 
   // Detect OS
@@ -73,16 +60,6 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
     const isIOSDevice = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
     setIsIOS(isIOSDevice);
     setShouldShowMusic(!isIOSDevice); // Show music controls only on non-iOS
-
-    console.log('🎵 MUSIC SYSTEM - OS Detection:');
-    console.log('   User Agent:', userAgent);
-    console.log('   Is iOS Device:', isIOSDevice);
-    console.log('   Should Show Music:', !isIOSDevice);
-    if (isIOSDevice) {
-      console.log('   ❌ Music disabled: iOS detected - Apple blocks background audio');
-    } else {
-      console.log('   ✅ Music enabled: Non-iOS device detected');
-    }
 
     // Log initial status
     setTimeout(logMusicStatus, 100);
@@ -96,14 +73,12 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
 
     // Only load songs if user is authenticated and is admin
     if (!user || (user.role !== 'admin' && user.role !== 'owner')) {
-      console.log('🎵 Music loading skipped: User not authenticated or not admin');
       return;
     }
 
     setIsLoadingSongs(true);
     try {
       const response = await songsAPI.getSongs();
-      console.log('🎵 Found', response.songs.length, 'songs');
 
       if (response.songs.length === 0) {
         setSongs([]);
@@ -118,7 +93,7 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
 
       setTimeout(logMusicStatus, 100);
     } catch (error) {
-      console.error('🎵 Failed to load songs:', error instanceof Error ? error.message : String(error));
+      // Error logging disabled per user request
     } finally {
       setIsLoadingSongs(false);
     }
@@ -126,15 +101,10 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
 
   // Initialize audio element
   useEffect(() => {
-    console.log('🎵 MUSIC SYSTEM - Initializing audio element...');
     if (!audioRef.current) {
       audioRef.current = new Audio();
       audioRef.current.volume = volume;
       audioRef.current.loop = false; // We'll handle playlist looping manually
-
-      console.log('🎵 MUSIC SYSTEM - ✅ Audio element created');
-      console.log('   Initial volume:', volume);
-      console.log('   Loop disabled (playlist mode)');
 
       // Handle song end - play next
       audioRef.current.addEventListener('ended', () => {
@@ -143,14 +113,12 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
 
       // Handle errors
       audioRef.current.addEventListener('error', (e) => {
-        console.error('🎵 Audio error, skipping to next');
         next();
       });
     }
 
     return () => {
       if (audioRef.current) {
-        console.log('🎵 MUSIC SYSTEM - 🧹 Cleaning up audio element...');
         audioRef.current.pause();
         audioRef.current = null;
       }
@@ -181,18 +149,15 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
 
   const play = () => {
     if (!shouldShowMusic || !currentSong || !audioRef.current) {
-      console.log('🎵 Cannot play: conditions not met');
       return;
     }
 
     audioRef.current.play()
       .then(() => {
-        console.log('🎵 Playback started:', currentSong.title);
         setIsPlaying(true);
         setTimeout(logMusicStatus, 100);
       })
       .catch(e => {
-        console.error('🎵 Play failed:', e.message);
         setIsPlaying(false);
         setTimeout(logMusicStatus, 100);
       });
@@ -202,7 +167,6 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
     if (audioRef.current) {
       audioRef.current.pause();
       setIsPlaying(false);
-      console.log('🎵 Music paused');
       setTimeout(logMusicStatus, 100);
     }
   };
@@ -243,7 +207,6 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
   useEffect(() => {
     if (!user || (user.role !== 'admin' && user.role !== 'owner')) {
       if (songs.length > 0) {
-        console.log('🎵 Clearing songs: User logged out or no longer admin');
         setSongs([]);
         setCurrentSong(null);
         setIsPlaying(false);

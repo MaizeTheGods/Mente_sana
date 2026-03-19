@@ -203,11 +203,7 @@ export const authAPI = {
     dateOfBirth: string;
     gender: string;
   }): Promise<AuthResponse> => {
-    console.log('API_BASE_URL:', API_BASE_URL);
-    console.log('Making register request to:', `${API_BASE_URL}/auth/register`);
-    console.log('With data:', userData);
     const response = await api.post('/auth/register', userData);
-    console.log('Register response:', response);
     return response.data;
   },
 
@@ -244,9 +240,7 @@ export const questionnaireAPI = {
     recommendations: QuestionnaireResult['recommendations'];
     createdAt: string;
   }> => {
-    console.log('Submitting questionnaire with data:', JSON.stringify(data, null, 2));
     const response = await api.post('/questionnaire/submit', data);
-    console.log('Questionnaire submission response:', response);
     return response.data;
   },
 
