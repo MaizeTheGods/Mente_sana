@@ -18,6 +18,7 @@ import { Line, Doughnut } from 'react-chartjs-2';
 import { tipsAPI, exercisesAPI, uploadsAPI, songsAPI, reelsAPI, Tip, Category, Song, Reel } from '../services/api';
 import { Card } from './SharedStyles';
 import api from '../services/api';
+import { extractYoutubeId } from '../utils/youtubeUtils';
 
 // Avatar Categories API functions
 const avatarCategoriesAPI = {
@@ -752,16 +753,8 @@ const AdminPanel: React.FC = () => {
         return;
       }
 
-      // Procesar URL de YouTube si es necesario
-      let processedVideoUrl = formData.videoUrl;
-      if (formData.videoUrl && (formData.videoUrl.includes('youtube.com/watch?v=') || formData.videoUrl.includes('youtu.be/'))) {
-        try {
-          const url = new URL(formData.videoUrl.includes('youtu.be/') ? formData.videoUrl.replace('youtu.be/', 'youtube.com/watch?v=') : formData.videoUrl);
-          processedVideoUrl = url.searchParams.get('v') || formData.videoUrl.split('/').pop() || formData.videoUrl;
-        } catch (error) {
-          console.warn('Error procesando URL de YouTube, usando valor original:', error);
-        }
-      }
+      // Procesar URL de YouTube usando la utilidad centralizada
+      const processedVideoUrl = formData.videoUrl ? extractYoutubeId(formData.videoUrl) : '';
 
       const tipData = {
         title: formData.title.trim(),
@@ -873,7 +866,7 @@ const AdminPanel: React.FC = () => {
         instructions: instructionsArray,
         difficulty: 'beginner', // Valor por defecto
         targetDisorders: [], // Array vacío por defecto
-        media: exerciseFormData.videoUrl ? { videoUrl: exerciseFormData.videoUrl } : undefined
+        media: exerciseFormData.videoUrl ? { videoUrl: extractYoutubeId(exerciseFormData.videoUrl) } : undefined
       };
 
       console.log('📤 Enviando datos del ejercicio:', JSON.stringify(exerciseData, null, 2));
